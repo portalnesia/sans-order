@@ -1,0 +1,43 @@
+{
+  "General":{
+    "wait":"Please wait",
+    "error":"Something went wrong"
+  },
+  "Landing":{
+    "section1":{
+      "start":"Start Your Business",
+      "with":"with",
+      "desc":"Smart Order System for Your Business"
+    },
+    "section2":{
+      "start":"How {name} will help you?"
+    }
+  },
+  "Menu":{
+    "home":"Home",
+    "pricing":"Pricing",
+    "contact":"Contact",
+    "start":"START",
+    "dashboard":"DASHBOARD",
+    "profile":"Profile",
+    "setting":"Setting",
+    "logout":"Logout"
+  },
+  "Login":{
+    "hi":"Hi, Welcome Back",
+    "signin":"Sign in with Portalnesia",
+    "not_register":"Don’t have an account?",
+    "register":"Register Now",
+    "sign":"Signin"
+  },
+  "Subcribe":{
+    "title":"You Haven't Subcribed Yet!",
+    "month":"Month",
+    "subcribe_now":"Subcribe Now",
+    "subcribe":"Subcribe",
+    "feature":{
+      "title":"Features",
+      "free":"{qty} month free"
+    }
+  }
+}

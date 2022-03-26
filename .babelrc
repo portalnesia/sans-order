@@ -1,0 +1,20 @@
+{
+  "comments": false,
+  "presets": [
+    "next/babel"
+  ],
+  "plugins": [
+    ["babel-plugin-direct-import",{
+      "modules": ["@mui/material","@mui/icons-material","@mui/lab","@mui/styles"]
+    }],
+    "@emotion"
+  ],
+  "env": {
+    "production": {
+      "plugins": [
+        "transform-react-remove-prop-types",
+        ["minify-dead-code-elimination"]
+      ]
+    }
+  }
+}
