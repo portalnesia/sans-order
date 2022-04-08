@@ -13,6 +13,7 @@ import Backdrop from '@comp/Backdrop'
 import Image from '@comp/Image'
 import Popover from '@comp/Popover'
 import {IOutlet,IPages,ResponsePagination,IProduct, IItems} from '@type/index'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import {wrapper,useSelector,State} from '@redux/index'
 import {useTranslations} from 'next-intl';
 import useSWR from '@utils/swr';
@@ -25,7 +26,9 @@ import Search from '@comp/Search'
 import {getDayJs} from '@utils/Main'
 import {useMousetrap} from '@utils/useKeys'
 import dynamic from 'next/dynamic'
+import usePagination from '@comp/TablePagination'
 import { numberFormat } from '@portalnesia/utils';
+import handlePrint from '@utils/print';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -57,8 +60,34 @@ interface PayProps {
   id?: string
 }
 
-function handlePrint(toko_id: string,outlet_id: string,token: string) {
-  return window.open(`${process.env.API_URL}/toko/${toko_id}/${outlet_id}/print/${token}`)
+function DateTime() {
+  const t = useTranslations();
+  const router = useRouter();
+  const user = useSelector<State['user']>(t=>t.user);
+  const locale = router.locale||'en';
+  const [date,setDate] = React.useState(DATE.locale(locale).pn_format('fulldate'));
+  const [time,setTime] = React.useState(DATE.format("HH:mm:ss"));
+
+  React.useEffect(()=>{
+    let interval = setInterval(()=>{
+      const date = getDayJs().locale(locale).pn_format('fulldate')
+      const time = getDayJs().format("HH:mm:ss");
+      setDate(date);
+      setTime(time);
+    },1000);
+
+    return ()=>{
+      clearInterval(interval);
+    }
+  },[locale])
+
+  return (
+    <>
+      <Typography variant='h3'>{time}</Typography>
+      <Typography>{date}</Typography>
+      <Typography>{`${t("Menu.cashier")}: ${user ? user.name : ''}`}</Typography>
+    </>
+  )
 }
 
 function DialogPay({items,total,open,onClose,captchaRef,id,onSuccess}: PayProps) {
@@ -154,17 +183,14 @@ function DialogPay({items,total,open,onClose,captchaRef,id,onSuccess}: PayProps)
 function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
   const t = useTranslations();
   const router = useRouter();
-  const user = useSelector<State['user']>(t=>t.user);
   const [dPay,setDPay] = React.useState(false);
-  const locale = router.locale||'en';
   const [dialog,setDialog] = React.useState(false)
   const {toko_id,outlet_id} = router.query;
-  const [date,setDate] = React.useState(DATE.locale(locale).pn_format('fulldate'));
-  const [time,setTime] = React.useState(DATE.format("HH:mm:ss"));
   const {data,error} = useSWR<IIProduct[]>(`/toko/${toko_id}/${outlet_id}/items/cashier?page=1&per_page=100`);
   const [items,setItems] = React.useState<IIProduct[]>([]);
   const [search,setSearch] = React.useState<IIProduct[]|null>(null);
   const [searchVal,setSearchVal] = React.useState("");
+  const isAutosize = useMediaQuery('(min-width:543px)')
 
   const productItems = React.useMemo(()=>{
     if(search !== null) return search;
@@ -198,9 +224,12 @@ function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
   const handleSearch = React.useCallback((e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement>)=>{
     const s = e.target.value;
     setSearchVal(s);
+    if(s.length === 0) {
+      setSearch(null);
+      return;
+    }
     const it = items.filter(f=>f.name.toLowerCase().indexOf(s.toLowerCase()) > -1);
-    if(it.length > 0) setSearch(it);
-    else setSearch(null);
+    setSearch(it);
   },[items])
 
   const handleSearchRemove = React.useCallback(()=>{
@@ -234,19 +263,6 @@ function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
   },[data,toko_id,outlet_id])
 
   React.useEffect(()=>{
-    let interval = setInterval(()=>{
-      const date = getDayJs().locale(locale).pn_format('fulldate')
-      const time = getDayJs().format("HH:mm:ss");
-      setDate(date);
-      setTime(time);
-    },1000);
-
-    return ()=>{
-      clearInterval(interval);
-    }
-  },[locale])
-
-  React.useEffect(()=>{
     if(data) {
       const items = data.map(d=>({...d,qty:0}));
       setItems(items);
@@ -265,9 +281,7 @@ function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
         <Box>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
-              <Typography variant='h3'>{time}</Typography>
-              <Typography>{date}</Typography>
-              <Typography>{`${t("Menu.cashier")}: ${user ? user.name : ''}`}</Typography>
+              <DateTime />
             </Grid>
             <Grid item xs={12} md={6}>
               <Box position='relative' py={3} px={3} display='flex' justifyContent='flex-end'>
@@ -347,13 +361,10 @@ function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
       <Dialog open={dialog} maxWidth='lg' handleClose={closeDialog}>
         <DialogTitle>
           <Box className='flex-header'>
-            <Typography variant='h4' component='h4'>{t("Menu.products")}</Typography>
+            <Search autosize={isAutosize} remove value={searchVal} onchange={handleSearch} onremove={handleSearchRemove} />
             <IconButton onClick={closeDialog}>
               <Close />
             </IconButton>
-          </Box>
-          <Box>
-            <Search autosize remove value={searchVal} onchange={handleSearch} onremove={handleSearchRemove} />
           </Box>
         </DialogTitle>
         <DialogContent>
@@ -402,6 +413,18 @@ function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
       <DialogPay items={selected} total={total} open={dPay} onClose={()=>setDPay(false)} captchaRef={captchaRef} onSuccess={onSuccess} />
     </>
   )
+}
+
+function OutletSelfOrder() {
+  const t = useTranslations();
+  const router = useRouter();
+  const [dPay,setDPay] = React.useState(false);
+  const {toko_id,outlet_id} = router.query;
+  const {page,rowsPerPage,...pagination} = usePagination();
+  //const {data,error} = useSWR<IIProduct[]>(`/toko/${toko_id}/${outlet_id}/transactions/pending?page=${page}&per_page=${rowsPerPage}`);
+  const [search,setSearch] = React.useState("");
+
+
 }
 
 export default function OutletCashierGeneral({meta}: IPages) {

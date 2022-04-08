@@ -31,19 +31,17 @@ const SearchStyle = styled('div')(({theme})=>({
     pointerEvents: 'none',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
 }))
 
 const DeleteStyle = styled('div')<{focused?:boolean}>(({theme,focused})=>({
     width: theme.spacing(5),
     height: '100%',
     position: 'absolute',
-    display: 'none',
     alignItems: 'center',
     justifyContent: 'center',
-    right:0,
     cursor:'pointer',
-    ...(focused ? {display:'flex'} : {})
+    display:'dlex'
 }))
 
 const InputStyle = styled('input')<{removed?:boolean,autoresize?:boolean}>(({theme,removed,autoresize})=>({
@@ -105,8 +103,10 @@ export default function Search({onsubmit,onremove,onchange,remove=false,value,au
 
     const handleSubmit=React.useCallback((e: React.FormEvent<HTMLFormElement>)=>{
         if(e?.preventDefault) e.preventDefault();
-        setAnchor(null)
-        if(onsubmit) onsubmit(e);
+        if(onsubmit) {
+            setAnchor(null)
+            onsubmit(e);
+        }
     },[onsubmit])
 
     return (
@@ -114,15 +114,16 @@ export default function Search({onsubmit,onremove,onchange,remove=false,value,au
             {autosize ? (
                 <form onSubmit={handleSubmit}>
                     <Wrapper autoresize>
-                        <SearchStyle>
-                            <SearchIcon />
-                        </SearchStyle>
-                        {remove && (
+                        {remove && value?.length > 0? (
                             <DeleteStyle focused={value?.length > 0 }>
-                                <IconButton onClick={handleRemove} size="large">
+                                <IconButton onClick={handleRemove} size="small">
                                     <ClearIcon />
                                 </IconButton>
                             </DeleteStyle>
+                        ) : (
+                            <SearchStyle>
+                                <SearchIcon />
+                            </SearchStyle>
                         )}
                         <InputStyle ref={inputRef} sx={sx} autoresize removed={remove && value?.length > 0} placeholder="Search" value={value} onChange={onchange} />
                     </Wrapper>
@@ -149,15 +150,16 @@ export default function Search({onsubmit,onremove,onchange,remove=false,value,au
                     >
                         <form onSubmit={handleSubmit}>
                             <Wrapper sx={{width:`calc(100vw - 30px)`}}>
-                                <SearchStyle>
-                                    <SearchIcon />
-                                </SearchStyle>
-                                {remove && (
-                                    <DeleteStyle focused={value?.length > 0}>
-                                        <IconButton onClick={handleRemove} size="large">
+                                {remove && value?.length > 0? (
+                                    <DeleteStyle focused={value?.length > 0 }>
+                                        <IconButton onClick={handleRemove} size="small">
                                             <ClearIcon />
                                         </IconButton>
                                     </DeleteStyle>
+                                ) : (
+                                    <SearchStyle>
+                                        <SearchIcon />
+                                    </SearchStyle>
                                 )}
                                 <InputStyle ref={inputRef} sx={sx} removed={remove && value?.length > 0} placeholder="Search" value={value} onChange={onchange} />
                             </Wrapper>

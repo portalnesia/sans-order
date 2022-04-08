@@ -24,6 +24,7 @@ import Scrollbar from '@comp/Scrollbar'
 import Avatar from '@comp/Avatar'
 import Label from '@comp/Label'
 import {useMousetrap} from '@utils/useKeys'
+import usePagination from '@comp/TablePagination'
 import dynamic from 'next/dynamic'
 import { numberFormat } from '@portalnesia/utils';
 
@@ -257,15 +258,14 @@ export default function OutletProducts({meta}: IPages) {
   const setNotif = useNotif();
   const {toko_id,outlet_id} = router.query;
   const {outlet} = useOutlet(toko_id,outlet_id);
-  const [page,setPage] = React.useState(1);
-  const [rowPerPage,setRowPerPage] = React.useState(25);
+  const {page,rowsPerPage,...pagination} = usePagination();
   const [input,setInput] = React.useState<IInputProduct>(DEFAULT_INPUT);
   const [dCreate,setDCreate] = React.useState(false);
   const [dEdit,setDEdit] = React.useState<IProduct|null>(null);
   const [dDelete,setDDelete] = React.useState<IProduct|null|boolean>(null);
   const [loading,setLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<IProduct[]>([]);
-  const {data,error,mutate} = useSWR<ResponsePagination<IProduct>>(`/toko/${toko_id}/${outlet_id}/items?page=${page}&per_page=${rowPerPage}`);
+  const {data,error,mutate} = useSWR<ResponsePagination<IProduct>>(`/toko/${toko_id}/${outlet_id}/items?page=${page}&per_page=${rowsPerPage}`);
   const [browser,setBrowser] = React.useState(false);
   const captchaRef = React.useRef<Recaptcha>(null);
 
@@ -296,15 +296,6 @@ export default function OutletProducts({meta}: IPages) {
     }
     setSelected(newSelected);
   },[selected]);
-
-  const handleChangePage = React.useCallback((_e: any, newPage: number) => {
-    setPage(newPage+1);
-  },[]);
-
-  const handleChangeRowsPerPage = React.useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setRowPerPage(parseInt(event.target.value, 10));
-    setPage(1);
-  },[]);
 
   const handleSelectedImage=React.useCallback((image: string|null)=>{
     setInput(p=>({...p,image}))
@@ -479,13 +470,10 @@ export default function OutletProducts({meta}: IPages) {
               </Table>
             </Scrollbar>
             <TablePagination
-              rowsPerPageOptions={[10, 25, 50]}
-              component="div"
               count={data?.total||0}
-              rowsPerPage={rowPerPage}
+              rowsPerPage={rowsPerPage}
               page={page-1}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
+              {...pagination}
             />
           </Card>
         </Container>

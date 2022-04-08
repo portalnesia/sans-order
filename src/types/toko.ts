@@ -92,8 +92,10 @@ export type ITransaction<D=any> = {
   platform_fees: number,
   metadata: D|null,
   cashier?: string,
-  type:'self_order'|'cashier'
+  type:'self_order'|'cashier',
+  token_print?: string
 }
+
 
 export interface TransactionsDetail<D=any> extends ITransaction<D> {
   toko:IOutlet

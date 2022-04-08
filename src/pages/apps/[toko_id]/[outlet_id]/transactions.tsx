@@ -3,6 +3,7 @@ import { Box, Grid, Container, Typography,Tooltip,IconButton,TextField, Card, Fo
 import {ExpandMore as ExpandMoreIcon} from '@mui/icons-material'
 import {DatePicker,LocalizationProvider} from '@mui/lab'
 import AdapterDayjs from '@mui/lab/AdapterDayjs'
+import useMediaQuery from '@mui/material/useMediaQuery'
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/dashboard/index'
@@ -23,13 +24,14 @@ import Iconify from '@comp/Iconify';
 import MenuPopover from '@comp/MenuPopover'
 import useOutlet from '@utils/useOutlet'
 import Scrollbar from '@comp/Scrollbar'
-import Avatar from '@comp/Avatar'
+import Search from '@comp/Search'
+import usePagination from '@comp/TablePagination'
 import Label from '@comp/Label'
 import ExpandMore from '@comp/ExpandMore'
 import dynamic from 'next/dynamic'
 import { numberFormat } from '@portalnesia/utils';
 import { getDayJs } from '@utils/Main';
-
+import handlePrint from '@utils/print';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -40,8 +42,39 @@ const Browser = dynamic(()=>import('@comp/Browser'),{ssr:false})
 
 export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true}})
 
-function handlePrint(toko_id: string,outlet_id: string,token: string) {
-  return window.open(`${process.env.API_URL}/toko/${toko_id}/${outlet_id}/print/${token}`)
+interface IMenu {
+  data: TransactionsDetail
+  disabled?: boolean
+}
+
+function Menu({data,disabled}: IMenu) {
+  const ref=React.useRef(null);
+  const [open,setOpen] = React.useState(false);
+  const router = useRouter();
+  const {toko_id,outlet_id} = router.query;
+
+  const onPrint=React.useCallback(()=>{
+    if(data.token_print) {
+      handlePrint(toko_id as string,outlet_id as string,data.token_print);
+    }
+  },[data.token_print,toko_id,outlet_id])
+
+  return (
+    <>
+      <IconButton ref={ref} onClick={() => setOpen(true)}>
+        <Iconify icon="eva:more-vertical-fill" width={20} height={20} />
+      </IconButton>
+
+      <MenuPopover open={open} onClose={()=>setOpen(false)} anchorEl={ref.current} paperSx={{py:1}}>
+        <MenuItem disabled={!!disabled} sx={{ color: 'text.secondary',py:1 }} onClick={onPrint}>
+          <ListItemIcon>
+            <Iconify icon="fluent:print-20-filled" width={24} height={24} />
+          </ListItemIcon>
+          <ListItemText primary="Print" primaryTypographyProps={{ variant: 'body2' }} />
+        </MenuItem>
+      </MenuPopover>
+    </>
+  )
 }
 
 function TableTr({data}: {data: TransactionsDetail}) {
@@ -70,7 +103,7 @@ function TableTr({data}: {data: TransactionsDetail}) {
         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.subtotal}`)}`}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.disscount}`)}`}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.total}`)}`}</TableCell>
-        <TableCell sx={{whiteSpace:'nowrap'}} align='center'></TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Menu data={data} /></TableCell>
       </TableRow>
       <TableRow key={`transactions-details-${data.id}`} tabIndex={-1}>
         <TableCell colSpan={7} sx={{py:0}}>
@@ -132,26 +165,40 @@ export default function OutletTransactions({meta}: IPages){
   const t = useTranslations();
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
-  const [page,setPage] = React.useState(1);
-  const [rowPerPage,setRowPerPage] = React.useState(25);
+  const {page,rowsPerPage,...pagination} = usePagination();
   const [query,setQuery]=React.useState<{filter:string,from:null|number,to:null|number}>({filter:'monthly',from:null,to:null})
   const [range,setRange]=React.useState({from:getDayJs().subtract(1, 'month'),to:getDayJs()})
   const [dFilter,setDFilter] = React.useState(false);
   const [dRange,setDRange] = React.useState(false);
+  const [searchVal,setSearchVal] = React.useState('');
+  const [search,setSearch] = React.useState<TransactionsDetail[]|undefined>(undefined);
+  const is543 = useMediaQuery('(min-width:543px)')
+  const {data,error} = useSWR<ResponsePagination<TransactionsDetail>>(`/toko/${toko_id}/${outlet_id}/transactions?page=${page}&per_page=${rowsPerPage}&filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}`)
 
-  const {data,error} = useSWR<ResponsePagination<TransactionsDetail>>(`/toko/${toko_id}/${outlet_id}/transactions?page=${page}&per_page=${rowPerPage}&filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}`)
+  const items = React.useMemo(()=>{
+    if(search) return search;
+    if(data) return data.data;
+    return [];
+  },[data,search])
 
   const filterRef = React.useRef(null);
   const rangeRef = React.useRef(null);
 
-  const handleChangePage = React.useCallback((_e: any, newPage: number) => {
-    setPage(newPage+1);
-  },[]);
+  const handleSearch = React.useCallback((e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement>)=>{
+    const s = e.target.value;
+    setSearchVal(s);
+    if(s.length === 0) {
+      setSearch(undefined);
+      return;
+    }
+    const it = (data ? data.data : []).filter(f=>f.id.toLowerCase().indexOf(s.toLowerCase()) > -1);
+    setSearch(it);
+  },[data])
 
-  const handleChangeRowsPerPage = React.useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setRowPerPage(parseInt(event.target.value, 10));
-    setPage(1);
-  },[]);
+  const handleSearchRemove = React.useCallback(()=>{
+    setSearchVal("")
+    setSearch(undefined);
+  },[])
 
   const handleChange=React.useCallback((filter:'monthly'|'weekly'|'daily'|'custom')=>()=>{
     if(filter!=='custom') {
@@ -241,6 +288,12 @@ export default function OutletTransactions({meta}: IPages){
               </MenuPopover>
             </Box>
             <Card>
+              <Box sx={{p:2}}>
+                <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
+                  <Search autosize={is543} remove value={searchVal} onchange={handleSearch} onremove={handleSearchRemove} />
+                  <Button icon='download'>Download</Button>
+                </Stack>
+              </Box>
               <Scrollbar>
                 <Table>
                   <TableHead>
@@ -255,32 +308,29 @@ export default function OutletTransactions({meta}: IPages){
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {!data && !error ? (
-                      <TableRow>
-                        <TableCell align="center" colSpan={7} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
-                      </TableRow>
-                    ) : error ? (
+                    {error ? (
                       <TableRow>
                         <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{error?.message}</Typography></TableCell>
                       </TableRow>
-                    ) : data?.data && data?.data?.length === 0 ? (
+                    ) : !data && !error || !items ? (
+                      <TableRow>
+                        <TableCell align="center" colSpan={7} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
+                      </TableRow>
+                    ) : items?.length === 0 ? (
                       <TableRow>
                         <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{t("General.no",{what:t("Menu.transactions")})}</Typography></TableCell>
                       </TableRow>
-                    ) : data?.data?.map((d)=>(
+                    ) : items?.map((d)=>(
                       <TableTr key={`transaction-${d.id}`} data={d} />
                     ))}
                   </TableBody>
                 </Table>
               </Scrollbar>
               <TablePagination
-                rowsPerPageOptions={[10, 25, 50]}
-                component="div"
                 count={data?.total||0}
-                rowsPerPage={rowPerPage}
+                rowsPerPage={rowsPerPage}
                 page={page-1}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
+                {...pagination}
               />
             </Card>
           </Container>

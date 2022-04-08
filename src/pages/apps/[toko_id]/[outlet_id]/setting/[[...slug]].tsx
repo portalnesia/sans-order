@@ -20,6 +20,7 @@ import Iconify from '@comp/Iconify';
 import MenuPopover from '@comp/MenuPopover'
 import useOutlet from '@utils/useOutlet'
 import Scrollbar from '@comp/Scrollbar'
+import usePagination from '@comp/TablePagination'
 import Avatar from '@comp/Avatar'
 import Label from '@comp/Label'
 import dynamic from 'next/dynamic'
@@ -248,24 +249,15 @@ export function TeamSetting() {
   const setNotif = useNotif();
   const {toko_id,outlet_id} = router.query;
   const {outlet} = useOutlet(toko_id,outlet_id);
-  const [page,setPage] = React.useState(1);
-  const [rowPerPage,setRowPerPage] = React.useState(25);
+  const {page,rowsPerPage,...pagination} = usePagination();
   const [iCreate,setICreate] = React.useState<{email: string,admin: boolean}>({email:'',admin:false})
   const [iEdit,setIEdit] = React.useState<boolean>(false)
   const [dCreate,setDCreate] = React.useState(false);
   const [dEdit,setDEdit] = React.useState<TokoUsers|null>(null);
   const [dDelete,setDDelete] = React.useState<TokoUsers|null>(null);
   const [loading,setLoading] = React.useState(false);
-  const {data,error,mutate} = useSWR<ResponsePagination<TokoUsers>>(`/toko/${toko_id}/${outlet_id}/users?page=${page}&per_page=${rowPerPage}`);
+  const {data,error,mutate} = useSWR<ResponsePagination<TokoUsers>>(`/toko/${toko_id}/${outlet_id}/users?page=${page}&per_page=${rowsPerPage}`);
   const captchaRef = React.useRef<Recaptcha>(null);
-  const handleChangePage = React.useCallback((_e: any, newPage: number) => {
-    setPage(newPage+1);
-  },[]);
-
-  const handleChangeRowsPerPage = React.useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setRowPerPage(parseInt(event.target.value, 10));
-    setPage(1);
-  },[]);
 
   const buttonCreate=React.useCallback(()=>{
     setICreate({email:'',admin:false});
@@ -380,13 +372,10 @@ export function TeamSetting() {
         </Table>
       </Scrollbar>
       <TablePagination
-        rowsPerPageOptions={[10, 25, 50]}
-        component="div"
         count={data?.total||0}
-        rowsPerPage={rowPerPage}
+        rowsPerPage={rowsPerPage}
         page={page-1}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        {...pagination}
       />
 
       <Dialog loading={loading} open={dCreate} handleClose={()=>setDCreate(false)}>
