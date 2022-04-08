@@ -8,6 +8,7 @@ import { Box, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
 //import account from '../../_mocks_/account';
 // hooks
 import useResponsive from '@comp/useResponsive';
+import {useTranslations} from 'next-intl'
 // components
 import Logo from '../../components/Logo';
 import Scrollbar from '../../components/Scrollbar';
@@ -37,13 +38,15 @@ const AccountStyle = styled('div')(({ theme }) => ({
 
 export interface DashboardSidebarProps {
   isOpenSidebar: boolean,
-  onCloseSidebar(): void
+  onCloseSidebar(): void,
+  title?: string,
+  subtitle?: string
 };
 
-export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }: DashboardSidebarProps) {
+export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title, subtitle }: DashboardSidebarProps) {
   const router = useRouter();
   const pathname = router.pathname;
-
+  const t = useTranslations();
   const isDesktop = useResponsive('up', 'lg');
 
   useEffect(() => {
@@ -61,24 +64,26 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }: Dash
       }}
     >
       <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
-        <Logo />
+        <Logo href='/apps' />
       </Box>
 
-      <Box sx={{ mb: 5, mx: 2.5 }}>
+      {title && subtitle && (
+        <Box sx={{ mb: 5, mx: 2.5 }}>
           <AccountStyle>
             {/*<Avatar src={account.photoURL} alt="photoURL" />*/}
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                DISPLAY NAME
+                {title}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                ROLE
+                {subtitle}
               </Typography>
             </Box>
           </AccountStyle>
-      </Box>
+        </Box>
+      )}
 
-      <NavSection navConfig={sidebarConfig} />
+      <NavSection navConfig={sidebarConfig(t,router)} />
 
       <Box sx={{ flexGrow: 1 }} />
 

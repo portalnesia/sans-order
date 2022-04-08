@@ -1,5 +1,5 @@
 // material
-import { Box, Grid, Container, Typography,styled,Card,CardContent,CardActions,Divider,List,ListItemText,ListItem,Collapse,IconButton,IconButtonProps } from '@mui/material';
+import { Box, Grid, Container, Typography,styled,Card,CardContent,CardActions,Divider,List,ListItemText,ListItem,Collapse,IconButton,IconButtonProps,ListItemIcon } from '@mui/material';
 import {ExpandMore as ExpandMoreIcon} from '@mui/icons-material'
 // components
 import Header from '../components/Header';
@@ -13,6 +13,7 @@ import Button from '@comp/Button'
 import useSWR from '@utils/swr'
 import {Circular} from '@comp/Loading'
 import Label from '@comp/Label'
+import Iconify from '@comp/Iconify'
 
 export const getStaticProps = staticProps();
 
@@ -31,28 +32,52 @@ const ExpandMore = styled((props: ExpandMoreProps)=>{
   })
 }))
 
-const PACKAGES = (t: ReturnType<typeof useTranslations>)=>([
+const FEATURES = (t: ReturnType<typeof useTranslations>)=>([
+  `${t("Subcribe.feature.free",{qty:1})}*`,
+  t("Subcribe.feature.order_system"),
+  `${t("Subcribe.feature.table_number")}**`,
+  t("Subcribe.feature.banner"),
+  t("Subcribe.feature.cashier_system"),
+  t("Subcribe.feature.media_promotion")
+])
+
+const PACKAGES = [
   {
     id:"toko_1",
     name:"Bronze",
     features:[
-      `${t("Subcribe.feature.free",{qty:1})}*`
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
     ]
   },{
     id:"toko_2",
     name:"Platinum",
     recommend:false,
     features:[
-      `${t("Subcribe.feature.free",{qty:1})}*`
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
     ]
   },{
     id:"toko_3",
     name:'Gold',
     features:[
-      `${t("Subcribe.feature.free",{qty:1})}*`
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
     ]
   }
-])
+]
 
 type IProduct = {
   price: number,
@@ -71,7 +96,8 @@ function PricingSection({item}: SectionProps) {
   const t = useTranslations();
   const [expand,setExpand] = React.useState(false)
   const {price,disscount,metadata:{id,qty}} = item
-  const packages = React.useMemo(()=>PACKAGES(t).find(p=>p.id === id),[id,t])
+  const packages = React.useMemo(()=>PACKAGES.find(p=>p.id === id),[id])
+  const fitur = React.useMemo(()=>FEATURES(t),[t])
 
   if(!packages) return null;
   const {name,features,recommend}=packages;
@@ -117,18 +143,18 @@ function PricingSection({item}: SectionProps) {
                       textTransform: 'uppercase'
                     }}
                   >
-                    {`${(price/(price-disscount)).toFixed(2)}% OFF`}
+                    {`${((price/qty)/((price/qty)-(disscount/qty))).toFixed(2)}% OFF`}
                   </Label>
                 </Box>
                 <Box display='flex' justifyContent='center' alignItems='flex-start'>
                   <Typography component='span' sx={{fontWeight:'bold',mr:1}}>IDR </Typography>
-                  <Typography variant='h4' component='h4'>{`${numberFormat(`${price-disscount}`)}`}</Typography>
+                  <Typography variant='h4' component='h4'>{`${numberFormat(`${Math.round((price/qty)-(disscount/qty))}`)}`}<Typography component='span' variant='body2'>{`/${t("Subcribe.month")}`}</Typography></Typography>
                 </Box>
               </>
             ) : (
               <Box display='flex' justifyContent='center' alignItems='flex-start'>
                 <Typography component='span' sx={{fontWeight:'bold',mr:1}}>IDR </Typography>
-                <Typography variant='h4' component='h4'>{`${numberFormat(`${price}`)}`}</Typography>
+                <Typography variant='h4' component='h4'>{`${numberFormat(`${Math.round(price/qty)}`)}`}<Typography component='span' variant='body2'>{`/${t("Subcribe.month")}`}</Typography></Typography>
               </Box>
             )}
             
@@ -153,7 +179,10 @@ function PricingSection({item}: SectionProps) {
             <List>
               {features.map((f,i)=>(
                 <ListItem key={`features-${i}`}>
-                  <ListItemText primary={f} />
+                  <ListItemIcon>
+                    <Iconify icon={f ? 'akar-icons:circle-check':'akar-icons:circle-x'} sx={{color:f ? 'primary.main' : 'error.main'}} />
+                  </ListItemIcon>
+                  <ListItemText primary={fitur[i]} />
                 </ListItem>
               ))}
             </List>
@@ -182,22 +211,30 @@ export default function PricingApp() {
     <Header title={t("Menu.pricing")}>
       <Dashboard>
         <Container maxWidth='xl'>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Box textAlign='center' mb={4}>
-                <Typography variant='h1' component='h1'>{t("Menu.pricing")}</Typography>
+          <Box textAlign='center' mb={4}>
+            <Typography variant='h1' component='h1'>{t("Menu.pricing")}</Typography>
+          </Box>
+
+          {(!data && !error || !data) ? (
+            <Circular />
+          ) : error ? (
+            <Box display='flex' alignItems='center' flexGrow='1' justifyContent='center'>
+              <Typography variant='h3' component='h3'>{error?.message}</Typography>
+            </Box>
+          ) : (
+            <>
+              <Grid container spacing={2}>
+                {data?.map(d=>(
+                  <PricingSection key={`pricing-${d.metadata.id}`} item={d} />
+                ))}
+              </Grid>
+              <Divider sx={{mt:7}} />
+              <Box mt={7}>
+                <Typography sx={{color:'text.disabled'}}>{`* ${t("Subcribe.feature.first_free")}`}</Typography>
+                <Typography sx={{color:'text.disabled'}}>{`** ${t("Subcribe.feature.max_table_number")}`}</Typography>
               </Box>
-            </Grid>
-            {!data && !error ? (
-              <Circular />
-            ) : error ? (
-              <Box display='flex' alignItems='center' flexGrow='1' justifyContent='center'>
-                <Typography variant='h3' component='h3'>{error?.message}</Typography>
-              </Box>
-            ) : data?.map(d=>(
-              <PricingSection key={`pricing-${d.metadata.id}`} item={d} />
-            ))}
-          </Grid>
+            </>
+          )}
         </Container>
       </Dashboard>
     </Header>

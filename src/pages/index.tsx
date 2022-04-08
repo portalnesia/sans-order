@@ -56,10 +56,6 @@ function Section({children,color,isFirst,isLast,sx}: SectionProps) {
 
 export default function DashboardApp() {
   const t = useTranslations();
-
-  React.useEffect(()=>{
-    console.log("NOW",Math.floor(new Date().getTime()/1000))
-  },[])
   
   return (
     <Header title={t("Menu.home")}>

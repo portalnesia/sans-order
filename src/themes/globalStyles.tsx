@@ -68,6 +68,27 @@ export default function GlobalStyles() {
         '.blur-up.lazyloaded ': {
           WebkitFilter: 'blur(0)',
           filter: 'blur(0)'
+        },
+        '.flex-header':{
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'space-between'
+        },
+        '.image-container': {
+          borderRadius:'.525rem',
+          objectFit:'cover',
+          objectPosition:'center',
+          opacity: 1,
+          WebkitTransition: '.3s ease-in-out',
+          transition: '.3s ease-in-out',
+          '&:hover':{
+            opacity:'0.6 !important',
+          }
+        },
+        '#nprogress .bar':{
+          background: `${theme.palette.primary.main} !important`,
+          zIndex: '9999  !important',
+          height: '4px !important',
         }
       }}
     />

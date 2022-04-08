@@ -5,6 +5,7 @@ import HomeNavbar from './Navbar';
 import Footer from './Footer'
 import loadingImage from '@comp/loading-image-base64'
 import useInitData from '@utils/init-data'
+import { useSelector } from '@redux/store';
 
 
 
@@ -40,7 +41,8 @@ export interface HomeProps {
 }
 
 export default function HomeLayout({children,withPadding=true,withNavbar=true}: HomeProps) {
-  const {loaded,adBlock} = useInitData();
+  const loaded = useSelector<boolean>(s=>s.ready);
+  const {adBlock} = useInitData();
   
   return (
     <RootStyle>

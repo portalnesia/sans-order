@@ -6,12 +6,13 @@ import Image,{ImageProps} from './Image'
 // ----------------------------------------------------------------------
 
 export interface LogoProps {
-  size?:number
+  size?:number,
+  href?:string
 }
 
-export default function Logo({size=40}: LogoProps) {
+export default function Logo({size=40,href=''}: LogoProps) {
   return (
-    <Link href="/" passHref><a>
+    <Link href={`${href}/`} passHref><a>
       <Image src="/icon/android-icon-48x48.png" width={size} height={size} />
     </a></Link>
   );

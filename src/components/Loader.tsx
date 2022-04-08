@@ -1,4 +1,5 @@
 import {memo,useEffect} from 'react'
+// @ts-ignore
 import NProgress from 'nprogress'
 import {useRouter} from 'next/router'
 //import * as gtag from 'portal/utils/gtag'
@@ -16,7 +17,7 @@ function Loaders(){
             NProgress.start()
         }
 
-        const routeChangeStart=(url,{shallow})=>{
+        const routeChangeStart=(url: string,{shallow}: {shallow: boolean})=>{
             if(shallow || popShallow) {
                 backShallow = !popShallow;
             } else {
@@ -32,7 +33,7 @@ function Loaders(){
             NProgress.done()
         }
 
-        const completeLoading=(url)=>{
+        const completeLoading=(url: string)=>{
             //gtag.pageview(url)
             stopLoading()
         }

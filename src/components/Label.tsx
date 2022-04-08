@@ -1,24 +1,25 @@
 // material
 import {DetailedHTMLProps, HTMLAttributes, ReactNode} from 'react'
-import { alpha, styled,SxProps,Theme } from '@mui/material/styles';
+import { alpha, styled,SxProps,Theme,PaletteColor } from '@mui/material/styles';
+import {Color,FullColor} from '@type/general'
 
 // ----------------------------------------------------------------------
 
 const RootStyle = styled('span')<{ownerState: Pick<LabelProps,'color'|'variant'>}>(({ theme, ownerState }) => {
   const { color, variant } = ownerState;
 
-  const styleFilled = (color) => ({
+  const styleFilled = (color: Color) => ({
     color: theme.palette[color].contrastText,
     backgroundColor: theme.palette[color].main
   });
 
-  const styleOutlined = (color) => ({
+  const styleOutlined = (color: Color) => ({
     color: theme.palette[color].main,
     backgroundColor: 'transparent',
     border: `1px solid ${theme.palette[color].main}`
   });
 
-  const styleGhost = (color) => ({
+  const styleGhost = (color: Color) => ({
     color: theme.palette[color].dark,
     backgroundColor: alpha(theme.palette[color].main, 0.16)
   });
@@ -64,7 +65,7 @@ const RootStyle = styled('span')<{ownerState: Pick<LabelProps,'color'|'variant'>
 
 export interface LabelProps extends DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement> {
   children: ReactNode,
-  color: 'default'|'primary'|'secondary'|'info'|'success'|'warning'|'error',
+  color: FullColor,
   variant: 'filled'|'outlined'|'ghost',
   sx?: SxProps<Theme>
 }

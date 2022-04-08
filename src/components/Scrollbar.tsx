@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
 import SimpleBarReact from 'simplebar-react';
 // material
-import { alpha, styled } from '@mui/material/styles';
-import { Box } from '@mui/material';
+import { alpha, styled,SxProps,Theme } from '@mui/material/styles';
+import { Box,BoxProps } from '@mui/material';
 import {isMobile} from 'react-device-detect'
+import {ReactNode} from 'react'
 // ----------------------------------------------------------------------
 import 'simplebar-react/dist/simplebar.min.css'
 
@@ -36,12 +36,12 @@ const SimpleBarStyle = styled(SimpleBarReact)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-Scrollbar.propTypes = {
-  children: PropTypes.node.isRequired,
-  sx: PropTypes.object
-};
+export interface ScrollbarProps extends SimpleBarReact.Props {
+  children: ReactNode,
+  sx?: SxProps<Theme>
+}
 
-export default function Scrollbar({ children, sx, ...other }) {
+export default function Scrollbar({ children, sx, ...other }: ScrollbarProps) {
 
   if (isMobile) {
     return (

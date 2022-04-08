@@ -1,7 +1,7 @@
 import React from 'react'
 import {TooltipProps} from '@mui/material'
 import {LoadingButton as Buttonn,LoadingButtonProps} from '@mui/lab'
-import {Save,Delete,NavigateNext,Download,Upload,InsertDriveFile,Preview,CropRotate,Add,AddAPhoto,AddLink,Send as SendIcon} from '@mui/icons-material'
+import {Save,Delete,NavigateNext,ArrowBackIosRounded,Download,Upload,InsertDriveFile,Preview,CropRotate,Add,AddAPhoto,AddLink,Send as SendIcon} from '@mui/icons-material'
 import { styled } from '@mui/material/styles';
 import dynamic from 'next/dynamic'
 
@@ -19,11 +19,6 @@ const Tooltip = styled(Toltip)(()=>({
 }))
 
 export interface ButtonProps extends LoadingButtonProps {
-    /**
-     * @deprecated Use loading instead
-     * 
-     */
-    isloading?: boolean;
     /**
     * Message for tooltip components.
     */
@@ -43,6 +38,7 @@ export interface ButtonProps extends LoadingButtonProps {
     children?: React.ReactNode
     disabled?:boolean;
     icon?: string | React.ReactNode | undefined
+    iconPosition?: 'start'|'end'
 }
 
 /**
@@ -53,10 +49,11 @@ export interface ButtonProps extends LoadingButtonProps {
  * 
  */
 const Button=React.forwardRef<HTMLButtonElement,ButtonProps>((props,ref)=>{
-    const {size="small",loadingPosition: loadingPosisi,disabled=false,outlined=false,children="",color,variant="contained",tooltip,text,style,endIcon,icon,tooltipProps={interactive:true,enterTouchDelay:100},loading,isloading,...other}=props
-    const loadingPosition = loadingPosisi ? loadingPosisi : (icon||endIcon) ? "end" : "center";
+    const {size="medium",loadingPosition: loadingPosisi,disabled=false,outlined=false,children,color='primary',variant="contained",tooltip,text,style,endIcon,icon,tooltipProps={interactive:true,enterTouchDelay:100},loading,iconPosition='end',startIcon,...other}=props
+    const loadingPosition = loadingPosisi ? loadingPosisi : (icon||endIcon) && children ? "end" : "center";
     const cusIcon = React.useMemo((): React.ReactNode|undefined=>{
-        if(endIcon) return endIcon;
+        if(endIcon && iconPosition==='end') return endIcon;
+        if(startIcon && iconPosition === 'start') return startIcon
         if(typeof icon === 'string') {
             if(icon === 'save') return <Save />
             if(icon === 'delete') return <Delete />
@@ -70,21 +67,23 @@ const Button=React.forwardRef<HTMLButtonElement,ButtonProps>((props,ref)=>{
             if(icon === 'addphoto') return <AddAPhoto />
             if(icon === 'addlink') return <AddLink />
             if(icon === 'send') return <SendIcon />
+            if(icon === 'back') return <ArrowBackIosRounded />
         }
         return undefined;
-    },[icon,endIcon])
+    },[icon,endIcon,startIcon,iconPosition])
     if(tooltip && !disabled){
         return(
             <Tooltip title={tooltip} {...tooltipProps}>
                 <Buttonn
-                    loading={isloading||loading}
+                    loading={loading}
                     disabled={disabled}
                     size={size}
                     style={{height:'100%',...style}}
-                    {...(outlined ? {variant:'outlined'} : text ? {variant:'text'} : {variant,color})}
+                    {...(outlined ? {variant:'outlined'} : text ? {variant:'text'} : {variant})}
                     ref={ref}
                     loadingPosition={loadingPosition}
-                    {...(cusIcon ? {endIcon:cusIcon} : {})}
+                    {...(cusIcon ? iconPosition==='end' ? {endIcon:cusIcon} : {startIcon:cusIcon} : {startIcon,endIcon})}
+                    color={color}
                     {...other}
                 >
                     {children}
@@ -94,14 +93,15 @@ const Button=React.forwardRef<HTMLButtonElement,ButtonProps>((props,ref)=>{
     } else {
         return(
             <Buttonn
-                loading={isloading||loading}
+                loading={loading}
                 disabled={disabled}
                 size={size}
                 style={{height:'100%',...style}}
                 ref={ref}
                 loadingPosition={loadingPosition}
-                {...(outlined ? {variant:'outlined'} : text ? {variant:'text'} : {variant,color})}
-                {...(cusIcon ? {endIcon:cusIcon} : {})}
+                {...(outlined ? {variant:'outlined'} : text ? {variant:'text'} : {variant})}
+                {...(cusIcon ? iconPosition==='end' ? {endIcon:cusIcon} : {startIcon:cusIcon} : {startIcon,endIcon})}
+                color={color}
                 {...other}
             >
                 {children}

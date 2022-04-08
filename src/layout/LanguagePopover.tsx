@@ -1,7 +1,7 @@
 import { useRef, useState,useMemo,useCallback } from 'react';
 // material
 import { alpha } from '@mui/material/styles';
-import { Box, MenuItem, ListItemIcon, ListItemText, IconButton } from '@mui/material';
+import { Box, MenuItem, ListItemIcon, ListItemText, IconButton,Tooltip } from '@mui/material';
 // components
 import MenuPopover from '@comp/MenuPopover';
 import {useRouter} from 'next/router';
@@ -28,7 +28,6 @@ const LANGS = [
 export default function LanguagePopover() {
   const router = useRouter();
   const locale = router.locale;
-  const route = router.route
 
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -40,10 +39,11 @@ export default function LanguagePopover() {
   const handleClose = useCallback((selected?: typeof LANGS[0]) => () => {
     if(selected) {
       cookie.set("NEXT_LOCALE",selected.value,{expires:getDayJs().add(1,'year').toDate()})
-      router.replace(route,undefined,{locale:selected.value})
+      const {pathname,query,asPath} = router
+      router.replace({pathname,query},asPath,{locale:selected.value})
     }
     setOpen(false);
-  },[route]);
+  },[router]);
 
   const selectedLanguage = useMemo(()=>{
     const loc = locale||'en';
@@ -53,21 +53,22 @@ export default function LanguagePopover() {
 
   return (
     <>
-      <IconButton
-        ref={anchorRef}
-        onClick={handleOpen}
-        title={selectedLanguage.label}
-        sx={{
-          padding: 0,
-          width: 44,
-          height: 44,
-          ...(open && {
-            bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.focusOpacity)
-          })
-        }}
-      >
-        <Iconify icon={selectedLanguage.icon} height={20} width={28} />
-      </IconButton>
+      <Tooltip title="Languages">
+        <IconButton
+          ref={anchorRef}
+          onClick={handleOpen}
+          sx={{
+            padding: 0,
+            width: 44,
+            height: 44,
+            ...(open && {
+              bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.focusOpacity)
+            })
+          }}
+        >
+          <Iconify icon={selectedLanguage.icon} height={20} width={28} />
+        </IconButton>
+      </Tooltip>
 
       <MenuPopover open={open} onClose={handleClose()} anchorEl={anchorRef.current}>
         <Box sx={{ py: 1 }}>

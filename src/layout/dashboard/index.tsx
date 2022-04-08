@@ -34,12 +34,14 @@ const MainStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export interface DashboardProps {
-  children: ReactNode
+  children: ReactNode,
+  title?: string,
+  subtitle?: string
 }
-export default function DashboardLayout({children}: DashboardProps) {
-  const user = useSelector<State['user']>(s=>s.user);
+export default function DashboardLayout({children,title,subtitle}: DashboardProps) {
+  const {user,ready:loaded} = useSelector<Pick<State,'user'|'ready'>>(s=>({user:s.user,ready:s.ready}));
   const [open, setOpen] = useState(false);
-  const {loaded,adBlock} = useInitData();
+  const {adBlock} = useInitData();
 
   return (
     <RootStyle>
@@ -51,7 +53,7 @@ export default function DashboardLayout({children}: DashboardProps) {
       {user && (
         <>
           <DashboardNavbar onOpenSidebar={() => setOpen(true)} />
-          <DashboardSidebar isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
+          <DashboardSidebar title={title} subtitle={subtitle} isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
           <MainStyle>
             {loaded && children}
           </MainStyle>
