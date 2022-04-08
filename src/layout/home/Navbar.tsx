@@ -15,6 +15,7 @@ import {useTranslations} from 'next-intl'
 import useResponsive from '@comp/useResponsive'
 import {useSelector,State} from '@redux/index'
 import AccountPopover from '../dashboard/AccountPopover';
+import ThemePopover from '../ThemePopover'
 
 const APPBAR_MOBILE = 64;
 const APPBAR_DESKTOP = 92;
@@ -228,6 +229,7 @@ export default function HomeNavbar({withNavbar=true} : HomeNavbarProps) {
             {menuDesktop && navbar.map((n,i)=>(
               <HomeNavbarItems key={`navbar-${i}`} item={n} />
             ))}
+            <ThemePopover />
             <LanguagePopover />
             {typeof user === 'undefined' ? (
               <Button loading />
@@ -257,6 +259,7 @@ export default function HomeNavbar({withNavbar=true} : HomeNavbarProps) {
           </Stack>
         ) : (
           <Stack direction="row" alignItems="center" spacing={1.5}>
+            <ThemePopover />
             <LanguagePopover />
             <AccountPopover />
           </Stack>

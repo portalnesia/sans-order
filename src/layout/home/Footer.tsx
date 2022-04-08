@@ -2,7 +2,7 @@ import {Box,styled,Grid,Typography} from '@mui/material'
 import Logo from '@comp/Logo'
 
 const BoxStyle = styled(Box)(({theme})=>({
-  backgroundColor:theme.palette.grey[200],
+  backgroundColor:theme.palette.background.default,
   WebkitBoxAlign:'stretch',
   WebkitBoxDirection:'normal',
   WebkitBoxOrient:'vertical',

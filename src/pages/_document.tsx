@@ -30,7 +30,7 @@ class MyDocument extends Document {
           <meta name="msapplication-TileImage" content={`${process.env.CONTENT_URL}/icon/ms-icon-144x144.png`} />
           <link rel="manifest" href="/manifest.json"/>
           <link className='higtlightjs-light' rel='stylesheet' href='/css/github.css' />
-          {/*<link className='higtlightjs-dark' rel='stylesheet' href='/css/github-dark.css' />*/}
+          <link className='higtlightjs-dark' rel='stylesheet' href='/css/github-dark.css' />
           {process.env.NODE_ENV==='production' ? <script key='arcio' src="https://arc.io/widget.min.js#3kw38brn" /> : null}
         </Head>
         <body>

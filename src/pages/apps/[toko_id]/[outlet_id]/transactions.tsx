@@ -92,6 +92,7 @@ function TableTr({data}: {data: TransactionsDetail}) {
       <TableRow
         key={`transactions-${data.id}`}
         tabIndex={-1}
+        hover
       >
         <TableCell>
           <ExpandMore expand={expand} onClick={()=>setExpand(!expand)}>
@@ -105,18 +106,47 @@ function TableTr({data}: {data: TransactionsDetail}) {
         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.total}`)}`}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Menu data={data} /></TableCell>
       </TableRow>
-      <TableRow key={`transactions-details-${data.id}`} tabIndex={-1}>
-        <TableCell colSpan={7} sx={{py:0}}>
+      <TableRow key={`transactions-details-${data.id}`}>
+        <TableCell sx={{borderBottom:'unset',py:0}} colSpan={7}>
           <Collapse in={expand} timeout='auto' unmountOnExit>
-            <Box sx={{m:1}}>
-              <Box sx={{mb:2}}>
-                <Typography gutterBottom variant='h6' component='h6'>Detail</Typography>
-                <Box my={1} display='flex' flexDirection='row' alignItems='center'><Typography>{t("Transaction.type")}</Typography><Label sx={{ml:2}} variant='filled' color='default'>{data.type.toUpperCase()}</Label></Box>
-                <Box my={1} display='flex' flexDirection='row' alignItems='center'><Typography>{t("Payment.payment_method")}</Typography><Label sx={{ml:2}} variant='filled' color='info'>{data.payment}</Label></Box>
-                <Box my={1} display='flex' flexDirection='row' alignItems='center'><Typography>{t("Transaction.payment_status")}</Typography><Label sx={{ml:2}} variant='filled' color={colorStatus[data.status]}>{data.status}</Label></Box>
-                <Box my={1} display='flex' flexDirection='row' alignItems='center'><Typography>{t("Transaction.order_status")}</Typography><Label sx={{ml:2}} variant='filled' color={colorOrderStatus[data.order_status]}>{data.order_status}</Label></Box>
+            <Box sx={{m:1,mb:8}}>
+              <Box sx={{mb:4}}>
+                <Typography paragraph variant='h6' component='h6'>Detail</Typography>
+                <Table>
+                  <TableBody>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("Menu.cashier")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}>{data.cashier}</TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("Transaction.type")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color='default'>{data.type.toUpperCase()}</Label></TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("Payment.payment_method")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color='info'>{data.payment}</Label></TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("Transaction.payment_status")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color={colorStatus[data.status]}>{data.status}</Label></TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("Transaction.order_status")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color={colorOrderStatus[data.order_status]}>{data.order_status}</Label></TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell colSpan={2}><Typography>{t("Menu.customer").toUpperCase()}</Typography></TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("General._name")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}>{data.user ? data.user.name : '-'}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
               </Box>
-
+              <Box>
+                <Typography variant='h6' component='h6'>{t("General.detail",{what:t("Menu.order")})}</Typography>
+              </Box>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -139,7 +169,7 @@ function TableTr({data}: {data: TransactionsDetail}) {
                     const disscount = d.disscount*d.qty;
                     const total = subtotal-disscount;
                     return (
-                      <TableRow key={`items-${data.id}-${d.id}`}>
+                      <TableRow hover key={`items-${data.id}-${d.id}`}>
                         <TableCell>{`${d.name}`}</TableCell>
                         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
                         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.disscount}`)}`}</TableCell>
@@ -164,7 +194,10 @@ function TableTr({data}: {data: TransactionsDetail}) {
 export default function OutletTransactions({meta}: IPages){
   const t = useTranslations();
   const router = useRouter();
+  const {get} = useAPI();
   const {toko_id,outlet_id} = router.query;
+  const [loading,setLoading] = React.useState<string|null>(null)
+  const setNotif = useNotif();
   const {page,rowsPerPage,...pagination} = usePagination();
   const [query,setQuery]=React.useState<{filter:string,from:null|number,to:null|number}>({filter:'monthly',from:null,to:null})
   const [range,setRange]=React.useState({from:getDayJs().subtract(1, 'month'),to:getDayJs()})
@@ -235,6 +268,18 @@ export default function OutletTransactions({meta}: IPages){
     }
   },[range])
 
+  const handleDownload=React.useCallback(async()=>{
+    setLoading('download')
+    try {
+      const url = await get<string>(`/toko/${toko_id}/${outlet_id}/export?filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}`);
+      window.location.href=url;
+    } catch(e: any) {
+      setNotif(e?.message||t("General.error"),true);
+    } finally {
+      setLoading(null)
+    }
+  },[query,get,setNotif,toko_id,outlet_id])
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Header title={`${t("Menu.transactions")} - ${meta?.title}`} desc={meta?.description}>
@@ -291,7 +336,7 @@ export default function OutletTransactions({meta}: IPages){
               <Box sx={{p:2}}>
                 <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
                   <Search autosize={is543} remove value={searchVal} onchange={handleSearch} onremove={handleSearchRemove} />
-                  <Button icon='download'>Download</Button>
+                  <Button icon='download' disabled={loading!==null} loading={loading==='download'} onClick={handleDownload}>Download</Button>
                 </Stack>
               </Box>
               <Scrollbar>

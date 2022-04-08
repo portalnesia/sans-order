@@ -36,7 +36,13 @@
     "not":"Tidak {what}",
     "image":"Gambar",
     "selected":"{what} dipilih",
-    "date":"Tanggal"
+    "date":"Tanggal",
+    "detail":"Detail {what}"
+  },
+  "Theme":{
+    "theme":"Tema",
+    "dark":"Tema Gelap",
+    "light":"Tema Terang"
   },
   "Landing":{
     "section1":{
@@ -61,7 +67,8 @@
     "products":"Produk",
     "cashier":"Kasir",
     "transactions":"Transaksi",
-    "order":"Pesanan"
+    "order":"Pesanan",
+    "customer":"Pelanggan"
   },
   "Login":{
     "hi":"Hi, Selamat Datang",
@@ -69,8 +76,8 @@
     "not_register":"Tidak punya akun?",
     "register":"Daftar Sekarang",
     "sign":"Masuk",
-    "owned_business":"Bisnis Yang Dimiliki",
-    "managed_business":"Bisnis Yang Dikelola"
+    "owned_merchant":"Merchant Yang Dimiliki",
+    "managed_merchant":"Merchant Yang Dikelola"
   },
   "Subcribe":{
     "title":"Anda Belum Berlangganan!",
@@ -90,29 +97,29 @@
     }
   },
   "Toko":{
-    "delete":"Semua data-data pada bisnis anda, termasuk dompet, transaksi, produk, tim akan terhapus.\nPERINTAH INI TIDAK DAPAT DIURUNGKAN!",
+    "delete":"Semua data-data pada merchant anda, termasuk dompet, transaksi, produk, tim akan terhapus.\nPERINTAH INI TIDAK DAPAT DIURUNGKAN!",
     "address":"Alamat"
   },
   "Wallet":{
-    "no_wallet_title":"Anda belum memiliki akun dompet untuk bisnis ini",
+    "no_wallet_title":"Anda belum memiliki akun dompet untuk merchant ini",
     "no_wallet":"Pembuatan akun dompet hanya dilakukan sekali.",
-    "delete":"Akun dompet akan terhapus HANYA jika Anda menghapus bisnis Anda. Jadi apabila dompet Anda masih berisikan saldo, mohon untuk menarik saldo Anda terlebih dahulu sebelum melakukan penghapusan bisnis.",
-    "delete_wallet":"Jika dompet Anda masih berisikan saldo, mohon untuk menarik saldo Anda terlebih dahulu sebelum melakukan penghapusan bisnis.",
+    "delete":"Akun dompet akan terhapus HANYA jika Anda menghapus merchant Anda. Jadi apabila dompet Anda masih berisikan saldo, mohon untuk menarik saldo Anda terlebih dahulu sebelum melakukan penghapusan merchant.",
+    "delete_wallet":"Jika dompet Anda masih berisikan saldo, mohon untuk menarik saldo Anda terlebih dahulu sebelum melakukan penghapusan merchant.",
     "online_payment":"Bisnis ini harus membuat akun dompet untuk dapat mengaktifkan `PEMBAYARAN ONLINE`.",
-    "online_payment_owner":"Jika Anda pemilik bisnis ini, Anda dapat membuat akun dompet pada Halaman Bisnis.",
-    "online_payment_team":"Jika Anda bukan pemililk bisnis ini, harap menghubungi pemilik bisnis ini dan memintanya untuk mendaftarkan akun dompet untuk bisnis ini."
+    "online_payment_owner":"Jika Anda pemilik merchant ini, Anda dapat membuat akun dompet pada Halaman Bisnis.",
+    "online_payment_team":"Jika Anda bukan pemililk merchant ini, harap menghubungi pemilik merchant ini dan memintanya untuk mendaftarkan akun dompet untuk merchant ini."
   },
   "Outlet":{
     "online_payment":"Pembayaran Online",
     "cod":"Bayar di Tempat",
-    "self_order":"Pemesanan Sendiri",
+    "self_order":"Pemesanan Mandiri",
     "table_number":"Nomor Meja",
     "op_desc":"Bila diaktifkan, pelanggan Anda dapat melakukan pembayaran secara online menggunakan Bank, E-Wallet, atau QRIS",
     "cod_desc":"Bila diaktifkan, pelanggan Anda dapat melakukan pembayaran secara langsung setelah melakukan pemesanan, misalnya pembayaran langsung di kasir",
     "so_desc":"Bila diaktifkan, pelanggan Anda akan dapat melakukan pemesanan langsung melalui situs web",
     "tn_desc":"Bila diaktifkan, pelanggan Anda harus menginput nomor meja saat melakukan pemesanan",
     "email":"Ketikkan Email Pengguna Portalnesia",
-    "admin_help":"Bila diaktifkan, pengguna ini akan mendapatkan hak akses sebagai admin. Pengguna ini dapat menambah, mengedit dan/atau menghapus produk, tim, pengaturan outlet, tetapi tidak dapat menghapus outlet. Hanya pemilik bisnis yang dapat menghapus outlet."
+    "admin_help":"Bila diaktifkan, pengguna ini akan mendapatkan hak akses sebagai admin. Pengguna ini dapat menambah, mengedit dan/atau menghapus produk, tim, pengaturan outlet, tetapi tidak dapat menghapus outlet. Hanya pemilik merchant yang dapat menghapus outlet."
   },
   "Payment":{
     "payment":"Pembayaran",

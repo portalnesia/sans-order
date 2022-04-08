@@ -2,27 +2,46 @@ import React from 'react'
 import {SimpleMDEReactProps} from "react-simplemde-editor";
 //import {UnsplashTypes,PixabayTypes} from 'portal/types/files'
 import ReactDOMServer from "react-dom/server";
-import {Markdown} from './Parser'
+import {Markdown,editorStyles} from './Parser'
 import dynamic from 'next/dynamic'
 import 'easymde/dist/easymde.min.css'
-import {Typography,Box} from '@mui/material'
+import {Typography,Box, alpha} from '@mui/material'
 import {styled} from '@mui/material/styles'
 import { useRouter } from 'next/router';
 import type {Options} from 'easymde'
+import { useSelector,State } from '@redux/index';
 
 const Browser=dynamic(()=>import('@comp/Browser'))
 const SimpleMDE=dynamic(()=>import('react-simplemde-editor'),{ssr:false})
     
 const Div = styled("div")<{disabled?:boolean}>(({theme,disabled})=>({
-    '.editor-preview a':{
-        color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark
-    },
-    '.editor-toolbar.fullscreen, .EasyMDEContainer .CodeMirror-fullscreen, .editor-preview-side':{
-        zIndex:1205
-    },
     ...(disabled ? {
         pointerEvents:'none'
-    } : {})
+    } : {}),
+    '& .editor-toolbar.fullscreen, & .EasyMDEContainer .CodeMirror-fullscreen, .editor-preview-side':{
+        zIndex:1205,
+        backgroundColor:theme.palette.background.default
+    },
+    '& .editor-preview-full.editor-preview.editor-preview-active, & .CodeMirror.cm-s-easymde.CodeMirror-wrap':{
+      backgroundColor:theme.palette.background.paper,
+      ...editorStyles(theme)
+    },
+    '& .editor-toolbar button':{
+      color:theme.palette.text.primary,
+    },
+    '& .editor-toolbar button.active, & .editor-toolbar button:hover':{
+      color:theme.palette.text.primary,
+      backgroundColor:alpha(theme.palette.primary.main,theme.palette.action.selectedOpacity)
+    },
+    '& .CodeMirror': {
+      color:theme.palette.text.primary,
+      caretColor: theme.palette.text.primary
+    },
+    '& .editor-preview pre':{
+      background:'unset !important',
+      marginTop:16,
+      marginBottom:16
+    }
 }))
 
 export interface SimpleMDEProps extends SimpleMDEReactProps {
@@ -38,6 +57,7 @@ const Simple=(props: SimpleMDEProps)=>{
     const router = useRouter();
     const editor = React.useRef<any>()
     const [browser,setBrowser] = React.useState(false)
+    const redux_theme = useSelector<State['redux_theme']>(s=>s.redux_theme)
 
     const handleChange=React.useCallback((text: string)=>{
         if(disabled) return;
@@ -90,7 +110,7 @@ const Simple=(props: SimpleMDEProps)=>{
             ...options
         }
         return opt;
-    },[image,noSideBySide,options,maxHeight])
+    },[image,noSideBySide,options,maxHeight,redux_theme])
     
     return(
         <Div aria-disabled={disabled} disabled={disabled}>

@@ -11,7 +11,7 @@ import DOMpurify from 'dompurify'
 import hljs from 'highlight.js'
 import Script from 'next/script'
 
-const Div = styled('div')(({theme})=>({
+export const editorStyles=(theme: Theme)=>({
   '& code:not(.hljs), & blockquote, & code.code:not(.hljs)':{
     background:theme.palette.action.hover,
     borderRadius:'.5rem'
@@ -48,11 +48,17 @@ const Div = styled('div')(({theme})=>({
     borderBottom:`1px solid ${theme.palette.divider}`
   },
   '& a':{
-    color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
+    '&[href]:not(.no-format)':{
+      color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
+    },
     '&[href]:not(.no-format):hover':{
       textDecoration:'underline'
     },
   }
+})
+
+const Div = styled('div')(({theme})=>({
+  ...editorStyles(theme)
 }))
 
 const Img = styled(Image)(({theme})=>({
@@ -196,7 +202,7 @@ const parseOption = (opt : {preview?:boolean}): HTMLReactParserOptions =>({
     }
     // P
     if(node?.type==='tag'&&node?.name==='p') {
-      return <Typography variant='body1' component='p' gutterBottom>{domToReact(node?.children,parseOption(opt))}</Typography>
+      return <Typography paragraph variant='body1' component='p' gutterBottom>{domToReact(node?.children,parseOption(opt))}</Typography>
     }
     // SCRIPT
     if(node?.type==='tag'&&node?.name==='script') {
@@ -224,23 +230,23 @@ const parseOption = (opt : {preview?:boolean}): HTMLReactParserOptions =>({
       const parent = node?.parent as Element
       if(id && parent?.name != 'td') {
         if(node?.name === 'h1') {
-          return <a className="no-format" href={`#${id}`} onClick={handlePageContent(id)}><Typography variant='h2' component='h2' {...attributesToProps(other)} style={styles.style} id={id} >{domToReact(node?.children,parseOption(opt))}</Typography></a>
+          return <a className="no-format" href={`#${id}`} onClick={handlePageContent(id)}><Typography paragraph variant='h2' component='h2' {...attributesToProps(other)} style={styles.style} id={id} >{domToReact(node?.children,parseOption(opt))}</Typography></a>
         }
         else if(node?.name === 'h2') {
-          return <a className="no-format" href={`#${id}`} onClick={handlePageContent(id)}><Typography variant='h3' component='h3' {...attributesToProps(other)} style={styles.style} id={id}>{domToReact(node?.children,parseOption(opt))}</Typography></a>
+          return <a className="no-format" href={`#${id}`} onClick={handlePageContent(id)}><Typography paragraph variant='h3' component='h3' {...attributesToProps(other)} style={styles.style} id={id}>{domToReact(node?.children,parseOption(opt))}</Typography></a>
         }
         else if(node?.name === 'h3'||node?.name === 'h4'||node?.name === 'h5'||node?.name === 'h6') {
-          return <a className="no-format" href={`#${id}`} onClick={handlePageContent(id)}><Typography variant='h4' component='h4' {...attributesToProps(other)} style={styles.style} id={id}>{domToReact(node?.children,parseOption(opt))}</Typography></a>
+          return <a className="no-format" href={`#${id}`} onClick={handlePageContent(id)}><Typography paragraph variant='h4' component='h4' {...attributesToProps(other)} style={styles.style} id={id}>{domToReact(node?.children,parseOption(opt))}</Typography></a>
         }
       } else {
         if(node?.name === 'h1') {
-            return <Typography variant='h2' component='h2' {...attributesToProps(other)} id={id} {...(parent?.name == 'td' ? {style:{...styles.style,paddingBottom:'unset',borderBottom:'unset'}} : {style:styles.style})}>{domToReact(node?.children,parseOption(opt))}</Typography>
+            return <Typography paragraph variant='h2' component='h2' {...attributesToProps(other)} id={id} {...(parent?.name == 'td' ? {style:{...styles.style,paddingBottom:'unset',borderBottom:'unset'}} : {style:styles.style})}>{domToReact(node?.children,parseOption(opt))}</Typography>
         }
         else if(node?.name === 'h2') {
-            return <Typography variant='h3' component='h3' {...attributesToProps(other)} id={id} {...(parent?.name == 'td' ? {style:{...styles.style,paddingBottom:'unset',borderBottom:'unset'}} : {style:styles.style})}>{domToReact(node?.children,parseOption(opt))}</Typography>
+            return <Typography paragraph variant='h3' component='h3' {...attributesToProps(other)} id={id} {...(parent?.name == 'td' ? {style:{...styles.style,paddingBottom:'unset',borderBottom:'unset'}} : {style:styles.style})}>{domToReact(node?.children,parseOption(opt))}</Typography>
         }
         else if(node?.name === 'h3'||node?.name === 'h4'||node?.name === 'h5'||node?.name === 'h6') {
-            return <Typography variant='h4' component='h4' {...attributesToProps(other)} id={id} {...(parent?.name == 'td' ? {style:{...styles.style,paddingBottom:'unset',borderBottom:'unset'}} : {style:styles.style})}>{domToReact(node?.children,parseOption(opt))}</Typography>
+            return <Typography paragraph variant='h4' component='h4' {...attributesToProps(other)} id={id} {...(parent?.name == 'td' ? {style:{...styles.style,paddingBottom:'unset',borderBottom:'unset'}} : {style:styles.style})}>{domToReact(node?.children,parseOption(opt))}</Typography>
         }
       }
     }

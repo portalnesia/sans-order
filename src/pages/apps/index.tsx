@@ -153,12 +153,12 @@ function Loginned({user}: {user:IUser}) {
           <Grid item xs={12} md={6}>
             <Box mb={2}>
               <Typography variant="h4" component='h4' gutterBottom>{`Hai ${user?.name},`}</Typography>
-              <Typography variant="h2" component='h2'>{t("Login.owned_business")}</Typography>
+              <Typography variant="h2" component='h2'>{t("Login.owned_merchant")}</Typography>
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>
             <Box display='flex' justifyContent={'flex-end'} alignItems='flex-end'>
-              <Button size='large' icon='add' onClick={()=>setDialog(true)}>{t("General.create",{what:t("General.business")})}</Button>
+              <Button size='large' icon='add' onClick={()=>setDialog(true)}>{t("General.create",{what:"Merchant"})}</Button>
             </Box>
           </Grid>
         </Grid>
@@ -213,7 +213,7 @@ function Loginned({user}: {user:IUser}) {
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <Box mb={2}>
-              <Typography variant="h2" component='h2'>{t("Login.managed_business")}</Typography>
+              <Typography variant="h2" component='h2'>{t("Login.managed_merchant")}</Typography>
             </Box>
           </Grid>
         </Grid>
@@ -259,14 +259,14 @@ function Loginned({user}: {user:IUser}) {
 
       <Dialog open={dialog} handleClose={()=>setDialog(false)}>
         <form onSubmit={createApp}>
-          <DialogTitle>{t("General.create",{what:t("General.business")}).toUpperCase()}</DialogTitle>
+          <DialogTitle>{t("General.create",{what:"Merchant"}).toUpperCase()}</DialogTitle>
           <DialogContent dividers>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
                   value={input.name}
                   onChange={(e)=>setInput({...input,name:e.target.value})}
-                  label={t("General.name",{what:t("General.business")})}
+                  label={t("General.name",{what:"Merchant"})}
                   fullWidth
                   autoFocus
                   required

@@ -12,7 +12,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import dynamic from 'next/dynamic'
 import Pagination,{usePagination} from '@comp/Pagination'
 
-const Dialog=dynamic(()=>import('@mui/material/Dialog'))
+const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
 const DialogContent=dynamic(()=>import('@mui/material/DialogContent'))
 const DialogActions=dynamic(()=>import('@mui/material/DialogActions'))

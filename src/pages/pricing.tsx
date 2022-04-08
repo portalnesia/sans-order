@@ -167,7 +167,7 @@ function PricingSection({item}: SectionProps) {
 
         <Divider />
 
-        <CardActions disableSpacing>
+        <CardActions disableSpacing sx={{mx:3}}>
           <Typography variant='h5' component='h5'>{t("Subcribe.feature.title")}</Typography>
           <ExpandMore expand={expand} onClick={()=>setExpand(!expand)} aria-expanded={expand} aria-label='Features'>
             <ExpandMoreIcon />

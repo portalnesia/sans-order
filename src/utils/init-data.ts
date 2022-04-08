@@ -8,6 +8,7 @@ import firebase from './firebase'
 import {useRouter} from 'next/router'
 import cookie from 'js-cookie'
 import {getDayJs} from '@utils/Main'
+import useDarkTheme from '@utils/useDarkTheme'
 
 async function initData() {
   try {
@@ -63,6 +64,7 @@ export default function useIniData() {
   const {ready,user} = useSelector<Pick<State,'user'|'ready'>>(s=>({ready:s.ready,user:s.user}));
   const dispatch = useDispatch();
   const [adBlock,setAdBlock] = useState(false);
+  const {checkTheme,setTheme} = useDarkTheme();
 
   useEffect(()=>{
     let unsubcribe: Unsubscribe|undefined;
@@ -83,6 +85,7 @@ export default function useIniData() {
 
     async function init() {
       try {
+        setTheme(checkTheme());
         const token = await getAppToken(onTokenIsChanged);
         unsubcribe = token.unsubcribe;
         await initData();

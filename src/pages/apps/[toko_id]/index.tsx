@@ -36,7 +36,7 @@ export const getServerSideProps = wrapper({name:'check_toko'});
 const MENU = (t: ReturnType<typeof useTranslations>)=>([
   {
     id:"setting",
-    title:`Edit ${t("General.business")}`,
+    title:`Edit Merchant`,
     icon:"akar-icons:edit",
   },{
     id:"outlet",
@@ -48,7 +48,7 @@ const MENU = (t: ReturnType<typeof useTranslations>)=>([
     icon:"fluent:wallet-credit-card-16-regular",
   },{
     id:"delete",
-    title:t("General.delete",{what:t("General.business")}),
+    title:t("General.delete",{what:"Merchant"}),
     icon:"fluent:delete-16-regular",
     sx:{
       color:'error.main'
@@ -162,7 +162,7 @@ export default function DashboardApp({meta}: IPages) {
         <Container maxWidth='lg' sx={{mb:6}}>
           {toko && (
             <Box>
-              <Breadcrumbs title={toko?.name} routes={[{label:t("General.business"),href:"/apps"}]} />    
+              <Breadcrumbs title={toko?.name} routes={[{label:"Merchant",href:"/apps"}]} />    
             </Box>
           )}
           <Box>
@@ -261,7 +261,7 @@ export default function DashboardApp({meta}: IPages) {
                   <TextField
                     value={iEdit.name}
                     onChange={(e)=>setIEdit({...iEdit,name:e.target.value})}
-                    label={t("General.name",{what:t("General.business")})}
+                    label={t("General.name",{what:"Merchant"})}
                     fullWidth
                     autoFocus
                     required

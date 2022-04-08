@@ -424,7 +424,24 @@ function OutletSelfOrder() {
   //const {data,error} = useSWR<IIProduct[]>(`/toko/${toko_id}/${outlet_id}/transactions/pending?page=${page}&per_page=${rowsPerPage}`);
   const [search,setSearch] = React.useState("");
 
-
+  return (
+    <>
+      <Container>
+        <Box pb={2} mb={5}>
+          <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
+            <Typography variant="h3" component='h3'>{t("Outlet.self_order")}</Typography>
+          </Stack>
+        </Box>
+        <Box>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <DateTime />
+            </Grid>
+          </Grid>
+        </Box>
+      </Container>
+    </>
+  )
 }
 
 export default function OutletCashierGeneral({meta}: IPages) {
@@ -447,7 +464,9 @@ export default function OutletCashierGeneral({meta}: IPages) {
             {slug?.[0] === 'cashier' && (
               <OutletCashier captchaRef={captchaRef} />
             )}
-            
+            {slug?.[0] === 'self-order' && (
+              <OutletSelfOrder />
+            )}
         </Container>
       </Dashboard>
       <Recaptcha ref={captchaRef} />

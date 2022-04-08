@@ -56,7 +56,18 @@ export default function GlobalStyles() {
             color: theme.palette.text.disabled
           }
         },
-
+        'pre code':{
+          overflowX: 'auto',
+          width:'100%',
+          padding:'.6rem .8125rem',
+          boxSizing:'border-box',
+          whiteSpace: 'pre-wrap',
+        },
+        pre:{
+          marginTop:16,
+          marginBottom:16
+        },
+        a: {color:'inherit',textDecoration:'unset',WebkitTapHighlightColor:'transparent'},
         img: { display: 'block', maxWidth: '100%' },
 
         // Lazy Load Img

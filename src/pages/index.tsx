@@ -62,11 +62,11 @@ export default function DashboardApp() {
       <Dashboard withPadding={false}>
         <Section color='primary.lighter' isFirst sx={{backgroundImage:'url("/static/illustrations/cashier.webp")',backgroundRepeat:'no-repeat',backgroundPositionY:{xs:'top',md:'center'},backgroundPositionX:'right',backgroundBlendMode:'multiply',backgroundSize:{xs:'contain',md:'auto'}}}>
           <Box>
-            <Typography variant="h2" component='h2'>{t("Landing.section1.start")}</Typography>
-            <Typography variant='h2' component='h2'> {t("Landing.section1.with")} <Typography component='span' variant='h2' sx={{color:'primary.main'}}>Sans Order</Typography></Typography>
+            <Typography sx={{color:'#000'}} variant="h2" component='h2'>{t("Landing.section1.start")}</Typography>
+            <Typography sx={{color:'#000'}} variant='h2' component='h2'> {t("Landing.section1.with")} <Typography component='span' variant='h2' sx={{color:'primary.main'}}>Sans Order</Typography></Typography>
           </Box>
           <Box mt={5}>
-            <Typography>{t("Landing.section1.desc")}</Typography>
+            <Typography sx={{color:'#000'}}>{t("Landing.section1.desc")}</Typography>
           </Box>
         </Section>
         <Section sx={{alignItems:'flex-start'}}>

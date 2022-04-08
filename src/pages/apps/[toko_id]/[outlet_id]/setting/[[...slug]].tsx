@@ -359,8 +359,8 @@ export function TeamSetting() {
                 </TableCell>
                 <TableCell align="center">
                   <Stack direction="row" alignItems="center" justifyContent='center' spacing={2}>
-                    {d?.admin && <Label variant='ghost' color='info'>Admin</Label>}
-                    <Label variant='ghost' color={d?.pending ? 'error':'success'}>{d?.pending ? t("General.pending"):t("General.active")}</Label>
+                    {d?.admin && <Label variant='filled' color='info'>Admin</Label>}
+                    <Label variant='filled' color={d?.pending ? 'error':'success'}>{d?.pending ? t("General.pending"):t("General.active")}</Label>
                   </Stack>
                 </TableCell>
                 <TableCell align="center">

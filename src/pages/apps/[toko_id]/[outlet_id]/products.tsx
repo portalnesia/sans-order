@@ -44,9 +44,10 @@ interface FormProps {
   setInput(item: IInputProduct): void
   loading?: boolean
   openBrowser(): void
+  autoFocus?:boolean
 }
 
-function Form({input,setInput,loading,openBrowser}: FormProps) {
+function Form({input,setInput,loading,openBrowser,autoFocus}: FormProps) {
   const t = useTranslations();
 
   const handleChange=React.useCallback((name: keyof IInputProduct)=>(e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement> | string)=>{
@@ -91,7 +92,7 @@ function Form({input,setInput,loading,openBrowser}: FormProps) {
           onChange={handleChange('name')}
           required
           fullWidth
-          autoFocus
+          autoFocus={autoFocus}
           placeholder='Cappucino'
         />
       </Grid>
@@ -377,6 +378,8 @@ export default function OutletProducts({meta}: IPages) {
     }
   },[selected,post,setNotif,toko_id,outlet_id,mutate])
 
+  useMousetrap(['+','shift+='],buttonCreate);
+
   return (
     <Header title={`${t("Menu.products")} - ${meta?.title}`} desc={meta?.description}>
       <Dashboard title={meta?.title} subtitle={meta?.toko_name}>
@@ -384,7 +387,7 @@ export default function OutletProducts({meta}: IPages) {
           <Box pb={2} mb={5}>
             <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
               <Typography variant="h3" component='h3'>{t("Menu.products")}</Typography>
-              <Button disabled={!outlet?.isAdmin} onClick={buttonCreate}>{t("General.add",{what:t("Menu.products")})}</Button>
+              <Button icon='add' tooltip='+' disabled={!outlet?.isAdmin} onClick={buttonCreate}>{t("General.add",{what:t("Menu.products")})}</Button>
             </Stack>
           </Box>
           <Card>
@@ -456,8 +459,8 @@ export default function OutletProducts({meta}: IPages) {
                         </TableCell>
                         <TableCell align="center">
                           <Stack direction="row" alignItems="center" justifyContent='center' spacing={2}>
-                            <Label variant='ghost' color={d.active ? 'success':'error'}>{d?.active ? t("General.active") : t("General.not",{what:t("General.active")})}</Label>
-                            {d?.show_in_menu && <Label variant='ghost' color='info'>{t("Product.show_in_menu")}</Label>}
+                            <Label variant='filled' color={d.active ? 'success':'error'}>{d?.active ? t("General.active") : t("General.not",{what:t("General.active")})}</Label>
+                            {d?.show_in_menu && <Label variant='filled' color='info'>{t("Product.show_in_menu")}</Label>}
                           </Stack>
                         </TableCell>
                         <TableCell>
@@ -495,7 +498,7 @@ export default function OutletProducts({meta}: IPages) {
         <form onSubmit={handleEdit}>
           <DialogTitle>{`Edit ${t("Menu.products")}`}</DialogTitle>
           <DialogContent dividers>
-            <Form input={input} setInput={setInput} loading={loading} openBrowser={()=>setBrowser(true)} />
+            <Form autoFocus input={input} setInput={setInput} loading={loading} openBrowser={()=>setBrowser(true)} />
           </DialogContent>
           <DialogActions>
             <Button text color='inherit' disabled={loading} onClick={()=>setDEdit(null)}>{t("General.cancel")}</Button>

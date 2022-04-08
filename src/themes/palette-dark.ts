@@ -94,7 +94,7 @@ export const CHART_COLORS = {
 };
 
 const palette: PaletteOptions = {
-  mode:'light',
+  mode:'dark',
   common: { black: '#000', white: '#fff' },
   primary: { ...PRIMARY },
   secondary: { ...SECONDARY },
@@ -105,11 +105,11 @@ const palette: PaletteOptions = {
   grey: GREY,
   gradients: GRADIENTS,
   chart: CHART_COLORS,
-  divider: GREY[500_24],
-  text: { primary: GREY[800], secondary: GREY[600], disabled: GREY[500] },
-  background: { paper: '#fff', default: GREY[100], neutral: GREY[200] },
+  divider: GREY[700],
+  text: { primary: GREY[200], secondary: GREY[400], disabled: GREY[500] },
+  background: { paper: 'rgb(33, 43, 54)', default: 'rgb(22, 28, 36)', neutral: GREY[800] },
   action: {
-    active: GREY[600],
+    active: GREY[400],
     hover: GREY[500_8],
     selected: GREY[500_16],
     disabled: GREY[500_80],

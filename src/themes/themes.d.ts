@@ -1,12 +1,13 @@
 import {customShadows} from './shadows'
-import {GRADIENTS,PRIMARY} from './palette'
+import {GRADIENTS,PRIMARY,CHART_COLORS} from './palette'
 
 declare module '@mui/material' {
   export interface Theme {
     customShadows: typeof customShadows
   }
   export interface Palette {
-    gradients: typeof GRADIENTS
+    gradients: typeof GRADIENTS,
+    chart: typeof CHART_COLORS
   }
   export interface PaletteColor {
     lighter: string,
@@ -21,6 +22,14 @@ declare module '@mui/material' {
     [500_48]: string,
     [500_56]: string,
     [500_80]: string
+  }
+  export interface TypeBackground {
+    neutral: string
+  }
+
+  export interface PaletteOptions {
+    gradients: typeof GRADIENTS,
+    chart: typeof CHART_COLORS
   }
 }
 

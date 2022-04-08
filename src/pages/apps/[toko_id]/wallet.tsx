@@ -137,7 +137,7 @@ export default function WalletPage({meta}: IPages) {
           {meta?.title && (
             <>
               <Box>
-                <Breadcrumbs title={t("General.wallet")} routes={[{label:t("General.business"),href:"/apps"},{label:meta?.title,href:"/apps/[toko_id]",as:`/apps/${toko_id}`}]} />    
+                <Breadcrumbs title={t("General.wallet")} routes={[{label:"Merchant",href:"/apps"},{label:meta?.title,href:"/apps/[toko_id]",as:`/apps/${toko_id}`}]} />    
               </Box>
               <Box className='flex-header'>
                 <Button text icon='back' iconPosition='start' onClick={()=>router.back()}>{t("General.back")}</Button>
