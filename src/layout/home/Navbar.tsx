@@ -198,10 +198,11 @@ function MobileNavItem({items}: MobileNavItemProps) {
 }
 
 export interface HomeNavbarProps {
-  withNavbar?: boolean
+  withNavbar?: boolean,
+  withDashboard?: boolean
 }
 
-export default function HomeNavbar({withNavbar=true} : HomeNavbarProps) {
+export default function HomeNavbar({withNavbar=true,withDashboard=true} : HomeNavbarProps) {
   const router = useRouter();
   const t = useTranslations();
   const user = useSelector<State['user']>(s=>s.user);
@@ -231,27 +232,30 @@ export default function HomeNavbar({withNavbar=true} : HomeNavbarProps) {
             ))}
             <ThemePopover />
             <LanguagePopover />
-            {typeof user === 'undefined' ? (
-              <Button loading />
-            ) : typeof user === 'boolean' ? (
-              <Button
-                variant='contained'
-                size='large'
-                onClick={()=>router.push('/apps')}
-                color='secondary'
-              >
-                {t("Menu.start")}
-              </Button>
-            ) : (
-              <Button
-                variant='contained'
-                size='large'
-                onClick={()=>router.push('/apps')}
-                color='secondary'
-              >
-                {t("Menu.dashboard")}
-              </Button>
-            )}
+
+            {withDashboard ? 
+              typeof user === 'undefined' ? (
+                <Button loading />
+              ) : typeof user === 'boolean' ? (
+                <Button
+                  variant='contained'
+                  size='large'
+                  onClick={()=>router.push('/apps')}
+                  color='secondary'
+                >
+                  {t("Menu.start")}
+                </Button>
+              ) : (
+                <Button
+                  variant='contained'
+                  size='large'
+                  onClick={()=>router.push('/apps')}
+                  color='secondary'
+                >
+                  {t("Menu.dashboard")}
+                </Button>
+              )
+            : null}
             
             {menuMobile && (
               <MobileNavItem items={navbar} />

@@ -37,12 +37,18 @@
     "image":"Image",
     "selected":"{what} selected",
     "date":"Date",
-    "detail":"{what} Detail"
+    "detail":"{what} Detail",
+    "search":"Search",
+    "update":"Update {what}",
+    "_update":"Update",
+    "print":"Print",
+    "are_you_sure":"Are You Sure?"
   },
   "Theme":{
     "theme":"Theme",
     "dark":"Dark Theme",
-    "light":"Light Theme"
+    "light":"Light Theme",
+    "device":"Device Theme"
   },
   "Landing":{
     "section1":{
@@ -113,15 +119,15 @@
     "online_payment":"Online Payment",
     "cod":"Cash on Delivery",
     "self_order":"Self Order",
-    "table_number":"Table Number",
     "op_desc":"When enabled, your customers can make online payments using Bank, E-Wallet, or QRIS",
     "cod_desc":"When enabled, your customers can make payments directly after placing an order, for example paying directly at the cashier",
     "so_desc":"When enabled, your customers will be able to place an order directly through the website",
-    "tn_desc":"When enabled, your customers must input the table number when ordering",
+    "tn_desc":"When enabled, your customers and cashier must input the table number when ordering",
     "email":"Enter Portalnesia Users Email",
     "admin_help":"When enabled, this user gets admin privileges. This user can add, edit and/or delete product, team, outlet settings, but cannot delete outlets. Only merchant owners can delete outlets."
   },
   "Payment":{
+    "pay":"Pay",
     "payment":"Payment",
     "account_name":"Account Name",
     "account_number":"Account Number",
@@ -136,7 +142,8 @@
     "category":"Category"
   },
   "Cashier":{
-    "process":"Process"
+    "process":"Process",
+    "update_order_status":"Update order status to `FINISHED`"
   },
   "Transaction":{
     "month":"This Month",

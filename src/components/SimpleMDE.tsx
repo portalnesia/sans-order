@@ -22,7 +22,7 @@ const Div = styled("div")<{disabled?:boolean}>(({theme,disabled})=>({
         zIndex:1205,
         backgroundColor:theme.palette.background.default
     },
-    '& .editor-preview-full.editor-preview.editor-preview-active, & .CodeMirror.cm-s-easymde.CodeMirror-wrap':{
+    '& .editor-preview-full.editor-preview.editor-preview-active, & .CodeMirror.cm-s-easymde.CodeMirror-wrap, & .editor-preview-side.editor-preview.editor-preview-active-side':{
       backgroundColor:theme.palette.background.paper,
       ...editorStyles(theme)
     },

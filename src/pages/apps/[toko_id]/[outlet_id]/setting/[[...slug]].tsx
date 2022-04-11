@@ -24,6 +24,8 @@ import usePagination from '@comp/TablePagination'
 import Avatar from '@comp/Avatar'
 import Label from '@comp/Label'
 import dynamic from 'next/dynamic'
+import { ucwords } from '@portalnesia/utils';
+import { useMousetrap } from '@utils/useKeys';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -52,6 +54,10 @@ export function GeneralSetting() {
 
   const captchaRef = React.useRef<Recaptcha>(null);
 
+  useMousetrap(['ctrl+s','meta+s'],(e)=>{
+    handleSubmit(e as any)
+  },true)
+
   const handleChange=React.useCallback((name: keyof typeof input)=>(e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement> | string)=>{
     const inp = typeof e === 'string' ? e : e.target.value;
     setInput({...input,[name]:inp});
@@ -76,7 +82,7 @@ export function GeneralSetting() {
       const recaptcha = await captchaRef.current?.execute();
       await put(`/toko/${toko_id}/${outlet_id}`,{...input,recaptcha});
       setLoading(null);
-      setNotif(t("General.success"),false);
+      setNotif(t("General.saved"),false);
       mutateOutlet();
     } catch(e: any) {
       setNotif(e?.message||t("General.error"),true);
@@ -101,6 +107,18 @@ export function GeneralSetting() {
       <Grid container spacing={4}>
         <Grid item xs={12}>
           <Grid container spacing={2}>
+            <Grid item xs={12} md={6} lg={3}>
+              <FormGroup sx={{flexDirection:'row'}}>
+                <FormControlLabel
+                  style={{marginTop:0}}
+                  control={
+                    <Switch disabled={loading!==null} checked={input?.table_number||false} color="primary" onChange={handleCheckedChange('table_number')} />
+                  }
+                  label={ucwords(t("Subcribe.feature.table_number"))}
+                />
+                <Popover icon='clarity:help-outline-badged' >{t("Outlet.tn_desc")}</Popover>
+              </FormGroup>
+            </Grid>
             <Grid item xs={12} md={6} lg={3}>
               <Box>
                 <FormGroup sx={{flexDirection:'row'}}>
@@ -139,18 +157,6 @@ export function GeneralSetting() {
                       label={t("Outlet.cod")}
                     />
                     <Popover icon='clarity:help-outline-badged' >{t("Outlet.cod_desc")}</Popover>
-                  </FormGroup>
-                </Grid>
-                <Grid item xs={12} md={6} lg={3}>
-                  <FormGroup sx={{flexDirection:'row'}}>
-                    <FormControlLabel
-                      style={{marginTop:0}}
-                      control={
-                        <Switch disabled={loading!==null} checked={input?.table_number||false} color="primary" onChange={handleCheckedChange('table_number')} />
-                      }
-                      label={t("Outlet.table_number")}
-                    />
-                    <Popover icon='clarity:help-outline-badged' >{t("Outlet.tn_desc")}</Popover>
                   </FormGroup>
                 </Grid>
               </>
@@ -443,7 +449,7 @@ export function TeamSetting() {
         </form>
       </Dialog>
       <Dialog maxWidth='xs' loading={loading} open={dDelete!==null} handleClose={()=>setDDelete(null)}>
-        <DialogTitle>Are You Sure ?</DialogTitle>
+        <DialogTitle>{t("General.are_you_sure")}</DialogTitle>
         <DialogActions>
           <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{t("General.cancel")}</Button>
           <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{t("General._delete")}</Button>

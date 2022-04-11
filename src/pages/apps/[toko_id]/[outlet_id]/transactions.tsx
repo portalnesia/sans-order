@@ -48,6 +48,7 @@ interface IMenu {
 }
 
 function Menu({data,disabled}: IMenu) {
+  const t = useTranslations();
   const ref=React.useRef(null);
   const [open,setOpen] = React.useState(false);
   const router = useRouter();
@@ -70,14 +71,14 @@ function Menu({data,disabled}: IMenu) {
           <ListItemIcon>
             <Iconify icon="fluent:print-20-filled" width={24} height={24} />
           </ListItemIcon>
-          <ListItemText primary="Print" primaryTypographyProps={{ variant: 'body2' }} />
+          <ListItemText primary={t("General.print")} primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
       </MenuPopover>
     </>
   )
 }
 
-function TableTr({data}: {data: TransactionsDetail}) {
+export function TableTr({data}: {data: TransactionsDetail}) {
   const t = useTranslations();
   const router = useRouter();
   const locale = router.locale
@@ -94,7 +95,7 @@ function TableTr({data}: {data: TransactionsDetail}) {
         tabIndex={-1}
         hover
       >
-        <TableCell>
+        <TableCell align='center'>
           <ExpandMore expand={expand} onClick={()=>setExpand(!expand)}>
             <ExpandMoreIcon />
           </ExpandMore>
@@ -106,6 +107,7 @@ function TableTr({data}: {data: TransactionsDetail}) {
         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.total}`)}`}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Menu data={data} /></TableCell>
       </TableRow>
+
       <TableRow key={`transactions-details-${data.id}`}>
         <TableCell sx={{borderBottom:'unset',py:0}} colSpan={7}>
           <Collapse in={expand} timeout='auto' unmountOnExit>
@@ -343,7 +345,7 @@ export default function OutletTransactions({meta}: IPages){
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell align='left'></TableCell>
+                      <TableCell align='center'></TableCell>
                       <TableCell align='left'>ID</TableCell>
                       <TableCell align='left'>{t("General.date")}</TableCell>
                       <TableCell align='right'>Subtotal</TableCell>

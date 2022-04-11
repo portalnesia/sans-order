@@ -508,7 +508,7 @@ export default function OutletProducts({meta}: IPages) {
       </Dialog>
 
       <Dialog maxWidth='xs' loading={loading} open={dDelete!==null} handleClose={()=>setDDelete(null)}>
-        <DialogTitle>Are You Sure ?</DialogTitle>
+        <DialogTitle>{t("General.are_you_sure")}</DialogTitle>
         <DialogActions>
           <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{t("General.cancel")}</Button>
           {typeof dDelete === 'boolean' ? (

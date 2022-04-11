@@ -1,6 +1,6 @@
 // material
-import { Box, Grid, Container, Typography, IconButton,TextField,Tabs,Tab,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,TableFooter,Card } from '@mui/material';
-import {Close,Add,Remove} from '@mui/icons-material'
+import { Box, Grid, Container, Typography, IconButton,TextField,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,TableFooter,Card, MenuItem, ListItemIcon, ListItemText, Collapse} from '@mui/material';
+import {Close,Add,Remove,ExpandMore as ExpandMoreIcon} from '@mui/icons-material'
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/dashboard/index'
@@ -12,7 +12,7 @@ import Button from '@comp/Button'
 import Backdrop from '@comp/Backdrop'
 import Image from '@comp/Image'
 import Popover from '@comp/Popover'
-import {IOutlet,IPages,ResponsePagination,IProduct, IItems} from '@type/index'
+import {IOutlet,IPages,ResponsePagination,IProduct, IItems, TransactionsDetail, colorStatus, colorOrderStatus,orderStatusType} from '@type/index'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import {wrapper,useSelector,State} from '@redux/index'
 import {useTranslations} from 'next-intl';
@@ -27,8 +27,11 @@ import {getDayJs} from '@utils/Main'
 import {useMousetrap} from '@utils/useKeys'
 import dynamic from 'next/dynamic'
 import usePagination from '@comp/TablePagination'
-import { numberFormat } from '@portalnesia/utils';
+import { numberFormat, ucwords } from '@portalnesia/utils';
 import handlePrint from '@utils/print';
+import ExpandMore from '@comp/ExpandMore';
+import Label from '@comp/Label';
+import { KeyedMutator } from 'swr';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -57,7 +60,8 @@ interface PayProps {
   /**
    * Transaction ID, pay by cashier (COD)
    */
-  id?: string
+  id?: string,
+  table_number?: string
 }
 
 function DateTime() {
@@ -90,12 +94,14 @@ function DateTime() {
   )
 }
 
-function DialogPay({items,total,open,onClose,captchaRef,id,onSuccess}: PayProps) {
+function DialogPay({items,total,open,onClose,captchaRef,id,onSuccess,table_number}: PayProps) {
   const t = useTranslations();
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
+  const {outlet} = useOutlet(toko_id,outlet_id);
   const [loading,setLoading] = React.useState(false);
   const [cash,setCash] = React.useState(0);
+  const [TN,setTN] = React.useState(table_number)
   const {post} = useAPI();
   const setNotif = useNotif();
 
@@ -114,7 +120,8 @@ function DialogPay({items,total,open,onClose,captchaRef,id,onSuccess}: PayProps)
       const input = {
         cash,
         ...(items ? {type:'cashier',items: items.map(s=>({id:s.id,qty:s.qty}))} : {}),
-        recaptcha
+        recaptcha,
+        ...(TN && TN.length > 0 ? {metadata:{table_number:TN}} : {})
       }
       const d = await post<{token: string}>(url,input);
       setLoading(false);
@@ -125,7 +132,7 @@ function DialogPay({items,total,open,onClose,captchaRef,id,onSuccess}: PayProps)
     } finally {
       setLoading(false);
     }
-  },[post,cash,items,total,t,captchaRef,toko_id,outlet_id,id,handleClose])
+  },[post,cash,items,total,t,captchaRef,toko_id,outlet_id,id,handleClose,TN])
 
   React.useEffect(()=>{
     if(open) {
@@ -160,7 +167,6 @@ function DialogPay({items,total,open,onClose,captchaRef,id,onSuccess}: PayProps)
                     type='number'
                     inputProps={{min:0,style:{padding:'8px 10px'}}}
                     autoFocus
-
                   />
                 </TableCell>
               </TableRow>
@@ -168,12 +174,25 @@ function DialogPay({items,total,open,onClose,captchaRef,id,onSuccess}: PayProps)
                 <TableCell>Changes</TableCell>
                 <TableCell>{`IDR ${numberFormat(`${cash-total}`)}`}</TableCell>
               </TableRow>
+              <TableRow>
+                <TableCell>{`${t("Subcribe.feature.table_number")}${outlet?.table_number ? '*' : ''}`}</TableCell>
+                <TableCell>
+                  <TextField
+                    value={TN}
+                    onChange={(e)=>setTN(e.target.value)}
+                    required={outlet?.table_number}
+                    fullWidth
+                    disabled={loading}
+                    inputProps={{style:{padding:'8px 10px'}}}
+                  />
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </DialogContent>
         <DialogActions>
           <Button text color='inherit' disabled={loading} onClick={handleClose}>{t("General.cancel")}</Button>
-          <Button type='submit' icon='submit' disabled={loading||(cash<total)} loading={loading}>Submit</Button>
+          <Button type='submit' icon='submit' disabled={loading||(cash<total)||(outlet?.table_number && (typeof TN !== 'string' || TN?.length === 0))} loading={loading}>Submit</Button>
         </DialogActions>
       </form>
     </Dialog>
@@ -415,14 +434,260 @@ function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
   )
 }
 
-function OutletSelfOrder() {
+type ITransactaion = TransactionsDetail<{table_number?: string}>
+interface IMenu {
+  data: ITransactaion
+  disabled?: boolean,
+  captchaRef: PayProps['captchaRef'],
+  mutate: KeyedMutator<ResponsePagination<ITransactaion>>
+}
+
+function Menu({data,disabled,captchaRef,mutate}: IMenu) {
+  const t = useTranslations();
+  const ref=React.useRef(null);
+  const {put} = useAPI();
+  const setNotif = useNotif();
+  const [open,setOpen] = React.useState(false);
+  const [pay,setPay] = React.useState(false);
+  const [dialog,setDialog] = React.useState<string|null>(null);
+  const [edit,setEdit] = React.useState(false);
+  const [loading,setLoading] = React.useState<string|null>(null);
+  const router = useRouter();
+  const {toko_id,outlet_id} = router.query;
+
+  const onPrint=React.useCallback((token?: string)=>()=>{
+    if(token) {
+      handlePrint(toko_id as string,outlet_id as string,token);
+    }
+    setDialog(null);
+    setOpen(false);
+  },[toko_id,outlet_id])
+
+  const onPaySuccess=React.useCallback((d: any)=>{
+    if(typeof d?.token === 'string') setDialog(d?.token);
+  },[]);
+
+  const handleUpdateStatus=React.useCallback(async()=>{
+    setLoading('update')
+    try {
+      const recaptcha = await captchaRef.current?.execute();
+      await put(`/toko/${toko_id}/${outlet_id}/transactions/${data.id}`,{status:"FINISHED",recaptcha});
+      mutate();
+      setNotif(t("General.saved"),false);
+      setEdit(false);
+    } catch(e: any) {
+      setNotif(e?.message||t("General.error"),true);
+    } finally {
+      setLoading(null);
+    }
+  },[mutate,put,setNotif,data.id,toko_id,outlet_id]);
+
+  return (
+    <>
+      <IconButton disabled={loading!==null||!!disabled} ref={ref} onClick={() => setOpen(true)}>
+        <Iconify icon="eva:more-vertical-fill" width={20} height={20} />
+      </IconButton>
+
+      <MenuPopover open={open} onClose={()=>setOpen(false)} anchorEl={ref.current} paperSx={{py:1}}>
+        {(data.type==='self_order' && data.payment==='COD' && data.status==='PENDING') && (
+          <MenuItem key='menu-1' disabled={loading!==null||!!disabled} sx={{ color: 'text.secondary',py:1 }} onClick={()=>{setPay(true),setOpen(false)}}>
+            <ListItemIcon>
+              <Iconify icon="fluent:payment-20-filled" width={24} height={24} />
+            </ListItemIcon>
+            <ListItemText primary={t("Payment.pay")} primaryTypographyProps={{ variant: 'body2' }} />
+          </MenuItem>
+        )}
+        {(!['FINISHED','CANCELED'].includes(data.order_status)) && (
+          <MenuItem key='menu-1' disabled={loading!==null||!!disabled} sx={{ color: 'text.secondary',py:1 }} onClick={()=>{setEdit(true),setOpen(false)}}>
+            <ListItemIcon>
+              <Iconify icon="icon-park-outline:transaction-order" width={24} height={24} />
+            </ListItemIcon>
+            <ListItemText primary={t("General.update",{what:t("Menu.transactions")})} primaryTypographyProps={{ variant: 'body2' }} />
+          </MenuItem>
+        )}
+        <MenuItem key='menu-2' disabled={loading!==null||!!disabled} sx={{ color: 'text.secondary',py:1 }} onClick={onPrint(data.token_print)}>
+          <ListItemIcon>
+            <Iconify icon="fluent:print-20-filled" width={24} height={24} />
+          </ListItemIcon>
+          <ListItemText primary={t("General.print")} primaryTypographyProps={{ variant: 'body2' }} />
+        </MenuItem>
+      </MenuPopover>
+
+      <DialogPay items={data.items} onClose={()=>{setPay(false)}} open={pay} onSuccess={onPaySuccess} captchaRef={captchaRef} total={data.total} id={data.id} table_number={data.metadata?.table_number} />
+
+      <Dialog open={dialog!==null} handleClose={()=>setDialog(null)} loading={loading!==null}>
+          <DialogTitle>{`${t("General.print")} E-Receipt?`}</DialogTitle>
+          <DialogActions>
+            <Button text color='inherit' onClick={()=>setDialog(null)}>{t("General.cancel")}</Button>
+            <Button onClick={onPrint(dialog as string)}>{t("General.print")}</Button>
+          </DialogActions>
+      </Dialog>
+
+      <Dialog open={edit} handleClose={()=>setEdit(false)} loading={loading!==null}>
+          <DialogTitle>{t("General.are_you_sure")}</DialogTitle>
+          <DialogContent>
+            <Typography>{t("Cashier.update_order_status")}</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button disabled={loading!==null} text color='inherit' onClick={()=>setEdit(false)}>{t("General.cancel")}</Button>
+            <Button disabled={loading!==null} loading={loading==='update'} onClick={handleUpdateStatus}>{t("General._update")}</Button>
+          </DialogActions>
+      </Dialog>
+    </>
+  )
+}
+
+function TableTr({data,captchaRef,mutate}: {data: ITransactaion,captchaRef: PayProps['captchaRef'],mutate: KeyedMutator<ResponsePagination<ITransactaion>>}) {
+  const t = useTranslations();
+  const router = useRouter();
+  const locale = router.locale
+  const [expand,setExpand] = React.useState(false);
+
+  const date = React.useMemo(()=>{
+    return getDayJs(data.timestamp).locale(locale||'en').pn_format('full')
+  },[data.timestamp,locale])
+
+  return (
+    <>
+      <TableRow
+        key={`transactions-${data.id}`}
+        tabIndex={-1}
+        hover
+      >
+        <TableCell align='center'>
+          <ExpandMore expand={expand} onClick={()=>setExpand(!expand)}>
+            <ExpandMoreIcon />
+          </ExpandMore>
+        </TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}}>{data.id}</TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}}>{`${data.metadata?.table_number||'-'}`}</TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}}>{date}</TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}} align='left'>{data.payment}</TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Label variant='filled' color={colorOrderStatus[data.order_status]}>{data.order_status}</Label></TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Label variant='filled' color={colorStatus[data.status]}>{data.status}</Label></TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.total}`)}`}</TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Menu data={data} captchaRef={captchaRef} mutate={mutate} /></TableCell>
+      </TableRow>
+
+      <TableRow key={`transactions-details-${data.id}`}>
+        <TableCell sx={{borderBottom:'unset',py:0}} colSpan={7}>
+          <Collapse in={expand} timeout='auto' unmountOnExit>
+            <Box sx={{m:1,mb:8}}>
+              <Box sx={{mb:4}}>
+                <Typography paragraph variant='h6' component='h6'>Detail</Typography>
+                <Table>
+                  <TableBody>
+                  <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("Menu.cashier")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}>{data.cashier}</TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("Transaction.type")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color='default'>{data.type.toUpperCase()}</Label></TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("Payment.payment_method")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color='info'>{data.payment}</Label></TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("Transaction.payment_status")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color={colorStatus[data.status]}>{data.status}</Label></TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("Transaction.order_status")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color={colorOrderStatus[data.order_status]}>{data.order_status}</Label></TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell colSpan={2}><Typography>{t("Menu.customer").toUpperCase()}</Typography></TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("General._name")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}>{data.user ? data.user.name : '-'}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </Box>
+              <Box>
+                <Typography variant='h6' component='h6'>{t("General.detail",{what:t("Menu.order")})}</Typography>
+              </Box>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell align='center' colSpan={5}>{t("Menu.products")}</TableCell>
+                    <TableCell rowSpan={2} align='right'>Subtotal</TableCell>
+                    <TableCell rowSpan={2} align='right'>{t("Product.disscount")}</TableCell>
+                    <TableCell rowSpan={2} align='right'>Total</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>{t("General._name")}</TableCell>
+                    <TableCell align='right'>{t("Product.price")}</TableCell>
+                    <TableCell align='right'>{t("Product.disscount")}</TableCell>
+                    <TableCell align='right'>Qty</TableCell>
+                    <TableCell align='right'>HPP</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data.items.map((d)=>{
+                    const subtotal = d.price*d.qty;
+                    const disscount = d.disscount*d.qty;
+                    const total = subtotal-disscount;
+                    return (
+                      <TableRow hover key={`items-${data.id}-${d.id}`}>
+                        <TableCell>{`${d.name}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.disscount}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.qty}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.hpp ? `IDR ${numberFormat(`${d.hpp}`)}` : '-'}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${subtotal}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${disscount}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${total}`)}`}</TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  )
+}
+
+function OutletSelfOrder({captchaRef}: {captchaRef: PayProps['captchaRef']}) {
   const t = useTranslations();
   const router = useRouter();
   const [dPay,setDPay] = React.useState(false);
   const {toko_id,outlet_id} = router.query;
   const {page,rowsPerPage,...pagination} = usePagination();
-  //const {data,error} = useSWR<IIProduct[]>(`/toko/${toko_id}/${outlet_id}/transactions/pending?page=${page}&per_page=${rowsPerPage}`);
-  const [search,setSearch] = React.useState("");
+  const {data,error,mutate} = useSWR<ResponsePagination<ITransactaion>>(`/toko/${toko_id}/${outlet_id}/transactions/pending?page=${page}&per_page=${rowsPerPage}`);
+  const [searchVal,setSearchVal] = React.useState('');
+  const [search,setSearch] = React.useState<ITransactaion[]|undefined>(undefined);
+  const is543 = useMediaQuery('(min-width:543px)')
+
+  const items = React.useMemo(()=>{
+    if(search) return search;
+    if(data) return data.data;
+    return [];
+  },[data,search])
+
+  const handleSearch = React.useCallback((e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement>)=>{
+    const s = e.target.value;
+    setSearchVal(s);
+    if(s.length === 0) {
+      setSearch(undefined);
+      return;
+    }
+    const it = (data ? data.data : []).filter(f=>f.id.toLowerCase().indexOf(s.toLowerCase()) > -1);
+    setSearch(it);
+  },[data])
+
+  const handleSearchRemove = React.useCallback(()=>{
+    setSearchVal("")
+    setSearch(undefined);
+  },[])
+
+
 
   return (
     <>
@@ -438,6 +703,55 @@ function OutletSelfOrder() {
               <DateTime />
             </Grid>
           </Grid>
+        </Box>
+        <Box mt={4}>
+          <Card>
+            <Box sx={{p:2}}>
+              <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
+              <Search autosize remove value={searchVal} onchange={handleSearch} onremove={handleSearchRemove} />
+              </Stack>
+            </Box>
+            <Scrollbar>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell align='center'></TableCell>
+                    <TableCell align='left'>ID</TableCell>
+                    <TableCell align='left'>{ucwords(t("Subcribe.feature.table_number"))}</TableCell>
+                    <TableCell align='left'>{t("General.date")}</TableCell>
+                    <TableCell align='left'>{t("Payment.payment_method")}</TableCell>
+                    <TableCell align='center'>{t("Transaction.order_status")}</TableCell>
+                    <TableCell align='center'>{t("Transaction.payment_status")}</TableCell>
+                    <TableCell align='right'>Total</TableCell>
+                    <TableCell align='center'></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {error ? (
+                    <TableRow>
+                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{error?.message}</Typography></TableCell>
+                    </TableRow>
+                  ) : !data && !error || !items ? (
+                    <TableRow>
+                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
+                    </TableRow>
+                  ) : items?.length === 0 ? (
+                    <TableRow>
+                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{t("General.no",{what:t("Menu.transactions")})}</Typography></TableCell>
+                    </TableRow>
+                  ) : items?.map((d)=>(
+                    <TableTr key={`transaction-${d.id}`} data={d} captchaRef={captchaRef} mutate={mutate} />
+                  ))}
+                </TableBody>
+              </Table>
+            </Scrollbar>
+            <TablePagination
+              count={data?.total||0}
+              rowsPerPage={rowsPerPage}
+              page={page-1}
+              {...pagination}
+            />
+          </Card>
         </Box>
       </Container>
     </>
@@ -465,7 +779,7 @@ export default function OutletCashierGeneral({meta}: IPages) {
               <OutletCashier captchaRef={captchaRef} />
             )}
             {slug?.[0] === 'self-order' && (
-              <OutletSelfOrder />
+              <OutletSelfOrder captchaRef={captchaRef} />
             )}
         </Container>
       </Dashboard>

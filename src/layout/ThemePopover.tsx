@@ -11,16 +11,16 @@ import {State} from '@redux/types'
 
 const THEME = (t: ReturnType<typeof useTranslations>)=>([
   {
+    value: 'auto',
+    label: t("Theme.device"),
+  },
+  {
     value: 'light',
     label: t("Theme.light")
   },
   {
     value: 'dark',
     label: t("Theme.dark"),
-  },
-  {
-    value: 'auto',
-    label: 'Auto',
   }
 ]);
 

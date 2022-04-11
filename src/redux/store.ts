@@ -62,7 +62,7 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
             const toko_id = ctx.params?.toko_id;
             const outlet_id = ctx.params?.outlet_id;
             if(typeof toko_id !== 'string' || typeof outlet_id !== 'string') return db.redirect<P>("/apps");
-            const toko = await db.kata(`SELECT o.*, tk.userid,tk.slug,tk.name as toko_name FROM ${db.prefix}toko_outlet o LEFT JOIN ${db.prefix}toko tk ON tk.id = o.toko_id WHERE o.id=? AND tk.slug=? LIMIT 1`,[outlet_id,toko_id]);
+            const toko = await db.kata(`SELECT o.*, tk.userid,tk.slug,tk.name as toko_name FROM ${db.prefix}${process.env.DB_OUTLET_TABLE} o LEFT JOIN ${db.prefix}${process.env.DB_TOKO_TABLE} tk ON tk.id = o.toko_id WHERE o.id=? AND tk.slug=? LIMIT 1`,[outlet_id,toko_id]);
 
             if(!toko) return db.redirect<P>("/apps");
             const isOwner = toko[0].userid == userid;
@@ -94,7 +94,7 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
             const toko_id = ctx.params?.toko_id;
             
             if(typeof toko_id !== 'string') return db.redirect();
-            const check = await db.get('toko',{slug:toko_id,userid:userid},{limit:1});
+            const check = await db.get(process.env.DB_TOKO_TABLE as string,{slug:toko_id,userid:userid},{limit:1});
             if(!check) return db.redirect();
             
             return {

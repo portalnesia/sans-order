@@ -7,6 +7,7 @@ import DashboardSidebar from './DashboardSidebar';
 import loadingImage from '@comp/loading-image-base64'
 import useInitData from '@utils/init-data'
 import {useSelector,State} from '@redux/index'
+import {Socket} from '@utils/Socket';
 // ----------------------------------------------------------------------
 
 const APP_BAR_MOBILE = 64;
@@ -38,6 +39,7 @@ export interface DashboardProps {
   title?: string,
   subtitle?: string
 }
+
 export default function DashboardLayout({children,title,subtitle}: DashboardProps) {
   const {user,ready:loaded} = useSelector<Pick<State,'user'|'ready'>>(s=>({user:s.user,ready:s.ready}));
   const [open, setOpen] = useState(false);
@@ -52,6 +54,7 @@ export default function DashboardLayout({children,title,subtitle}: DashboardProp
       )}
       {user && (
         <>
+          <Socket />
           <DashboardNavbar onOpenSidebar={() => setOpen(true)} />
           <DashboardSidebar title={title} subtitle={subtitle} isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
           <MainStyle>
