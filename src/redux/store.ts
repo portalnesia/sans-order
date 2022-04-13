@@ -10,6 +10,7 @@ import {GetServerSidePropsContext,GetServerSidePropsResult,GetStaticPropsContext
 import { ParsedUrlQuery } from 'querystring'
 import {useDispatch as originalUseDispatch,useSelector as originalUseSelector} from 'react-redux'
 import {convertToPlaintext} from '@utils/marked'
+import { photoUrl } from '@utils/Main';
 
 export const useDispatch = ()=>originalUseDispatch<Dispatch<ActionType>>()
 export const useSelector = <D=State>(selector: (state: State)=>D)=>originalUseSelector<State,D>(selector)
@@ -32,7 +33,7 @@ type IOutlet = {
   onlyAdmin?: boolean,
   onlyOwner?: boolean,
   onlyMyToko?: boolean,
-  onlyLogin?:boolean
+  notfound?:boolean
 }
 
 type IQuery = {
@@ -57,23 +58,22 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
           const userid = ctx.req.cookies?.['_so_token_'];
 
           async function checkOutlet(dt: IOutlet = {}): Promise<GetServerSidePropsResult<P>> {
-            dt.onlyLogin = true;
-            if(!userid && dt.onlyLogin) return db.redirect<P>("/apps");
+            dt.notfound=dt.notfound||true;
+            if(!userid && dt.onlyMyToko) return db.redirect<P>("/apps");
             const toko_id = ctx.params?.toko_id;
             const outlet_id = ctx.params?.outlet_id;
-            if(typeof toko_id !== 'string' || typeof outlet_id !== 'string') return db.redirect<P>("/apps");
+            if(typeof toko_id !== 'string' || typeof outlet_id !== 'string') return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
             const toko = await db.kata(`SELECT o.*, tk.userid,tk.slug,tk.name as toko_name FROM ${db.prefix}${process.env.DB_OUTLET_TABLE} o LEFT JOIN ${db.prefix}${process.env.DB_TOKO_TABLE} tk ON tk.id = o.toko_id WHERE o.id=? AND tk.slug=? LIMIT 1`,[outlet_id,toko_id]);
-
-            if(!toko) return db.redirect<P>("/apps");
-            const isOwner = toko[0].userid == userid;
             
+            if(!toko) return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
+            const isOwner = toko[0].userid == userid;
             if(dt.onlyOwner) {
-              if(!isOwner) return db.redirect<P>("/apps");
-            } else if(!isOwner) {
+              if(!isOwner) return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
+            } else if(dt.onlyMyToko && !isOwner) {
               const users = await db.get('toko_users',{userid,toko_id:toko[0].toko_id,outlet_id:toko[0].id,pending:0},{limit:1});
-              if(!users) return db.redirect<P>("/apps");
+              if(!users) return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
 
-              if(dt.onlyAdmin && !users.admin) return db.redirect<P>("/apps");
+              if(dt.onlyAdmin && !users.admin) return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
             }
             
             return {
@@ -82,27 +82,34 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
                   title:toko[0]?.name,
                   description: convertToPlaintext(toko[0]?.description),
                   slug: toko[0]?.slug,
-                  toko_name: toko[0]?.toko_name
+                  toko_name: toko[0]?.toko_name,
+                  image: `${photoUrl(toko[0]?.logo||null)}&watermark=no&export=banner&size=300`
                 }
               } as unknown as P
             }
           }
 
-          async function checkToko(): Promise<GetServerSidePropsResult<P>> {
-            if(!userid) return db.redirect("/apps");
-
+          async function checkToko(dt: IOutlet = {}): Promise<GetServerSidePropsResult<P>> {
+            dt.notfound=dt.notfound||true;
             const toko_id = ctx.params?.toko_id;
-            
             if(typeof toko_id !== 'string') return db.redirect();
-            const check = await db.get(process.env.DB_TOKO_TABLE as string,{slug:toko_id,userid:userid},{limit:1});
-            if(!check) return db.redirect();
+            let check: Record<string, any> | undefined;
+
+            if(dt.onlyMyToko) {
+              if(!userid) return db.redirect("/apps");
+              check = await db.get(process.env.DB_TOKO_TABLE as string,{slug:toko_id,userid:userid},{limit:1});
+            } else {
+              check = await db.get(process.env.DB_TOKO_TABLE as string,{slug:toko_id},{limit:1});
+            }
+            if(!check) return db.redirect(!dt.notfound ? "/apps" : undefined);
             
             return {
               props :{
                 meta:{
                   title:check?.name,
                   description:convertToPlaintext(check?.description),
-                  slug: check?.slug
+                  slug: check?.slug,
+                  image: `${photoUrl(check?.logo||null)}&watermark=no&export=banner&size=300`
                 }
               } as unknown as P
             }

@@ -255,7 +255,9 @@ export default function HomeNavbar({withNavbar=true,withDashboard=true} : HomeNa
                   {t("Menu.dashboard")}
                 </Button>
               )
-            : null}
+            : (
+              <AccountPopover />
+            )}
             
             {menuMobile && (
               <MobileNavItem items={navbar} />

@@ -14,23 +14,9 @@ import useSWR from '@utils/swr'
 import {Circular} from '@comp/Loading'
 import Label from '@comp/Label'
 import Iconify from '@comp/Iconify'
+import ExpandMore from '@comp/ExpandMore';
 
 export const getStaticProps = staticProps();
-
-interface ExpandMoreProps extends IconButtonProps {
-  expand: boolean
-}
-
-const ExpandMore = styled((props: ExpandMoreProps)=>{
-  const {expand,...rest}=props
-  return <IconButton {...rest} />;
-})(({theme,expand})=>({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  marginLeft:'auto',
-  transition: theme.transitions.create('transform',{
-    duration: theme.transitions.duration.shorter
-  })
-}))
 
 const FEATURES = (t: ReturnType<typeof useTranslations>)=>([
   `${t("Subcribe.feature.free",{qty:1})}*`,

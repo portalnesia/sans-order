@@ -42,7 +42,12 @@
     "update":"Update {what}",
     "_update":"Update",
     "print":"Print",
-    "are_you_sure":"Are You Sure?"
+    "are_you_sure":"Are You Sure?",
+    "view":"View {what}",
+    "telephone":"Telephone",
+    "country":"Country",
+    "next":"Next",
+    "id":"{what} ID"
   },
   "Theme":{
     "theme":"Theme",
@@ -132,14 +137,27 @@
     "account_name":"Account Name",
     "account_number":"Account Number",
     "payment_method":"Payment Method",
-    "withdraw_method":"Withdraw Method"
+    "withdraw_method":"Withdraw Method",
+    "add_cart":"Add to Cart",
+    "view_more":"View More",
+    "cart":"Cart",
+    "order_summary":"Order Summary",
+    "pay_before":"Pay Before",
+    "error":{
+      "method":"Please select payment method!"
+    },
+    "instruction":{
+      "title":"Payment Instruction",
+      "cod":"Go to the cashier.\nTell the cashier if you want to make a payment for the online orders.\nThe cashier will ask for your transaction ID listed above.\nMake payment.\nAfter paying, an E-Receipt will be sent to your email."
+    }
   },
   "Product":{
     "price":"Price",
     "disscount":"Disscount",
     "stock":"Stock",
     "show_in_menu":"Show in Catalog",
-    "category":"Category"
+    "category":"Category",
+    "catalog":"Catalog"
   },
   "Cashier":{
     "process":"Process",

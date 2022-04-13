@@ -259,7 +259,7 @@ export default function OutletProducts({meta}: IPages) {
   const setNotif = useNotif();
   const {toko_id,outlet_id} = router.query;
   const {outlet} = useOutlet(toko_id,outlet_id);
-  const {page,rowsPerPage,...pagination} = usePagination();
+  const {page,rowsPerPage,...pagination} = usePagination(true);
   const [input,setInput] = React.useState<IInputProduct>(DEFAULT_INPUT);
   const [dCreate,setDCreate] = React.useState(false);
   const [dEdit,setDEdit] = React.useState<IProduct|null>(null);
@@ -507,7 +507,7 @@ export default function OutletProducts({meta}: IPages) {
         </form>
       </Dialog>
 
-      <Dialog maxWidth='xs' loading={loading} open={dDelete!==null} handleClose={()=>setDDelete(null)}>
+      <Dialog maxWidth='xs' loading={loading} open={dDelete!==null} handleClose={()=>setDDelete(null)} fullScreen={false}>
         <DialogTitle>{t("General.are_you_sure")}</DialogTitle>
         <DialogActions>
           <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{t("General.cancel")}</Button>

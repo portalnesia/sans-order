@@ -200,7 +200,7 @@ export default function OutletTransactions({meta}: IPages){
   const {toko_id,outlet_id} = router.query;
   const [loading,setLoading] = React.useState<string|null>(null)
   const setNotif = useNotif();
-  const {page,rowsPerPage,...pagination} = usePagination();
+  const {page,rowsPerPage,...pagination} = usePagination(true);
   const [query,setQuery]=React.useState<{filter:string,from:null|number,to:null|number}>({filter:'monthly',from:null,to:null})
   const [range,setRange]=React.useState({from:getDayJs().subtract(1, 'month'),to:getDayJs()})
   const [dFilter,setDFilter] = React.useState(false);

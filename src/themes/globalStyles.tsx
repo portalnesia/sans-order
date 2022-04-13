@@ -67,7 +67,7 @@ export default function GlobalStyles() {
           marginTop:16,
           marginBottom:16
         },
-        a: {color:'inherit',textDecoration:'unset',WebkitTapHighlightColor:'transparent'},
+        a: {color:'inherit',textDecoration:'unset',WebkitTapHighlightColor:'transparent','&:hover':{textDecoration:'underline'}},
         img: { display: 'block', maxWidth: '100%' },
 
         // Lazy Load Img
@@ -100,6 +100,10 @@ export default function GlobalStyles() {
           background: `${theme.palette.primary.main} !important`,
           zIndex: '9999  !important',
           height: '4px !important',
+        },
+        '.underline-heading':{
+          paddingBottom:'.1rem',
+          borderBottom:`1px solid ${theme.palette.divider}`
         }
       }}
     />

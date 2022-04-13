@@ -13,7 +13,8 @@ import Button from '@comp/Button'
 import loadingImage from '@comp/loading-image-base64'
 import {useRouter} from 'next/router'
 import portalnesia,{ResponsePagination,useAPI} from '@utils/portalnesia'
-import SessionStorage from "@utils/local-storage";
+import LocalStorage from "@utils/local-storage";
+import SessionStorage from '@utils/session-storage';
 import useNotif from '@utils/notification'
 import useSWR from '@utils/swr'
 import Backdrop from '@comp/Backdrop'
@@ -67,7 +68,7 @@ function LoginSection() {
 
   const login = React.useCallback(()=>{
     const code = portalnesia.oauth.generatePKCE();
-    SessionStorage.set('pkce',code);
+    LocalStorage.set('pkce',code);
 
     const url = portalnesia.oauth.getAuthorizationUrl({code_challenge:code.code_challenge});
     
@@ -119,10 +120,10 @@ function Loginned({user}: {user:IUser}) {
   const t = useTranslations();
   const [loading,setLoading] = React.useState(false);
   const [dialog,setDialog] = React.useState(false);
-  const [page,setPage] = usePagination();
+  const [page,setPage] = usePagination(1);
   const setNotif = useNotif();
   const {post} = useAPI()
-  const [oPage,setOPage] = usePagination();
+  const [oPage,setOPage] = usePagination(1);
   const [input,setInput] = React.useState({name:'',description:''});
   const {data,error,mutate} = useSWR<ResponsePagination<IToko>>(`/toko?page=${page}&per_page=12&type=toko`);
   const {data:outlet,error:errorOutlet} = useSWR<ResponsePagination<IOutletPagination>>(`/toko?page=${oPage}&per_page=12&type=outlet`)
@@ -306,7 +307,8 @@ export default function DashboardApp() {
   React.useEffect(()=>{
     async function login() {
       if(typeof code === 'string') {
-        const pkce = SessionStorage.get('pkce');
+        const pkce = LocalStorage.get('pkce');
+        const auth = SessionStorage.get('auth')
         if(pkce) {
           try {
             const token = await portalnesia.oauth.getToken({grant_type:'authorization_code',code,code_verifier:pkce.code_verifier});
@@ -322,9 +324,13 @@ export default function DashboardApp() {
               }
             }
             
-            SessionStorage.set('sans_token',token.token);
-            SessionStorage.remove('pkce');
-            router.replace({pathname:router.pathname},undefined,{shallow:true});
+            LocalStorage.set('sans_token',token.token);
+            LocalStorage.remove('pkce');
+            if(auth?.pathname) {
+              router.replace({pathname:auth?.pathname,query:auth?.query},auth?.asPath);
+            } else {
+              router.replace({pathname:router.pathname},undefined,{shallow:true});
+            }
           } catch(e: any) {
             router.replace({pathname:router.pathname,query:{error_description:e?.message}},undefined,{shallow:true});
             setNotif(e?.message||t("General.error"),true);

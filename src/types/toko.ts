@@ -110,3 +110,8 @@ export interface TokoUsers {
   owner:boolean,
   pending: boolean
 }
+
+export interface IMenu {
+  category: string,
+  data: IProduct[]
+}

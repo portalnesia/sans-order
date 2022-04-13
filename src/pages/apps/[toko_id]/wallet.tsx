@@ -32,7 +32,7 @@ const TextField=dynamic(()=>import('@mui/material/TextField'))
 const Browser = dynamic(()=>import('@comp/Browser'))
 const Tooltip = dynamic(()=>import('@mui/material/Tooltip'))
 
-export const getServerSideProps = wrapper({name:'check_toko'});
+export const getServerSideProps = wrapper({name:'check_toko',outlet:{onlyMyToko:true}});
 
 type IForm = {
   bank_code: string,

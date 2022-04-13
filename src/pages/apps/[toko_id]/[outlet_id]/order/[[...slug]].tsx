@@ -515,7 +515,7 @@ function Menu({data,disabled,captchaRef,mutate}: IMenu) {
 
       <DialogPay items={data.items} onClose={()=>{setPay(false)}} open={pay} onSuccess={onPaySuccess} captchaRef={captchaRef} total={data.total} id={data.id} table_number={data.metadata?.table_number} />
 
-      <Dialog open={dialog!==null} handleClose={()=>setDialog(null)} loading={loading!==null}>
+      <Dialog open={dialog!==null} handleClose={()=>setDialog(null)} loading={loading!==null} fullScreen={false}>
           <DialogTitle>{`${t("General.print")} E-Receipt?`}</DialogTitle>
           <DialogActions>
             <Button text color='inherit' onClick={()=>setDialog(null)}>{t("General.cancel")}</Button>
@@ -523,7 +523,7 @@ function Menu({data,disabled,captchaRef,mutate}: IMenu) {
           </DialogActions>
       </Dialog>
 
-      <Dialog open={edit} handleClose={()=>setEdit(false)} loading={loading!==null}>
+      <Dialog open={edit} handleClose={()=>setEdit(false)} loading={loading!==null} fullScreen={false}>
           <DialogTitle>{t("General.are_you_sure")}</DialogTitle>
           <DialogContent>
             <Typography>{t("Cashier.update_order_status")}</Typography>
@@ -659,7 +659,7 @@ function OutletSelfOrder({captchaRef}: {captchaRef: PayProps['captchaRef']}) {
   const router = useRouter();
   const [dPay,setDPay] = React.useState(false);
   const {toko_id,outlet_id} = router.query;
-  const {page,rowsPerPage,...pagination} = usePagination();
+  const {page,rowsPerPage,...pagination} = usePagination(true);
   const {data,error,mutate} = useSWR<ResponsePagination<ITransactaion>>(`/toko/${toko_id}/${outlet_id}/transactions/pending?page=${page}&per_page=${rowsPerPage}`);
   const [searchVal,setSearchVal] = React.useState('');
   const [search,setSearch] = React.useState<ITransactaion[]|undefined>(undefined);

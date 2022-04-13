@@ -7,7 +7,8 @@ import config from '@root/web.config.json'
 export interface HeaderProps {
   children: ReactNode,
   title?: string,
-  desc?: string|null
+  desc?: string|null,
+  image?: string|null
 }
 
 

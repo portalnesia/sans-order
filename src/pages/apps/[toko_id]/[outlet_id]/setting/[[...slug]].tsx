@@ -191,7 +191,7 @@ export function GeneralSetting() {
       </Grid>
       <Backdrop open={!outlet && !errOutlet} />
       <Recaptcha ref={captchaRef} />
-      <Dialog open={opDialog} handleClose={()=>setOpDialog(false)}>
+      <Dialog open={opDialog} handleClose={()=>setOpDialog(false)} fullScreen={false}>
         <DialogTitle>{t("General.access_denied")}</DialogTitle>
         <DialogContent dividers>
           <Typography gutterBottom>{t("Wallet.online_payment")}</Typography>
@@ -255,7 +255,7 @@ export function TeamSetting() {
   const setNotif = useNotif();
   const {toko_id,outlet_id} = router.query;
   const {outlet} = useOutlet(toko_id,outlet_id);
-  const {page,rowsPerPage,...pagination} = usePagination();
+  const {page,rowsPerPage,...pagination} = usePagination(true);
   const [iCreate,setICreate] = React.useState<{email: string,admin: boolean}>({email:'',admin:false})
   const [iEdit,setIEdit] = React.useState<boolean>(false)
   const [dCreate,setDCreate] = React.useState(false);
@@ -448,7 +448,7 @@ export function TeamSetting() {
           </DialogActions>
         </form>
       </Dialog>
-      <Dialog maxWidth='xs' loading={loading} open={dDelete!==null} handleClose={()=>setDDelete(null)}>
+      <Dialog maxWidth='xs' loading={loading} open={dDelete!==null} handleClose={()=>setDDelete(null)} fullScreen={false}>
         <DialogTitle>{t("General.are_you_sure")}</DialogTitle>
         <DialogActions>
           <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{t("General.cancel")}</Button>

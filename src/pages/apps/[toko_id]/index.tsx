@@ -31,7 +31,7 @@ const Browser = dynamic(()=>import('@comp/Browser'),{ssr:false})
 const Tooltip = dynamic(()=>import('@mui/material/Tooltip'))
 const SimpleMDE = dynamic(()=>import('@comp/SimpleMDE'),{ssr:false})
 
-export const getServerSideProps = wrapper({name:'check_toko'});
+export const getServerSideProps = wrapper({name:'check_toko',outlet:{onlyMyToko:true}});
 
 const MENU = (t: ReturnType<typeof useTranslations>)=>([
   {
@@ -60,7 +60,7 @@ export default function DashboardApp({meta}: IPages) {
   const t = useTranslations();
   const router = useRouter();
   const toko_id = router?.query?.toko_id
-  const [page,setPage] = usePagination();
+  const [page,setPage] = usePagination(true);
   const setNotif = useNotif()
   const {del,post,put} = useAPI();
   const [loading,setLoading] = React.useState<string|null>(null);
@@ -238,7 +238,7 @@ export default function DashboardApp({meta}: IPages) {
             </>
           )}
         </Container>
-        <Dialog loading={loading!==null} open={dDelete} handleClose={()=>setDDelete(false)}>
+        <Dialog loading={loading!==null} open={dDelete} handleClose={()=>setDDelete(false)} fullScreen={false}>
           <DialogTitle>{`${t("General.delete",{what:toko?.name})}?`}</DialogTitle>
           <DialogContent>
             {t("Toko.delete").split("\n").map((t,i)=>(

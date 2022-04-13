@@ -25,6 +25,7 @@ export type IPages = {
     description?: string,
     slug?: string,
     toko_name?: string,
+    image?: string
   },
   err?: number
 }
