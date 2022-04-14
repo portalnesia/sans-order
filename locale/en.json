@@ -148,7 +148,15 @@
     },
     "instruction":{
       "title":"Payment Instruction",
-      "cod":"Go to the cashier.\nTell the cashier if you want to make a payment for the online orders.\nThe cashier will ask for your transaction ID listed above.\nMake payment.\nAfter paying, an E-Receipt will be sent to your email."
+      "cod":"Go to the cashier.\nTell the cashier if you want to make a payment for the online orders.\nThe cashier will ask for your transaction ID listed above.\nMake payment.\nAfter paying, an E-Receipt will be sent to your email.",
+      "qris":{
+        "scan":"Scan QR Code to pay",
+        "accept":"QR Code accepted in",
+        "other":"and other applications that accept QRIS"
+      },
+      "ewallet":{
+        "redirect":"Redirecting you to {what} checkout page in a moment…"
+      }
     }
   },
   "Product":{

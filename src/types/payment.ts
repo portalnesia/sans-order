@@ -8,12 +8,20 @@ export const paymentType = ['COD','VIRTUAL_ACCOUNT','EWALLET','QRIS'] as ('COD'|
 export type IPayment = typeof paymentType[number];
 export type IStatus = typeof statusType[number];
 export type IOrderStatus = typeof orderStatusType[number]
+export type BankCode = 'BNI'|'BRI'|'MANDIRI'|'PERMATA';
+export type EWalletCode = 'DANA'|'SHOPEEPAY'|'LINKAJA';
 
-export const sendBankCode = {
+export const walletChannelCodetoEwalletCode: Record<string,EWalletCode> = {
+  "ID_DANA":"DANA",
+  "ID_LINKAJA":"LINKAJA",
+  "ID_SHOPEEPAY":"SHOPEEPAY"
+}
+
+export const sendBankCode: Record<BankCode,string> = {
   MANDIRI:"BANK MANDIRI",
   BNI:"BANK BNI",
   BRI:"BANK BRI",
-  BCA:"BANK BCA",
+  PERMATA:"BANK PERMATA",
 }
 
 export const paymentCodeName: Record<IPayment,string> = {
@@ -26,7 +34,7 @@ export const paymentCodeName: Record<IPayment,string> = {
 export const sendBankCodeArray = Object.keys(sendBankCode);
 
 export const sendEwalletCode = {
-  DATA:'DANA',
+  DANA:'DANA',
   LINKAJA: 'LINKAJA',
   SHOPEEPAY: 'SHOPEEPAY',
   OVO: 'OVO',
@@ -35,9 +43,6 @@ export const sendEwalletCode = {
 
 export const sendAllCode = {...sendBankCode,...sendEwalletCode}
 export const sendAllCodeArray = Object.entries(sendAllCode);
-
-export type BankCode = 'BNI'|'BRI'|'MANDIRI'|'PERMATA';
-export type EWalletCode = 'DANA'|'SHOPEEPAY'|'LINKAJA';
 
 export const colorStatus: Record<IStatus,FullColor> = {
   PAID:'primary',
@@ -164,6 +169,7 @@ export type EWalletResults = {
   /**
    * Redirection actions to be taken when `is_redirect_required` returned in response is true
    */
+  channel_code: 'ID_DANA'|'ID_LINKAJA'|'ID_SHOPEEPAY'
   actions?:{
     desktop_web_checkout_url?:string|null,
     mobile_web_checkout_url?:string|null,

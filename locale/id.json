@@ -148,7 +148,15 @@
     },
     "instruction":{
       "title":"Tata Cata Membayar",
-      "cod":"Pergi ke kasir.\nBeritahu kasir jika Anda ingin melakukan pembayaran untuk pemesanan online.\nKasir akan menanyakan ID transaksi Anda, yang tertera di atas.\nLakukan pembayaran.\nSetelah membayar, struk elektronik akan dikirimkan melalui email Anda."
+      "cod":"Pergi ke kasir.\nBeritahu kasir jika Anda ingin melakukan pembayaran untuk pemesanan online.\nKasir akan menanyakan ID transaksi Anda, yang tertera di atas.\nLakukan pembayaran.\nSetelah membayar, struk elektronik akan dikirimkan melalui email Anda.",
+      "qris":{
+        "scan":"Pindai Kode QR untuk membayar",
+        "accept":"Kode QR diterima di",
+        "other":"dan aplikasi lainnya yang menerima QRIS"
+      },
+      "ewallet":{
+        "redirect":"Mengarahkan Anda ke halaman checkout {what} dalam beberapa saat…"
+      }
     }
   },
   "Product":{

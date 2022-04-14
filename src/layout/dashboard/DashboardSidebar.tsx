@@ -14,6 +14,7 @@ import Logo from '../../components/Logo';
 import Scrollbar from '../../components/Scrollbar';
 import NavSection from '../../components/NavSection';
 import sidebarConfig from './SidebarConfig';
+import MenuQr from '@comp/MenuQr';
 
 // ----------------------------------------------------------------------
 
@@ -84,6 +85,8 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title,
       )}
 
       <NavSection navConfig={sidebarConfig(t,router)} />
+
+      <MenuQr />
 
       <Box sx={{ flexGrow: 1 }} />
 

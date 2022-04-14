@@ -1,5 +1,8 @@
 import {customShadows} from './shadows'
 import {GRADIENTS,PRIMARY,CHART_COLORS} from './palette'
+import type {LoadingButtonTypeMap} from '@mui/lab'
+import type {OverrideProps} from '@mui/material/OverridableComponent'
+import type {ElementType} from 'react'
 
 declare module '@mui/material' {
   export interface Theme {
@@ -31,6 +34,22 @@ declare module '@mui/material' {
     gradients: typeof GRADIENTS,
     chart: typeof CHART_COLORS
   }
+
+  export type LoadingButtonProps<
+    D extends React.ElementType = LoadingButtonTypeMap['defaultComponent'],
+    P = {},
+  > = OverrideProps<LoadingButtonTypeMap<P, D>, D>;
+}
+
+declare module '@mui/lab' {
+  type CustomProps = {
+    component?: string,
+    download?: string
+  }
+  export type LoadingButtonProps<
+    D extends ElementType = LoadingButtonTypeMap['defaultComponent'],
+    P = CustomProps,
+  > = OverrideProps<LoadingButtonTypeMap<P, D>, D>;
 }
 
 declare module '@mui/material/ListItemButton' {
