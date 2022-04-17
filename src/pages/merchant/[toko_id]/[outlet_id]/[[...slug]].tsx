@@ -4,7 +4,7 @@ import { Box, Grid, Container, Typography, Stack } from '@mui/material';
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'
 import Image from '@comp/Image'
-import {useTranslations} from 'next-intl';
+import {useTranslation} from 'next-i18next';
 import useSWR from '@utils/swr'
 import {Circular} from '@comp/Loading'
 import Iconify from '@comp/Iconify'
@@ -23,13 +23,14 @@ import Button from '@comp/Button';
 import CartContext from '@redux/cart'
 import Cart from '@comp/Cart';
 import SessionStorage from '@utils/session-storage';
+import { Socket } from '@utils/Socket';
 
 export const getServerSideProps = wrapper(async({checkOutlet,params,redirect})=>{
   const slug = params?.slug;
   if(typeof slug?.[1] !== 'undefined') {
     return redirect();
   }
-  return await checkOutlet({onlyMyToko:false});
+  return await checkOutlet({onlyMyToko:false},['catalogue']);
 });
 
 interface CarouselProps {
@@ -37,7 +38,7 @@ interface CarouselProps {
 }
 
 function Carousel({data}: CarouselProps) {
-  const t = useTranslations();
+  const {t} = useTranslation('catalogue');
   const router = useRouter();
   const {toko_id,outlet_id,slug} = router.query;
   return (
@@ -45,7 +46,7 @@ function Carousel({data}: CarouselProps) {
       <Stack mb={4} direction='row' justifyContent={'space-between'} alignItems='center' spacing={2} sx={{pb:1,mb:4,borderBottom:(theme)=>`1px solid ${theme.palette.divider}`}}>
         <Typography variant='h3' component='h3'>{data.category}</Typography>
         {!slug && data.data.length >= 5 && (
-          <Button size='small' onClick={()=>router.replace(`/merchant/[toko_id]/[outlet_id]/[[...slug]]`,`/merchant/${toko_id}/${outlet_id}/${data.category.toLowerCase()}`,{shallow:true})}>{t("Payment.view_more")}</Button>
+          <Button size='small' onClick={()=>router.replace(`/merchant/[toko_id]/[outlet_id]/[[...slug]]`,`/merchant/${toko_id}/${outlet_id}/${data.category.toLowerCase()}`,{shallow:true})}>{t("view_more")}</Button>
         )}
       </Stack>
       <Box>
@@ -68,7 +69,7 @@ interface GridDataProps {
   count: number
 }
 function GridData({data,page,setPage,count}: GridDataProps) {
-  const t = useTranslations();
+  const {t} = useTranslation('common');
   const router = useRouter();
   const {toko_id,outlet_id,slug} = router.query;
 
@@ -77,7 +78,7 @@ function GridData({data,page,setPage,count}: GridDataProps) {
       <Stack mb={4} direction='row' justifyContent={'space-between'} alignItems='center' spacing={2} sx={{pb:1,mb:4,borderBottom:(theme)=>`1px solid ${theme.palette.divider}`}}>
         <Typography variant='h3' component='h3'>{ucwords(slug?.[0] as string)}</Typography>
         {typeof slug?.[0] === 'string' && (
-          <Button size='small' onClick={()=>router.replace(`/merchant/[toko_id]/[outlet_id]/[[...slug]]`,`/merchant/${toko_id}/${outlet_id}`,{shallow:true})}>{t("General.back")}</Button>
+          <Button size='small' onClick={()=>router.replace(`/merchant/[toko_id]/[outlet_id]/[[...slug]]`,`/merchant/${toko_id}/${outlet_id}`,{shallow:true})}>{t("back")}</Button>
         )}
       </Stack>
       <Box>
@@ -97,7 +98,6 @@ function GridData({data,page,setPage,count}: GridDataProps) {
 }
 
 export default function MerchantOutlet({meta}: IPages) {
-  const t = useTranslations();
 	const router = useRouter();
 	const {toko_id,outlet_id,slug,table_number} = router.query;
   const {outlet,errOutlet} = useOutlet(toko_id,outlet_id);
@@ -120,6 +120,7 @@ export default function MerchantOutlet({meta}: IPages) {
 
   return (
     <Header title={meta?.title} desc={meta?.description} image={meta?.image}>
+      <Socket />
       <CartContext>
         <Dashboard withDashboard={false}>
           <Container maxWidth='lg' sx={{mt:2}}>

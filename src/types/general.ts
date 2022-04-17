@@ -1,4 +1,5 @@
 import {Redirect} from 'next'
+import { SSRConfig } from 'next-i18next';
 
 export type ValueOf<T> = T[keyof T];
 
@@ -28,7 +29,7 @@ export type IPages = {
     image?: string
   },
   err?: number
-}
+} & Partial<SSRConfig>
 
 export type Color = 'primary'|'secondary'|'info'|'success'|'warning'|'error';
 export type FullColor = Color | 'default'

@@ -8,7 +8,6 @@ import { numberFormat } from '@portalnesia/utils';
 import { IMenu } from '@type/index';
 import { photoUrl } from '@utils/Main';
 import Iconify from '@comp/Iconify';
-import { useTranslations } from 'use-intl';
 import Button from '@comp/Button';
 import {Context} from '@redux/cart'
 import { useRouter } from 'next/router';
@@ -30,7 +29,6 @@ interface ProductsProps {
 
 export default function Products({ items,maxWidth }: ProductsProps) {
   const { name, image, price, disscount:priceSale } = items;
-  const t = useTranslations();
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
   const context = useContext(Context);

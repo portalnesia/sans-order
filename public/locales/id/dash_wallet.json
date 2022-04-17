@@ -1,0 +1,18 @@
+{
+  "wallet":"Dompet",
+  "account_name":"Nama Akun",
+  "account_number":"Nomor Akun",
+  "withdraw_method":"Metode Penarikan",
+  "no_wallet_title":"Anda belum memiliki akun dompet untuk merchant ini",
+  "no_wallet":"Pembuatan akun dompet hanya dilakukan sekali.",
+  "delete":"Akun dompet akan terhapus HANYA jika Anda menghapus merchant Anda. Jadi apabila dompet Anda masih berisikan saldo, mohon untuk menarik saldo Anda terlebih dahulu sebelum melakukan penghapusan merchant.",
+  "balance":"Saldo",
+  "history":"Riwayat {{what}}",
+  "month":"Bulan Ini",
+  "week":"Minggu ini",
+  "today":"Hari ini",
+  "custom":"Kustom",
+  "from":"Dari",
+  "to":"Sampai",
+  "date":"Tanggal"
+}

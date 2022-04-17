@@ -14,7 +14,7 @@ import Image from '@comp/Image'
 import Popover from '@comp/Popover'
 import {IOutlet,IPages,ResponsePagination,IProduct, Without} from '@type/index'
 import wrapper from '@redux/store'
-import {useTranslations} from 'next-intl';
+import {useTranslation} from 'next-i18next';
 import useSWR from '@utils/swr';
 import { useRouter } from 'next/router';
 import Iconify from '@comp/Iconify';
@@ -35,7 +35,7 @@ const DialogActions=dynamic(()=>import('@mui/material/DialogActions'))
 const SimpleMDE = dynamic(()=>import('@comp/SimpleMDE'))
 const Browser = dynamic(()=>import('@comp/Browser'),{ssr:false})
 
-export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true}})
+export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true},translation:'dash_product'})
 
 type IInputProduct = Without<IProduct,'id'|'outlet_id'|'toko_id'|'metadata'>
 
@@ -48,7 +48,9 @@ interface FormProps {
 }
 
 function Form({input,setInput,loading,openBrowser,autoFocus}: FormProps) {
-  const t = useTranslations();
+  const {t} = useTranslation('dash_product');
+  const {t:tMenu} = useTranslation('menu');
+  const {t:tCom} = useTranslation('common');
 
   const handleChange=React.useCallback((name: keyof IInputProduct)=>(e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement> | string)=>{
     const val = typeof e === 'string' ? e : e?.target?.value;
@@ -73,7 +75,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus}: FormProps) {
           control={
             <Switch disabled={loading} checked={input.active} color="primary" onChange={handleChecked('active')} />
           }
-          label={t("General.active")}
+          label={t("active")}
         />
       </Grid>
       <Grid item xs={12} sm={6}>
@@ -81,13 +83,13 @@ function Form({input,setInput,loading,openBrowser,autoFocus}: FormProps) {
           control={
             <Switch disabled={loading} checked={input.show_in_menu} color="primary" onChange={handleChecked('show_in_menu')} />
           }
-          label={t("Product.show_in_menu")}
+          label={t("show_in_menu")}
         />
       </Grid>
 
       <Grid item xs={12} md={6}>
         <TextField
-          label={t("General.name",{what:t("Menu.products")})}
+          label={tCom("name_ctx",{what:tMenu("products")})}
           value={input.name}
           onChange={handleChange('name')}
           required
@@ -98,7 +100,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus}: FormProps) {
       </Grid>
       <Grid item xs={12} md={6}>
         <TextField
-          label={t("Product.category")}
+          label={t("category")}
           value={input.category}
           onChange={handleChange('category')}
           fullWidth
@@ -108,7 +110,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus}: FormProps) {
 
       <Grid item xs={12} sm={4}>
         <TextField
-          label={t("Product.price")}
+          label={t("price")}
           value={input.price||0}
           onChange={handleChange('price')}
           required
@@ -120,7 +122,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus}: FormProps) {
       </Grid>
       <Grid item xs={12} sm={4}>
         <TextField
-          label={t("Product.disscount")}
+          label={t("disscount")}
           value={input.disscount||0}
           onChange={handleChange('disscount')}
           required
@@ -144,7 +146,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus}: FormProps) {
 
       <Grid item xs={12} sm={4}>
         <TextField
-          label={t("Product.stock")}
+          label={t("stock")}
           value={input.stock||0}
           onChange={handleChange('stock')}
           fullWidth
@@ -154,7 +156,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus}: FormProps) {
       </Grid>
       <Grid item xs={12} sm={4}>
         <TextField
-          label={`${t("Product.stock")} per Item`}
+          label={`${t("stock")} per Item`}
           value={input.stock_per_items||0}
           onChange={handleChange('stock_per_items')}
           fullWidth
@@ -175,21 +177,21 @@ function Form({input,setInput,loading,openBrowser,autoFocus}: FormProps) {
         />
       </Grid>
       <Grid item xs={12}>
-        <SimpleMDE disabled={loading} value={input.description||''} image onChange={handleChange('description')} label={t("General.description")} />
+        <SimpleMDE disabled={loading} value={input.description||''} image onChange={handleChange('description')} label={tCom("description")} />
       </Grid>
       <Grid item xs={12}>
         {input.image ? (
           <Box padding={{sm:2,md:3,lg:5}} display='flex' alignItems='center' justifyContent='center'>
-            <Image alt={t("General.image")} src={input.image} style={{maxWidth:300}} />
+            <Image alt={tCom("image")} src={input.image} style={{maxWidth:300}} />
           </Box>
         ) : (
           <Box textAlign='center' padding={{sm:2,md:3,lg:5}}>
-            <Typography>{t("General.no",{what:t("General.image")})}</Typography>
+            <Typography>{tCom("no_what",{what:tCom("image")})}</Typography>
           </Box>
         )}
         <Box className='flex-header' pl={{sm:2,md:3,lg:5}} pr={{sm:2,md:3,lg:5}}>
-          <Tooltip title={t("General.remove",{what:t("General.image")})}><IconButton disabled={(!(!!input.image))} sx={{color:'error.main'}} onClick={()=>setInput({...input,image:null})}><Delete /></IconButton></Tooltip>
-          <Tooltip title={input.image ? t("General.change",{what:t("General.image")}) : t("General.add",{what:t("General.image")})}><IconButton disabled={loading} sx={{color:'primary.main'}} onClick={openBrowser}><AddAPhoto /></IconButton></Tooltip>
+          <Tooltip title={tCom("remove_ctx",{what:tCom("Geral.image")})}><IconButton disabled={(!(!!input.image))} sx={{color:'error.main'}} onClick={()=>setInput({...input,image:null})}><Delete /></IconButton></Tooltip>
+          <Tooltip title={input.image ? tCom("change_ctx",{what:tCom("image")}) : tCom("add_ctx",{what:tCom("image")})}><IconButton disabled={loading} sx={{color:'primary.main'}} onClick={openBrowser}><AddAPhoto /></IconButton></Tooltip>
         </Box>
       </Grid>
     </Grid>
@@ -253,7 +255,9 @@ const DEFAULT_INPUT: IInputProduct = {
 }
 
 export default function OutletProducts({meta}: IPages) {
-  const t = useTranslations();
+  const {t} = useTranslation('dash_product');
+  const {t:tMenu} = useTranslation('menu');
+  const {t:tCom} = useTranslation('common');
   const router = useRouter();
   const {post,del,put} = useAPI();
   const setNotif = useNotif();
@@ -320,14 +324,14 @@ export default function OutletProducts({meta}: IPages) {
       const recaptcha = await captchaRef.current?.execute();
       await post(`/toko/${toko_id}/${outlet_id}/items`,{...input,recaptcha});
       mutate();
-      setNotif(t("General.saved"),false)
+      setNotif(tCom("saved"),false)
       setDCreate(false)
     } catch(e: any) {
-      setNotif(e?.message||t("General.error"),true);
+      setNotif(e?.message||tCom("error.500"),true);
     } finally {
       setLoading(false);
     }
-  },[input,setNotif,post,toko_id,outlet_id,mutate])
+  },[input,setNotif,post,toko_id,outlet_id,mutate,tCom])
 
   const handleEdit=React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
@@ -336,10 +340,10 @@ export default function OutletProducts({meta}: IPages) {
       const recaptcha = await captchaRef.current?.execute();
       await put(`/toko/${toko_id}/${outlet_id}/items/${dEdit?.id}`,{...input,recaptcha});
       mutate();
-      setNotif(t("General.saved"),false)
+      setNotif(tCom("saved"),false)
       setDEdit(null)
     } catch(e: any) {
-      setNotif(e?.message||t("General.error"),true);
+      setNotif(e?.message||tCom("error.500"),true);
     } finally {
       setLoading(false);
     }
@@ -351,15 +355,15 @@ export default function OutletProducts({meta}: IPages) {
       try {
         await del(`/toko/${toko_id}/${outlet_id}/items/${dDelete?.id}`);
         mutate();
-        setNotif(t("General.deleted"),false)
+        setNotif(tCom("deleted"),false)
         setDDelete(null)
       } catch(e: any) {
-        setNotif(e?.message||t("General.error"),true);
+        setNotif(e?.message||tCom("error.500"),true);
       } finally {
         setLoading(false);
       }
     }
-  },[dDelete,del,setNotif,toko_id,outlet_id,mutate])
+  },[dDelete,del,setNotif,toko_id,outlet_id,mutate,tCom])
 
   const handleDeleteAll=React.useCallback(async()=>{
     if(typeof dDelete === 'boolean') {
@@ -368,32 +372,32 @@ export default function OutletProducts({meta}: IPages) {
         const ids = selected.map(s=>s.id);
         await post(`/toko/${toko_id}/${outlet_id}/bulk/delete`,{type:'item',ids});
         mutate();
-        setNotif(t("General.deleted"),false)
+        setNotif(tCom("General.deleted"),false)
         setDDelete(null)
       } catch(e: any) {
-        setNotif(e?.message||t("General.error"),true);
+        setNotif(e?.message||tCom("error.500"),true);
       } finally {
         setLoading(false);
       }
     }
-  },[selected,post,setNotif,toko_id,outlet_id,mutate])
+  },[selected,post,setNotif,toko_id,outlet_id,mutate,tCom])
 
   useMousetrap(['+','shift+='],buttonCreate);
 
   return (
-    <Header title={`${t("Menu.products")} - ${meta?.title}`} desc={meta?.description}>
+    <Header title={`${tMenu("products")} - ${meta?.title}`} desc={meta?.description}>
       <Dashboard title={meta?.title} subtitle={meta?.toko_name}>
         <Container>
           <Box pb={2} mb={5}>
             <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
-              <Typography variant="h3" component='h3'>{t("Menu.products")}</Typography>
-              <Button icon='add' tooltip='+' disabled={!outlet?.isAdmin} onClick={buttonCreate}>{t("General.add",{what:t("Menu.products")})}</Button>
+              <Typography variant="h3" component='h3'>{tMenu("products")}</Typography>
+              <Button icon='add' tooltip='+' disabled={!outlet?.isAdmin} onClick={buttonCreate}>{tCom("add_ctx",{what:tMenu("products")})}</Button>
             </Stack>
           </Box>
           <Card>
             {selected.length > 0 && (
               <Box p={2} sx={{backgroundColor:'primary.lighter'}} className='flex-header'>
-                <Typography sx={{color:'primary.main'}} variant='h6' component='h6'>{t("General.selected",{what:selected.length})}</Typography>
+                <Typography sx={{color:'primary.main'}} variant='h6' component='h6'>{t("selected",{count:selected.length})}</Typography>
                 <IconButton sx={{color:'error.main'}} onClick={()=>setDDelete(true)}><Delete /></IconButton>
               </Box>
             )}
@@ -408,11 +412,11 @@ export default function OutletProducts({meta}: IPages) {
                       onChange={handleSelectAllClick}
                     />
                   </TableCell>
-                    <TableCell align="left">{t("General.name",{what:t("Menu.products")})}</TableCell>
+                    <TableCell align="left">{tCom("name_ctx",{what:tMenu("products")})}</TableCell>
                     <TableCell>HPP</TableCell>
-                    <TableCell>{t("Product.price")}</TableCell>
-                    <TableCell>{t("Product.disscount")}</TableCell>
-                    <TableCell align="left">{t("Product.stock")}</TableCell>
+                    <TableCell>{t("price")}</TableCell>
+                    <TableCell>{t("disscount")}</TableCell>
+                    <TableCell align="left">{t("stock")}</TableCell>
                     <TableCell align="center">Status</TableCell>
                     <TableCell align="center" width={50}></TableCell>
                   </TableRow>
@@ -428,7 +432,7 @@ export default function OutletProducts({meta}: IPages) {
                     </TableRow>
                   ) : data?.data && data?.data?.length === 0 ? (
                     <TableRow>
-                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{t("General.no",{what:t("Menu.products")})}</Typography></TableCell>
+                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:tMenu("products")})}</Typography></TableCell>
                     </TableRow>
                   ) : data?.data?.map((d)=>{
                     const isSelected = selected.findIndex(it=>it.id === d.id) !== -1;
@@ -459,8 +463,8 @@ export default function OutletProducts({meta}: IPages) {
                         </TableCell>
                         <TableCell align="center">
                           <Stack direction="row" alignItems="center" justifyContent='center' spacing={2}>
-                            <Label variant='filled' color={d.active ? 'success':'error'}>{d?.active ? t("General.active") : t("General.not",{what:t("General.active")})}</Label>
-                            {d?.show_in_menu && <Label variant='filled' color='info'>{t("Product.show_in_menu")}</Label>}
+                            <Label variant='filled' color={d.active ? 'success':'error'}>{d?.active ? t("active") : t("active",{context:'not'})}</Label>
+                            {d?.show_in_menu && <Label variant='filled' color='info'>{t("show_in_menu")}</Label>}
                           </Stack>
                         </TableCell>
                         <TableCell>
@@ -483,38 +487,38 @@ export default function OutletProducts({meta}: IPages) {
       </Dashboard>
       <Dialog loading={loading} maxWidth='md' open={dCreate} handleClose={()=>setDCreate(false)}>
         <form onSubmit={handleCreate}>
-          <DialogTitle>{t("General.add",{what:t("Menu.products")})}</DialogTitle>
+          <DialogTitle>{tCom("add_ctx",{what:tMenu("products")})}</DialogTitle>
           <DialogContent dividers>
             <Form input={input} setInput={setInput} loading={loading} openBrowser={()=>setBrowser(true)} />
           </DialogContent>
           <DialogActions>
-            <Button text color='inherit' disabled={loading} onClick={()=>setDCreate(false)}>{t("General.cancel")}</Button>
-            <Button disabled={loading} loading={loading} icon='submit' type='submit'>{t("General.save")}</Button>
+            <Button text color='inherit' disabled={loading} onClick={()=>setDCreate(false)}>{tCom("cancel")}</Button>
+            <Button disabled={loading} loading={loading} icon='submit' type='submit'>{tCom("save")}</Button>
           </DialogActions>
         </form>
       </Dialog>
 
       <Dialog loading={loading} maxWidth='md' open={dEdit!==null} handleClose={()=>setDEdit(null)}>
         <form onSubmit={handleEdit}>
-          <DialogTitle>{`Edit ${t("Menu.products")}`}</DialogTitle>
+          <DialogTitle>{`Edit ${tMenu("products")}`}</DialogTitle>
           <DialogContent dividers>
             <Form autoFocus input={input} setInput={setInput} loading={loading} openBrowser={()=>setBrowser(true)} />
           </DialogContent>
           <DialogActions>
-            <Button text color='inherit' disabled={loading} onClick={()=>setDEdit(null)}>{t("General.cancel")}</Button>
-            <Button disabled={loading} loading={loading} icon='submit' type='submit'>{t("General.save")}</Button>
+            <Button text color='inherit' disabled={loading} onClick={()=>setDEdit(null)}>{tCom("cancel")}</Button>
+            <Button disabled={loading} loading={loading} icon='submit' type='submit'>{tCom("save")}</Button>
           </DialogActions>
         </form>
       </Dialog>
 
       <Dialog maxWidth='xs' loading={loading} open={dDelete!==null} handleClose={()=>setDDelete(null)} fullScreen={false}>
-        <DialogTitle>{t("General.are_you_sure")}</DialogTitle>
+        <DialogTitle>{tCom("are_you_sure")}</DialogTitle>
         <DialogActions>
-          <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{t("General.cancel")}</Button>
+          <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{tCom("cancel")}</Button>
           {typeof dDelete === 'boolean' ? (
-            <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDeleteAll}>{t("General._delete")}</Button>
+            <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDeleteAll}>{tCom("delete")}</Button>
           ) : (
-            <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{t("General._delete")}</Button>
+            <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{tCom("delete")}</Button>
           )}
         </DialogActions>
       </Dialog>

@@ -1,5 +1,5 @@
 // material
-import { Box, Grid, Container, Typography,Tooltip,IconButton,TextField, Card, FormControlLabel, Switch,Checkbox,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText,Collapse } from '@mui/material';
+import { Box, Grid, Container, Typography,IconButton,TextField, Card,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText,Collapse } from '@mui/material';
 import {ExpandMore as ExpandMoreIcon} from '@mui/icons-material'
 import {DatePicker,LocalizationProvider} from '@mui/lab'
 import AdapterDayjs from '@mui/lab/AdapterDayjs'
@@ -10,19 +10,14 @@ import Dashboard from '@layout/dashboard/index'
 import React from 'react'
 import useNotif from '@utils/notification'
 import {useAPI} from '@utils/portalnesia'
-import Recaptcha from '@comp/Recaptcha'
 import Button from '@comp/Button'
-import Backdrop from '@comp/Backdrop'
-import Image from '@comp/Image'
-import Popover from '@comp/Popover'
 import {IPages,ResponsePagination,TransactionsDetail,colorOrderStatus,colorStatus} from '@type/index'
 import wrapper from '@redux/store'
-import {useTranslations} from 'next-intl';
+import {useTranslation} from 'next-i18next';
 import useSWR from '@utils/swr';
 import { useRouter } from 'next/router';
 import Iconify from '@comp/Iconify';
 import MenuPopover from '@comp/MenuPopover'
-import useOutlet from '@utils/useOutlet'
 import Scrollbar from '@comp/Scrollbar'
 import Search from '@comp/Search'
 import usePagination from '@comp/TablePagination'
@@ -33,14 +28,7 @@ import { numberFormat } from '@portalnesia/utils';
 import { getDayJs } from '@utils/Main';
 import handlePrint from '@utils/print';
 
-const Dialog=dynamic(()=>import('@comp/Dialog'))
-const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
-const DialogContent=dynamic(()=>import('@mui/material/DialogContent'))
-const DialogActions=dynamic(()=>import('@mui/material/DialogActions'))
-const SimpleMDE = dynamic(()=>import('@comp/SimpleMDE'))
-const Browser = dynamic(()=>import('@comp/Browser'),{ssr:false})
-
-export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true}})
+export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true},translation:'dash_tr'})
 
 interface IMenu {
   data: TransactionsDetail
@@ -48,7 +36,7 @@ interface IMenu {
 }
 
 function Menu({data,disabled}: IMenu) {
-  const t = useTranslations();
+  const {t} = useTranslation('dash_tr');
   const ref=React.useRef(null);
   const [open,setOpen] = React.useState(false);
   const router = useRouter();
@@ -71,7 +59,7 @@ function Menu({data,disabled}: IMenu) {
           <ListItemIcon>
             <Iconify icon="fluent:print-20-filled" width={24} height={24} />
           </ListItemIcon>
-          <ListItemText primary={t("General.print")} primaryTypographyProps={{ variant: 'body2' }} />
+          <ListItemText primary={t("print")} primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
       </MenuPopover>
     </>
@@ -79,7 +67,9 @@ function Menu({data,disabled}: IMenu) {
 }
 
 export function TableTr({data}: {data: TransactionsDetail}) {
-  const t = useTranslations();
+  const {t} = useTranslation('dash_tr');
+  const {t:tMenu} = useTranslation('menu');
+  const {t:tCom} = useTranslation('common');
   const router = useRouter();
   const locale = router.locale
   const [expand,setExpand] = React.useState(false);
@@ -117,50 +107,50 @@ export function TableTr({data}: {data: TransactionsDetail}) {
                 <Table>
                   <TableBody>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("Menu.cashier")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}>{tMenu("cashier")}</TableCell>
                       <TableCell sx={{borderBottom:'unset'}}>{data.cashier}</TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("Transaction.type")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("type")}</TableCell>
                       <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color='default'>{data.type.toUpperCase()}</Label></TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("Payment.payment_method")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("payment_method")}</TableCell>
                       <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color='info'>{data.payment}</Label></TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("Transaction.payment_status")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("payment_status")}</TableCell>
                       <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color={colorStatus[data.status]}>{data.status}</Label></TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("Transaction.order_status")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}>{t("order_status")}</TableCell>
                       <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color={colorOrderStatus[data.order_status]}>{data.order_status}</Label></TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell colSpan={2}><Typography>{t("Menu.customer").toUpperCase()}</Typography></TableCell>
+                      <TableCell colSpan={2}><Typography>{tMenu("customer").toUpperCase()}</Typography></TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("General._name")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset'}}>{tCom("name")}</TableCell>
                       <TableCell sx={{borderBottom:'unset'}}>{data.user ? data.user.name : '-'}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
               </Box>
               <Box>
-                <Typography variant='h6' component='h6'>{t("General.detail",{what:t("Menu.order")})}</Typography>
+                <Typography variant='h6' component='h6'>{t("detail",{what:tMenu("order")})}</Typography>
               </Box>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell align='center' colSpan={5}>{t("Menu.products")}</TableCell>
+                    <TableCell align='center' colSpan={5}>{tMenu("products")}</TableCell>
                     <TableCell rowSpan={2} align='right'>Subtotal</TableCell>
-                    <TableCell rowSpan={2} align='right'>{t("Product.disscount")}</TableCell>
+                    <TableCell rowSpan={2} align='right'>{t("disscount")}</TableCell>
                     <TableCell rowSpan={2} align='right'>Total</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell>{t("General._name")}</TableCell>
-                    <TableCell align='right'>{t("Product.price")}</TableCell>
-                    <TableCell align='right'>{t("Product.disscount")}</TableCell>
+                    <TableCell>{tCom("name")}</TableCell>
+                    <TableCell align='right'>{t("price")}</TableCell>
+                    <TableCell align='right'>{t("disscount")}</TableCell>
                     <TableCell align='right'>Qty</TableCell>
                     <TableCell align='right'>HPP</TableCell>
                   </TableRow>
@@ -194,7 +184,9 @@ export function TableTr({data}: {data: TransactionsDetail}) {
 }
 
 export default function OutletTransactions({meta}: IPages){
-  const t = useTranslations();
+  const {t} = useTranslation('dash_tr');
+  const {t:tMenu} = useTranslation('menu');
+  const {t:tCom} = useTranslation('common');
   const router = useRouter();
   const {get} = useAPI();
   const {toko_id,outlet_id} = router.query;
@@ -235,7 +227,7 @@ export default function OutletTransactions({meta}: IPages){
     setSearch(undefined);
   },[])
 
-  const handleChange=React.useCallback((filter:'monthly'|'weekly'|'daily'|'custom')=>()=>{
+  const handleChange=React.useCallback((filter:'monthly'|'weekly'|'today'|'custom')=>()=>{
     if(filter!=='custom') {
       setQuery({filter,from:null,to:null})
       setDFilter(false);
@@ -276,34 +268,34 @@ export default function OutletTransactions({meta}: IPages){
       const url = await get<string>(`/toko/${toko_id}/${outlet_id}/export?filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}`);
       window.location.href=url;
     } catch(e: any) {
-      setNotif(e?.message||t("General.error"),true);
+      setNotif(e?.message||tCom("error.500"),true);
     } finally {
       setLoading(null)
     }
-  },[query,get,setNotif,toko_id,outlet_id])
+  },[query,get,setNotif,toko_id,outlet_id,tCom])
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Header title={`${t("Menu.transactions")} - ${meta?.title}`} desc={meta?.description}>
+      <Header title={`${tMenu("transactions")} - ${meta?.title}`} desc={meta?.description}>
         <Dashboard title={meta?.title} subtitle={meta?.toko_name}>
           <Container>
             <Box pb={2} mb={5}>
               <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
-                <Typography variant="h3" component='h3'>{t("Menu.transactions")}</Typography>
+                <Typography variant="h3" component='h3'>{tMenu("transactions")}</Typography>
                 <Button startIcon={<Iconify icon='akar-icons:filter' />} text color='inherit' ref={filterRef} onClick={()=>setDFilter(true)}>Filter</Button>
               </Stack>
               <MenuPopover open={dFilter} onClose={()=>setDFilter(false)} anchorEl={filterRef.current} paperSx={{py:1,width:250}}>
                 <MenuItem sx={{ color: 'text.secondary',py:1 }} onClick={handleChange('monthly')} selected={query.filter==='monthly'}>
-                  <ListItemText primary={t("Transaction.month")} />
+                  <ListItemText primary={t("month")} />
                 </MenuItem>
                 <MenuItem sx={{ color: 'text.secondary',py:1 }}  onClick={handleChange('weekly')} selected={query.filter==='weekly'}>
-                  <ListItemText primary={t("Transaction.week")} />
+                  <ListItemText primary={t("week")} />
                 </MenuItem>
-                <MenuItem sx={{ color: 'text.secondary',py:1 }}  onClick={handleChange('daily')} selected={query.filter==='daily'}>
-                  <ListItemText primary={t("Transaction.today")} />
+                <MenuItem sx={{ color: 'text.secondary',py:1 }}  onClick={handleChange('today')} selected={query.filter==='today'}>
+                  <ListItemText primary={t("today")} />
                 </MenuItem>
                 <MenuItem sx={{ color: 'text.secondary',py:1 }} ref={rangeRef} onClick={()=>setDRange(true)} selected={query.filter==='custom'}>
-                  <ListItemText primary={t("Transaction.custom")} />
+                  <ListItemText primary={t("custom")} />
                 </MenuItem>
               </MenuPopover>
               <MenuPopover open={dRange} onClose={()=>setDRange(false)} anchorEl={rangeRef.current} paperSx={{py:2,px:2,width:{xs:'90%',sm:200,md:300,lg:400}}}>
@@ -311,7 +303,7 @@ export default function OutletTransactions({meta}: IPages){
                   <Grid item xs={12}>
                     <DatePicker
                       disableFuture
-                      label={t("Transaction.from")}
+                      label={t("from")}
                       inputFormat="DD MMMM YYYY"
                       value={range.from}
                       onChange={handleDateChange('from')}
@@ -321,7 +313,7 @@ export default function OutletTransactions({meta}: IPages){
                   <Grid item xs={12}>
                     <DatePicker
                       disableFuture
-                      label={t("Transaction.to")}
+                      label={t("to")}
                       inputFormat="DD MMMM YYYY"
                       value={range.to}
                       onChange={handleDateChange('to')}
@@ -329,7 +321,7 @@ export default function OutletTransactions({meta}: IPages){
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <Button onClick={handleChange('custom')}>{t("General.save")}</Button>
+                    <Button onClick={handleChange('custom')}>{tCom("save")}</Button>
                   </Grid>
                 </Grid>
               </MenuPopover>
@@ -347,9 +339,9 @@ export default function OutletTransactions({meta}: IPages){
                     <TableRow>
                       <TableCell align='center'></TableCell>
                       <TableCell align='left'>ID</TableCell>
-                      <TableCell align='left'>{t("General.date")}</TableCell>
+                      <TableCell align='left'>{t("date")}</TableCell>
                       <TableCell align='right'>Subtotal</TableCell>
-                      <TableCell align='right'>{t("Product.disscount")}</TableCell>
+                      <TableCell align='right'>{t("disscount")}</TableCell>
                       <TableCell align='right'>Total</TableCell>
                       <TableCell align='center'></TableCell>
                     </TableRow>
@@ -365,7 +357,7 @@ export default function OutletTransactions({meta}: IPages){
                       </TableRow>
                     ) : items?.length === 0 ? (
                       <TableRow>
-                        <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{t("General.no",{what:t("Menu.transactions")})}</Typography></TableCell>
+                        <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:tMenu("transactions")})}</Typography></TableCell>
                       </TableRow>
                     ) : items?.map((d)=>(
                       <TableTr key={`transaction-${d.id}`} data={d} />

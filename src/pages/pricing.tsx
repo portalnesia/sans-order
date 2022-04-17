@@ -8,7 +8,7 @@ import {numberFormat} from '@portalnesia/utils'
 import React from 'react'
 import Image from '@comp/Image'
 import {staticProps} from '@redux/store'
-import {useTranslations} from 'next-intl';
+import {useTranslation,TFunction} from 'next-i18next';
 import Button from '@comp/Button'
 import useSWR from '@utils/swr'
 import {Circular} from '@comp/Loading'
@@ -16,15 +16,15 @@ import Label from '@comp/Label'
 import Iconify from '@comp/Iconify'
 import ExpandMore from '@comp/ExpandMore';
 
-export const getStaticProps = staticProps();
+export const getStaticProps = staticProps({translation:'subcribe'});
 
-const FEATURES = (t: ReturnType<typeof useTranslations>)=>([
-  `${t("Subcribe.feature.free",{qty:1})}*`,
-  t("Subcribe.feature.order_system"),
-  `${t("Subcribe.feature.table_number")}**`,
-  t("Subcribe.feature.banner"),
-  t("Subcribe.feature.cashier_system"),
-  t("Subcribe.feature.media_promotion")
+const FEATURES = (t: TFunction,tCom:TFunction)=>([
+  `${t("feature.free",{qty:1})}*`,
+  t("feature.order_system"),
+  `${tCom("table_number")}**`,
+  t("feature.banner"),
+  t("feature.cashier_system"),
+  t("feature.media_promotion")
 ])
 
 const PACKAGES = [
@@ -41,7 +41,7 @@ const PACKAGES = [
     ]
   },{
     id:"toko_2",
-    name:"Platinum",
+    name:"Silver",
     recommend:false,
     features:[
       true,
@@ -79,11 +79,12 @@ interface SectionProps {
 }
 
 function PricingSection({item}: SectionProps) {
-  const t = useTranslations();
+  const {t} = useTranslation('subcribe');
+  const {t:tCom} = useTranslation('common');
   const [expand,setExpand] = React.useState(false)
   const {price,disscount,metadata:{id,qty}} = item
   const packages = React.useMemo(()=>PACKAGES.find(p=>p.id === id),[id])
-  const fitur = React.useMemo(()=>FEATURES(t),[t])
+  const fitur = React.useMemo(()=>FEATURES(t,tCom),[t,tCom])
 
   if(!packages) return null;
   const {name,features,recommend}=packages;
@@ -134,27 +135,27 @@ function PricingSection({item}: SectionProps) {
                 </Box>
                 <Box display='flex' justifyContent='center' alignItems='flex-start'>
                   <Typography component='span' sx={{fontWeight:'bold',mr:1}}>IDR </Typography>
-                  <Typography variant='h4' component='h4'>{`${numberFormat(`${Math.round((price/qty)-(disscount/qty))}`)}`}<Typography component='span' variant='body2'>{`/${t("Subcribe.month")}`}</Typography></Typography>
+                  <Typography variant='h4' component='h4'>{`${numberFormat(`${Math.round(((price/qty)/30)-((disscount/qty)/30))}`)}`}<Typography component='span' variant='body2'>{`/${t("day")}`}</Typography></Typography>
                 </Box>
               </>
             ) : (
               <Box display='flex' justifyContent='center' alignItems='flex-start'>
                 <Typography component='span' sx={{fontWeight:'bold',mr:1}}>IDR </Typography>
-                <Typography variant='h4' component='h4'>{`${numberFormat(`${Math.round(price/qty)}`)}`}<Typography component='span' variant='body2'>{`/${t("Subcribe.month")}`}</Typography></Typography>
+                <Typography variant='h4' component='h4'>{`${numberFormat(`${Math.round((price/qty)/30)}`)}`}<Typography component='span' variant='body2'>{`/${t("day")}`}</Typography></Typography>
               </Box>
             )}
             
           </Box>
           <Divider sx={{pt:2}} />
           <Box textAlign='center' mt={2}>
-            <Typography variant='h5' component='h5'>{`${qty} ${t("Subcribe.month")}`}</Typography>
+            <Typography variant='h5' component='h5'>{`${qty} ${t("month")}`}</Typography>
           </Box>                 
         </CardContent>
 
         <Divider />
 
         <CardActions disableSpacing sx={{mx:3}}>
-          <Typography variant='h5' component='h5'>{t("Subcribe.feature.title")}</Typography>
+          <Typography variant='h5' component='h5'>{t("feature.title")}</Typography>
           <ExpandMore expand={expand} onClick={()=>setExpand(!expand)} aria-expanded={expand} aria-label='Features'>
             <ExpandMoreIcon />
           </ExpandMore>
@@ -180,7 +181,7 @@ function PricingSection({item}: SectionProps) {
         <CardContent>
           <CardActions>
             <Box flex="1 1 0">
-              <Button size='large' sx={{display:'flex',flexGrow:1,width:'100%'}}>{t("Subcribe.subcribe")}</Button>
+              <Button size='large' sx={{display:'flex',flexGrow:1,width:'100%'}}>{t("subcribe")}</Button>
             </Box>
           </CardActions>
         </CardContent>
@@ -190,15 +191,16 @@ function PricingSection({item}: SectionProps) {
 }
 
 export default function PricingApp() {
-  const t = useTranslations();
+  const {t} = useTranslation('subcribe');
+  const {t:tMenu} = useTranslation('menu');
   const {data,error} = useSWR<IProduct[]>(`/subscription/all/toko`);
 
   return (
-    <Header title={t("Menu.pricing")}>
+    <Header title={tMenu("pricing")}>
       <Dashboard>
         <Container maxWidth='xl'>
           <Box textAlign='center' mb={4}>
-            <Typography variant='h1' component='h1'>{t("Menu.pricing")}</Typography>
+            <Typography variant='h1' component='h1'>{tMenu("pricing")}</Typography>
           </Box>
 
           {(!data && !error || !data) ? (
@@ -216,8 +218,8 @@ export default function PricingApp() {
               </Grid>
               <Divider sx={{mt:7}} />
               <Box mt={7}>
-                <Typography sx={{color:'text.disabled'}}>{`* ${t("Subcribe.feature.first_free")}`}</Typography>
-                <Typography sx={{color:'text.disabled'}}>{`** ${t("Subcribe.feature.max_table_number")}`}</Typography>
+                <Typography sx={{color:'text.disabled'}}>{`* ${t("feature.first_free")}`}</Typography>
+                <Typography sx={{color:'text.disabled'}}>{`** ${t("feature.max_table_number")}`}</Typography>
               </Box>
             </>
           )}

@@ -3,7 +3,7 @@ import { alpha,styled, SxProps,Theme } from '@mui/material/styles';
 import {IconButton,Popover as Popov} from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
-import {useTranslations} from 'next-intl';
+import {useTranslation} from 'next-i18next';
 
 const Popover = styled(Popov)(()=>({
   '.MuiPaper-root':{
@@ -83,7 +83,7 @@ export interface SearchProps {
 }
 
 export default function Search({onsubmit,onremove,onchange,remove=false,value,autosize=false,sx}: SearchProps) {
-  const t = useTranslations();
+  const {t} = useTranslation('common');
   const [anchor,setAnchor] = React.useState<({top:number,left: number})|null>(null);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -127,7 +127,7 @@ export default function Search({onsubmit,onremove,onchange,remove=false,value,au
                               <SearchIcon />
                           </SearchStyle>
                       )}
-                      <InputStyle ref={inputRef} sx={sx} autoresize removed={remove && value?.length > 0} placeholder={`${t("General.search")}...`} value={value} onChange={onchange} />
+                      <InputStyle ref={inputRef} sx={sx} autoresize removed={remove && value?.length > 0} placeholder={`${t("search")}...`} value={value} onChange={onchange} />
                   </Wrapper>
               </form>
           ) : (
@@ -163,7 +163,7 @@ export default function Search({onsubmit,onremove,onchange,remove=false,value,au
                                       <SearchIcon />
                                   </SearchStyle>
                               )}
-                              <InputStyle ref={inputRef} sx={sx} removed={remove && value?.length > 0} placeholder={`${t("General.search")}...`} value={value} onChange={onchange} />
+                              <InputStyle ref={inputRef} sx={sx} removed={remove && value?.length > 0} placeholder={`${t("search")}...`} value={value} onChange={onchange} />
                           </Wrapper>
                       </form>
                   </Popover>

@@ -8,7 +8,7 @@ import React from 'react'
 import Image from '@comp/Image'
 import Pagination,{usePagination} from '@comp/Pagination'
 import {staticProps,useSelector,State,useDispatch, IUser} from '@redux/index'
-import {useTranslations} from 'next-intl';
+import {useTranslation} from 'next-i18next';
 import Button from '@comp/Button'
 import loadingImage from '@comp/loading-image-base64'
 import {useRouter} from 'next/router'
@@ -34,7 +34,7 @@ const DialogActions=dynamic(()=>import('@mui/material/DialogActions'))
 const TextField=dynamic(()=>import('@mui/material/TextField'))
 const SimpleMDE = dynamic(()=>import('@comp/SimpleMDE'),{ssr:false})
 
-export const getStaticProps = staticProps();
+export const getStaticProps = staticProps({translation:'dash_apps'});
 
 const RootStyle = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -62,7 +62,8 @@ const ContentStyle = styled('div')(({ theme }) => ({
 }));
 
 function LoginSection() {
-  const t = useTranslations();
+  const {t} = useTranslation('dash_apps');
+  const {t:tMenu} = useTranslation('menu');
   const router = useRouter();
   const err = router.query?.error_description;
 
@@ -78,12 +79,12 @@ function LoginSection() {
   return (
     <RootStyle>
       <AuthLayout>
-        {t("Login.not_register")} &nbsp;<a href={`${process.env.ACCOUNT_URL}/register`}>{t("Login.register")}</a>
+        {t("not_register")} &nbsp;<a href={`${process.env.ACCOUNT_URL}/register`}>{t("register")}</a>
       </AuthLayout>
 
       <SectionStyle sx={{ display: { xs: 'none', md: 'flex' } }}>
         <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-          {t("Login.hi")}
+          {t("hi")}
         </Typography>
         <Image src="/static/illustrations/illustration_login.png" alt="Login" />
       </SectionStyle>
@@ -92,9 +93,9 @@ function LoginSection() {
         <ContentStyle>
           <Stack sx={{ mb: 5,alignItems:'center' }}>
             <Typography variant="h4" gutterBottom>
-              {t("Login.signin")}
+              {t("signin")}
             </Typography>
-            <Button onClick={login} sx={{mt:3,backgroundColor:'#2f6f4e !important'}} size="large" startIcon={<Image src="/icon/android-icon-48x48.png" width={25} />}>{t("Login.sign")}</Button>
+            <Button onClick={login} sx={{mt:3,backgroundColor:'#2f6f4e !important'}} size="large" startIcon={<Image src="/icon/android-icon-48x48.png" width={25} />}>{tMenu("signin")}</Button>
             {typeof err === 'string' && (
               <Alert variant='outlined' sx={{mt:2,minWidth:{xs:'90%',md:400,justifyContent:'center'}}} severity='error'>{decodeURIComponent(err.replace(/\+/gim,' '))}</Alert>
             )}
@@ -107,7 +108,7 @@ function LoginSection() {
               display: { sm: 'none' }
             }}
           >
-            {t("Login.not_register")} &nbsp;<a href={`${process.env.ACCOUNT_URL}/register`}>{t("Login.register")}</a>
+            {t("not_register")} &nbsp;<a href={`${process.env.ACCOUNT_URL}/register`}>{t("register")}</a>
           </Typography>
         </ContentStyle>
       </Container>
@@ -117,7 +118,8 @@ function LoginSection() {
 
 function Loginned({user}: {user:IUser}) {
   const router = useRouter();
-  const t = useTranslations();
+  const {t} = useTranslation('dash_apps');
+  const {t:tCom} = useTranslation('common');
   const [loading,setLoading] = React.useState(false);
   const [dialog,setDialog] = React.useState(false);
   const [page,setPage] = usePagination(1);
@@ -139,7 +141,7 @@ function Loginned({user}: {user:IUser}) {
       setPage({},1);
       mutate();
       setDialog(false);
-      setNotif(t("General.saved"),false);
+      setNotif(tCom("saved"),false);
     } catch(e: any) {
       setNotif(e?.message,true);
     } finally {
@@ -154,12 +156,12 @@ function Loginned({user}: {user:IUser}) {
           <Grid item xs={12} md={6}>
             <Box mb={2}>
               <Typography variant="h4" component='h4' gutterBottom>{`Hai ${user?.name},`}</Typography>
-              <Typography variant="h2" component='h2'>{t("Login.owned_merchant")}</Typography>
+              <Typography variant="h2" component='h2'>{t("owned_merchant")}</Typography>
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>
             <Box display='flex' justifyContent={'flex-end'} alignItems='flex-end'>
-              <Button size='large' icon='add' onClick={()=>setDialog(true)}>{t("General.create",{what:"Merchant"})}</Button>
+              <Button size='large' icon='add' onClick={()=>setDialog(true)}>{tCom("create_ctx",{what:"Merchant"})}</Button>
             </Box>
           </Grid>
         </Grid>
@@ -175,7 +177,7 @@ function Loginned({user}: {user:IUser}) {
             <Grid item xs={12}>
               {data?.data.length === 0 ? (
                 <Box mb={2}>
-                  <Typography variant="h4" component='h4'>{t("General.no",{what:"data"})}</Typography>
+                  <Typography variant="h4" component='h4'>{t("no_what",{what:"data"})}</Typography>
                 </Box>
               ) : (
                 <Grid container spacing={2}>
@@ -214,7 +216,7 @@ function Loginned({user}: {user:IUser}) {
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <Box mb={2}>
-              <Typography variant="h2" component='h2'>{t("Login.managed_merchant")}</Typography>
+              <Typography variant="h2" component='h2'>{t("managed_merchant")}</Typography>
             </Box>
           </Grid>
         </Grid>
@@ -229,7 +231,7 @@ function Loginned({user}: {user:IUser}) {
             <Grid item xs={12}>
               {outlet?.data.length === 0 ? (
                 <Box mb={2}>
-                  <Typography variant="h4" component='h4'>{t("General.no",{what:"data"})}</Typography>
+                  <Typography variant="h4" component='h4'>{tCom("no_what",{what:"data"})}</Typography>
                 </Box>
               ) : (
                 <Grid container spacing={2}>
@@ -260,14 +262,14 @@ function Loginned({user}: {user:IUser}) {
 
       <Dialog open={dialog} handleClose={()=>setDialog(false)}>
         <form onSubmit={createApp}>
-          <DialogTitle>{t("General.create",{what:"Merchant"}).toUpperCase()}</DialogTitle>
+          <DialogTitle>{tCom("create_ctx",{what:"Merchant"}).toUpperCase()}</DialogTitle>
           <DialogContent dividers>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
                   value={input.name}
                   onChange={(e)=>setInput({...input,name:e.target.value})}
-                  label={t("General.name",{what:"Merchant"})}
+                  label={tCom("name_ctx",{what:"Merchant"})}
                   fullWidth
                   autoFocus
                   required
@@ -278,14 +280,14 @@ function Loginned({user}: {user:IUser}) {
                   noSideBySide
                   value={input.description}
                   onChange={(e)=>setInput({...input,description:e})}
-                  label={t("General.description")}
+                  label={tCom("description")}
                 />
               </Grid>
             </Grid>
           </DialogContent>
           <DialogActions>
-            <Button text color='inherit' onClick={()=>setDialog(false)}>{t("General.cancel")}</Button>
-            <Button icon='submit' type='submit'>{t("General.save")}</Button>
+            <Button text color='inherit' onClick={()=>setDialog(false)}>{tCom("cancel")}</Button>
+            <Button icon='submit' type='submit'>{tCom("save")}</Button>
           </DialogActions>
         </form>
       </Dialog>
@@ -297,7 +299,9 @@ function Loginned({user}: {user:IUser}) {
 
 export default function DashboardApp() {
   const setNotif = useNotif();
-  const t = useTranslations();
+  const {t} = useTranslation('dash_apps');
+  const {t:tMenu} = useTranslation('menu');
+  const {t:tCom} = useTranslation('common');
   const dispatch = useDispatch();
   useInitData();
   const {user,ready:loaded} = useSelector<Pick<State,'user'|'ready'>>(s=>({user:s.user,ready:s.ready}));
@@ -333,7 +337,7 @@ export default function DashboardApp() {
             }
           } catch(e: any) {
             router.replace({pathname:router.pathname,query:{error_description:e?.message}},undefined,{shallow:true});
-            setNotif(e?.message||t("General.error"),true);
+            setNotif(e?.message||tCom("error.500"),true);
           }
         }
       }
@@ -343,7 +347,7 @@ export default function DashboardApp() {
   },[code])
 
   return (
-    <Header title={ucwords(t("Menu.dashboard"))}>
+    <Header title={ucwords(tMenu("dashboard"))}>
       {!router.isReady || (user===null||loaded===false) ? (
         <div style={{position:'fixed',top:0,left:0,height:'100%',width:'100%',background:'#2f6f4e',zIndex:5000}}>
           <img style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)'}} onContextMenu={(e)=>e.preventDefault()} className='load-child no-drag' alt='Portalnesia' src={loadingImage} />
@@ -351,7 +355,7 @@ export default function DashboardApp() {
       ) : typeof code === 'string' ? (
         <RootStyle sx={{display:'flex',flexDirection:'column',minHeight:'100vh',alignItems:'center',justifyContent:'center'}}>
           <CircularProgress size={50} />
-          <Typography sx={{mt:3}} variant="h3" component='h3'>{`${t("General.wait")}...`}</Typography>
+          <Typography sx={{mt:3}} variant="h3" component='h3'>{`${tCom("wait")}...`}</Typography>
         </RootStyle>
       ) : typeof user === 'boolean' ? (
         <LoginSection />

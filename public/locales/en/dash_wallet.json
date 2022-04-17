@@ -1,0 +1,18 @@
+{
+  "wallet":"Wallet",
+  "account_name":"Account Name",
+  "account_number":"Account Number",
+  "withdraw_method":"Withdraw Method",
+  "no_wallet_title":"You do not have a wallet account for this merchant yet",
+  "no_wallet":"The wallet account creation is only done once",
+  "delete":"The wallet account will be deleted ONLY if you delete your merchant. So if your wallet still contains balance, please withdraw your balance first before deleting the merchant.",
+  "balance":"Balance",
+  "history":"{{what}} History",
+  "month":"This Month",
+  "week":"This Week",
+  "today":"Today",
+  "custom":"Custom",
+  "from":"From",
+  "to":"To",
+  "date":"Date"
+}

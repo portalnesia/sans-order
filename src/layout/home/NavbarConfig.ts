@@ -1,19 +1,19 @@
 // component
 import Iconify from '../../components/Iconify';
-import {useTranslations} from 'next-intl'
+import {TFunction} from 'next-i18next'
 // ----------------------------------------------------------------------
 
-const navbarConfig = (t: ReturnType<typeof useTranslations>)=>([
+const navbarConfig = (t: TFunction)=>([
   {
-    title: t("Menu.home"),
+    title: t("home"),
     path: '/'
   },
   {
-    title: t("Menu.pricing"),
+    title: t("pricing"),
     path: '/pricing'
   },
   {
-    title: t("Menu.contact"),
+    title: t("contact"),
     path: '/contact'
   }
 ]);

@@ -1,0 +1,22 @@
+{
+  "home":"Home",
+  "pricing":"Pricing",
+  "contact":"Contact",
+  "contact_us":"Contact Us",
+  "start":"START",
+  "dashboard":"DASHBOARD",
+  "profile":"Profile",
+  "setting":"Setting",
+  "logout":"Logout",
+  "self_order":"Self Order",
+  "signin":"Signin",
+  "team":"Team",
+  "products":"Products",
+  "cashier":"Cashier",
+  "transactions":"Transactions",
+  "order":"Order",
+  "customer":"Customer",
+  "terms_of_services":"Terms of Services",
+  "policy_privacy":"Privacy Policy",
+  "policy_cookie":"Cookie Policy"
+}

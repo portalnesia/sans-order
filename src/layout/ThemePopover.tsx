@@ -5,27 +5,27 @@ import { Box, MenuItem, ListItemIcon, ListItemText, IconButton,Tooltip } from '@
 // components
 import MenuPopover from '@comp/MenuPopover';
 import Iconify from '../components/Iconify';
-import {useTranslations} from 'next-intl';
+import {useTranslation,TFunction} from 'next-i18next';
 import useDarkTheme from '@utils/useDarkTheme'
 import {State} from '@redux/types'
 
-const THEME = (t: ReturnType<typeof useTranslations>)=>([
+const THEME = (t: TFunction)=>([
   {
     value: 'auto',
-    label: t("Theme.device"),
+    label: t("theme.device"),
   },
   {
     value: 'light',
-    label: t("Theme.light")
+    label: t("theme.light")
   },
   {
     value: 'dark',
-    label: t("Theme.dark"),
+    label: t("theme.dark"),
   }
 ]);
 
 export default function ThemePopover() {
-  const t = useTranslations();
+  const {t} = useTranslation('common');
   const {theme,setTheme} = useDarkTheme();
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -45,7 +45,7 @@ export default function ThemePopover() {
 
   return (
     <>
-      <Tooltip title={t("Theme.theme")}>
+      <Tooltip title={t("theme.theme")}>
         <IconButton
           ref={anchorRef}
           onClick={handleOpen}

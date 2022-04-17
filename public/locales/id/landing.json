@@ -1,0 +1,25 @@
+{
+  "features":"Fitur",
+  "section1":{
+    "start":"Kembangkan Bisnis Anda",
+    "with":"dengan",
+    "desc":"Sistem Order Pintar untuk Bisnis Anda"
+  },
+  "section2":{
+    "start":"Bagaimana {{name}} Akan Membantu Anda?",
+    "desc1":"SansOrder merupakan sistem berbasis teknologi yang terdiri dari Sistem Pemesanan dan Sistem Kasir, yang dapat membantu para Pelaku Usaha untuk membangun dan mengembangkan usahanya.",
+    "desc2":"SansOrder didesain guna memudahkan Pelanggan dalam hal Pemesanan dan Pembayaran yang dapat dilakukan secara langsung di meja.",
+    "desc3":{
+      "title":"SansOrder tak hanya berfokus pada Sistem Pemesanan saja melainkan juga mencangkup Sistem Kasir, yang dimana sistem juga memudahkan para Pelaku Usaha untuk:",
+      "list":"Mengontrol Inventaris\nMenejemen Stok\nHPP\nTren pendapatan\nTren produk terlaris"
+    }
+  },
+  "section3":{
+    "payment":"Pembayaran Online",
+    "payment_desc":"Permudah pengalaman berbelanja untuk Pelanggan Anda dengan memesan dan membayar tanpa harus meninggalkan mejanya.",
+    "invoice":{
+      "title":"Tagihan & Struk Belanja",
+      "desc":"Kirim tagihan dan struk pembelian secara otomatis kepada Pelanggan Anda."
+    }
+  }
+}

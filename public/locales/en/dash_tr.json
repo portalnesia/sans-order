@@ -1,0 +1,17 @@
+{
+  "month":"This Month",
+  "week":"This Week",
+  "today":"Today",
+  "custom":"Custom",
+  "from":"From",
+  "to":"To",
+  "type":"Type",
+  "payment_status":"Payment Status",
+  "order_status":"Order Status",
+  "print":"Print",
+  "detail":"{{what}} Detail",
+  "disscount":"Disscount",
+  "price":"Price",
+  "payment_method":"Payment Method",
+  "date":"Date"
+}

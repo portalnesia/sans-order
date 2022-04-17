@@ -1,0 +1,29 @@
+{
+  "id":"{{what}} ID",
+  "pay":"Pay",
+  "payment":"Payment",
+  "payment_method":"Payment Method",
+  "add_cart":"Add to Cart",
+  "cart":"Cart",
+  "view_more":"View More",
+  "order_summary":"Order Summary",
+  "pay_before":"Pay Before",
+  "disscount":"Dissount",
+  "name":"Name",
+  "telephone":"Telephone",
+  "error":{
+    "method":"Please select payment method!"
+  },
+  "instruction":{
+    "title":"Payment Instruction",
+    "cod":"Go to the cashier.\nTell the cashier if you want to make a payment for the online orders.\nThe cashier will ask for your transaction ID listed above.\nMake payment.\nAfter paying, an E-Receipt will be sent to your email.",
+    "qris":{
+      "scan":"Scan QR Code to pay",
+      "accept":"QR Code accepted in",
+      "other":"and other applications that accept QRIS"
+    },
+    "ewallet":{
+      "redirect":"Redirecting you to {{what}} checkout page in a moment…"
+    }
+  }
+}

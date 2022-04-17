@@ -1,5 +1,5 @@
 // material
-import { Box, Grid, Container, Typography,Tabs,Tab,Divider,IconButton,TextField, FormGroup, FormControlLabel, Switch,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText } from '@mui/material';
+import { Box, Grid, Container, Typography,Tabs,Tab,Divider,IconButton,TextField, FormGroup, FormControlLabel, Switch,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText, Card } from '@mui/material';
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/dashboard/index'
@@ -13,7 +13,7 @@ import Image from '@comp/Image'
 import Popover from '@comp/Popover'
 import {IOutlet,IPages,ResponsePagination,TokoUsers} from '@type/index'
 import wrapper from '@redux/store'
-import {useTranslations} from 'next-intl';
+import {useTranslation} from 'next-i18next';
 import useSWR from '@utils/swr';
 import { useRouter } from 'next/router';
 import Iconify from '@comp/Iconify';
@@ -38,11 +38,13 @@ export const getServerSideProps = wrapper(async({checkOutlet,params,redirect})=>
   if(typeof slug?.[0] === 'string' && !['outlet','team'].includes(slug?.[0])) {
     return redirect();
   }
-  return await checkOutlet({onlyAdmin:true});
+  return await checkOutlet({onlyAdmin:true},'dash_setting');
 })
 
 export function GeneralSetting() {
-  const t = useTranslations();
+  const {t} = useTranslation('dash_setting');
+  const {t:tMenu} = useTranslation('menu');
+  const {t:tCom} = useTranslation('common');
   const router = useRouter();
   const {put} = useAPI();
   const setNotif = useNotif();
@@ -82,14 +84,14 @@ export function GeneralSetting() {
       const recaptcha = await captchaRef.current?.execute();
       await put(`/toko/${toko_id}/${outlet_id}`,{...input,recaptcha});
       setLoading(null);
-      setNotif(t("General.saved"),false);
+      setNotif(tCom("saved"),false);
       mutateOutlet();
     } catch(e: any) {
-      setNotif(e?.message||t("General.error"),true);
+      setNotif(e?.message||tCom("error"),true);
     } finally {
       setLoading(null)
     }
-  },[put,setNotif,input,t])
+  },[put,setNotif,input,tCom])
 
   React.useEffect(()=>{
     if(input.name.length === 0 && outlet) {
@@ -101,7 +103,7 @@ export function GeneralSetting() {
   return (
     <form onSubmit={handleSubmit}>
       <Box pb={2} mb={5}>
-        <Typography variant="h3" component='h3'>{t("Menu.setting")}</Typography>
+        <Typography variant="h3" component='h3'>{tMenu("setting")}</Typography>
         <Divider />
       </Box>
       <Grid container spacing={4}>
@@ -114,9 +116,9 @@ export function GeneralSetting() {
                   control={
                     <Switch disabled={loading!==null} checked={input?.table_number||false} color="primary" onChange={handleCheckedChange('table_number')} />
                   }
-                  label={ucwords(t("Subcribe.feature.table_number"))}
+                  label={ucwords(tCom("table_number"))}
                 />
-                <Popover icon='clarity:help-outline-badged' >{t("Outlet.tn_desc")}</Popover>
+                <Popover icon='clarity:help-outline-badged' >{t("tn_desc")}</Popover>
               </FormGroup>
             </Grid>
             <Grid item xs={12} md={6} lg={3}>
@@ -127,9 +129,9 @@ export function GeneralSetting() {
                     control={
                       <Switch disabled={loading!==null} checked={input?.self_order||false} color="primary" onChange={handleCheckedChange('self_order')} />
                     }
-                    label={t("Outlet.self_order")}
+                    label={tMenu("self_order")}
                   />
-                  <Popover icon='clarity:help-outline-badged'>{t("Outlet.so_desc")}</Popover>
+                  <Popover icon='clarity:help-outline-badged'>{t("so_desc")}</Popover>
                 </FormGroup>
               </Box>
             </Grid>
@@ -142,9 +144,9 @@ export function GeneralSetting() {
                       control={
                         <Switch disabled={loading!==null} checked={input?.online_payment||false} color="primary" onChange={handleCheckedChange('online_payment')} />
                       }
-                      label={t("Outlet.online_payment")}
+                      label={t("online_payment")}
                     />
-                    <Popover icon='clarity:help-outline-badged' >{t("Outlet.op_desc")}</Popover>
+                    <Popover icon='clarity:help-outline-badged' >{t("op_desc")}</Popover>
                   </FormGroup>
                 </Grid>
                 <Grid item xs={12} md={6} lg={3}>
@@ -154,9 +156,9 @@ export function GeneralSetting() {
                       control={
                         <Switch disabled={loading!==null} checked={input?.cod||false} color="primary" onChange={handleCheckedChange('cod')} />
                       }
-                      label={t("Outlet.cod")}
+                      label={t("cod")}
                     />
-                    <Popover icon='clarity:help-outline-badged' >{t("Outlet.cod_desc")}</Popover>
+                    <Popover icon='clarity:help-outline-badged' >{t("cod_desc")}</Popover>
                   </FormGroup>
                 </Grid>
               </>
@@ -165,7 +167,7 @@ export function GeneralSetting() {
         </Grid>
         <Grid item xs={12}>
           <TextField
-            label={t("General.name",{what:"Outlet"})}
+            label={tCom("name_ctx",{what:"Outlet"})}
             value={input.name}
             onChange={handleChange('name')}
             required
@@ -175,7 +177,7 @@ export function GeneralSetting() {
         </Grid>
         <Grid item xs={12}>
           <TextField
-            label={t("Toko.address")}
+            label={t("address")}
             value={input.address}
             onChange={handleChange('address')}
             fullWidth
@@ -183,24 +185,24 @@ export function GeneralSetting() {
           />
         </Grid>
         <Grid item xs={12}>
-          <SimpleMDE disabled={loading!==null} value={input.description||''} onChange={handleChange('description')} label={t("General.description")} />
+          <SimpleMDE disabled={loading!==null} value={input.description||''} onChange={handleChange('description')} label={tCom("description")} />
         </Grid>
         <Grid item xs={12}>
-          <Button disabled={loading!==null||!outlet?.isAdmin} loading={loading==='submit'} type='submit' icon='submit'>{t("General.save")}</Button>
+          <Button disabled={loading!==null||!outlet?.isAdmin} loading={loading==='submit'} type='submit' icon='submit'>{tCom("save")}</Button>
         </Grid>
       </Grid>
       <Backdrop open={!outlet && !errOutlet} />
       <Recaptcha ref={captchaRef} />
       <Dialog open={opDialog} handleClose={()=>setOpDialog(false)} fullScreen={false}>
-        <DialogTitle>{t("General.access_denied")}</DialogTitle>
+        <DialogTitle>{tCom("access_denied")}</DialogTitle>
         <DialogContent dividers>
-          <Typography gutterBottom>{t("Wallet.online_payment")}</Typography>
-          <Typography gutterBottom>{t("Wallet.online_payment_owner")}</Typography>
-          <Typography>{t("Wallet.online_payment_team")}</Typography>
+          <Typography gutterBottom>{t("team.online_payment")}</Typography>
+          <Typography gutterBottom>{t("team.online_payment_owner")}</Typography>
+          <Typography>{t("team.online_payment_team")}</Typography>
         </DialogContent>
         <DialogActions>
-          <Button text color='inherit' onClick={()=>setOpDialog(false)}>{t("General.close")}</Button>
-          {outlet?.isOwner && <Button onClick={()=>router.push(`/apps/${toko_id}/wallet`)}>{t("General.create",{what:t("General.wallet")})}</Button>}
+          <Button text color='inherit' onClick={()=>setOpDialog(false)}>{tCom("close")}</Button>
+          {outlet?.isOwner && <Button onClick={()=>router.push(`/apps/${toko_id}/wallet`)}>{t("create",{what:t("wallet")})}</Button>}
         </DialogActions>
       </Dialog>
     </form>
@@ -249,7 +251,9 @@ function UserMenu({onEdit,onDelete,editDisabled,allDisabled}: UserMenu) {
 }
 
 export function TeamSetting() {
-  const t = useTranslations();
+  const {t} = useTranslation('dash_setting');
+  const {t:tMenu} = useTranslation('menu');
+  const {t:tCom} = useTranslation('common');
   const router = useRouter();
   const {post,del,put} = useAPI();
   const setNotif = useNotif();
@@ -282,14 +286,14 @@ export function TeamSetting() {
       const recaptcha = await captchaRef.current?.execute();
       await post(`/toko/${toko_id}/${outlet_id}/users`,{...iCreate,recaptcha});
       mutate();
-      setNotif(t("General.saved"),false)
+      setNotif(tCom("saved"),false)
       setDCreate(false)
     } catch(e: any) {
-      setNotif(e?.message||t("General.error"),true);
+      setNotif(e?.message||tCom("error"),true);
     } finally {
       setLoading(false);
     }
-  },[iCreate,setNotif,post,toko_id,outlet_id,mutate])
+  },[iCreate,setNotif,post,toko_id,outlet_id,mutate,tCom])
 
   const handleEdit=React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
@@ -298,96 +302,98 @@ export function TeamSetting() {
       const recaptcha = await captchaRef.current?.execute();
       await put(`/toko/${toko_id}/${outlet_id}/users/${dEdit?.id}`,{admin:iEdit,recaptcha});
       mutate();
-      setNotif(t("General.saved"),false)
+      setNotif(tCom("saved"),false)
       setDEdit(null)
     } catch(e: any) {
-      setNotif(e?.message||t("General.error"),true);
+      setNotif(e?.message||tCom("error"),true);
     } finally {
       setLoading(false);
     }
-  },[dEdit,iEdit,setNotif,put,toko_id,outlet_id,mutate])
+  },[dEdit,iEdit,setNotif,put,toko_id,outlet_id,mutate,tCom])
 
   const handleDelete=React.useCallback(async()=>{
     setLoading(true);
     try {
       await del(`/toko/${toko_id}/${outlet_id}/users/${dDelete?.id}`);
       mutate();
-      setNotif(t("General.deleted"),false)
+      setNotif(tCom("deleted"),false)
       setDDelete(null)
     } catch(e: any) {
-      setNotif(e?.message||t("General.error"),true);
+      setNotif(e?.message||tCom("error"),true);
     } finally {
       setLoading(false);
     }
-  },[dDelete,del,setNotif,toko_id,outlet_id,mutate])
+  },[dDelete,del,setNotif,toko_id,outlet_id,mutate,tCom])
   
   return (
     <Box>
       <Box pb={2} mb={5}>
         <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
-          <Typography variant="h3" component='h3'>{t("Menu.team")}</Typography>
-          <Button disabled={!outlet?.isAdmin} onClick={buttonCreate}>{t("General.add",{what:t("Menu.team")})}</Button>
+          <Typography variant="h3" component='h3'>{tMenu("team")}</Typography>
+          <Button disabled={!outlet?.isAdmin} onClick={buttonCreate}>{tCom("add_ctx",{what:tMenu("team")})}</Button>
         </Stack>
       </Box>
-      <Scrollbar>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell align="left">Name</TableCell>
-              <TableCell align="center">Status</TableCell>
-              <TableCell align="center"></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {!data && !error ? (
+      <Card sx={{p:2}}>
+        <Scrollbar>
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell align="center" colSpan={3} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
+                <TableCell align="left">Name</TableCell>
+                <TableCell align="center">Status</TableCell>
+                <TableCell align="center"></TableCell>
               </TableRow>
-            ) : error ? (
-              <TableRow>
-                <TableCell align="center" colSpan={3} sx={{ py: 3 }}><Typography>{error?.message}</Typography></TableCell>
-              </TableRow>
-            ) : data?.data && data?.data?.length === 0 ? (
-              <TableRow>
-                <TableCell align="center" colSpan={3} sx={{ py: 3 }}><Typography>{t("General.no",{what:"Data"})}</Typography></TableCell>
-              </TableRow>
-            ) : data?.data?.map((d,i)=>(
-              <TableRow>
-                <TableCell align="left">
-                  <Stack direction="row" alignItems="center" spacing={2}>
-                    <Avatar alt={d?.name}>
-                      {d?.picture === null ? d?.name : <Image src={d?.picture} />}
-                    </Avatar>
-                    <Typography variant="subtitle2" noWrap>
-                      {d?.name}
-                    </Typography>
-                  </Stack>
-                </TableCell>
-                <TableCell align="center">
-                  <Stack direction="row" alignItems="center" justifyContent='center' spacing={2}>
-                    {d?.admin && <Label variant='filled' color='info'>Admin</Label>}
-                    <Label variant='filled' color={d?.pending ? 'error':'success'}>{d?.pending ? t("General.pending"):t("General.active")}</Label>
-                  </Stack>
-                </TableCell>
-                <TableCell align="center">
-                  <UserMenu onEdit={buttonEdit(d)} onDelete={()=>setDDelete(d)} editDisabled={!!d?.pending} allDisabled={!outlet?.isAdmin} />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Scrollbar>
-      <TablePagination
-        count={data?.total||0}
-        rowsPerPage={rowsPerPage}
-        page={page-1}
-        {...pagination}
-      />
+            </TableHead>
+            <TableBody>
+              {!data && !error ? (
+                <TableRow>
+                  <TableCell align="center" colSpan={3} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
+                </TableRow>
+              ) : error ? (
+                <TableRow>
+                  <TableCell align="center" colSpan={3} sx={{ py: 3 }}><Typography>{error?.message}</Typography></TableCell>
+                </TableRow>
+              ) : data?.data && data?.data?.length === 0 ? (
+                <TableRow>
+                  <TableCell align="center" colSpan={3} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:"Data"})}</Typography></TableCell>
+                </TableRow>
+              ) : data?.data?.map((d,i)=>(
+                <TableRow>
+                  <TableCell align="left">
+                    <Stack direction="row" alignItems="center" spacing={2}>
+                      <Avatar alt={d?.name}>
+                        {d?.picture === null ? d?.name : <Image src={d?.picture} />}
+                      </Avatar>
+                      <Typography variant="subtitle2" noWrap>
+                        {d?.name}
+                      </Typography>
+                    </Stack>
+                  </TableCell>
+                  <TableCell align="center">
+                    <Stack direction="row" alignItems="center" justifyContent='center' spacing={2}>
+                      {d?.admin && <Label variant='filled' color='info'>Admin</Label>}
+                      <Label variant='filled' color={d?.pending ? 'error':'success'}>{d?.pending ? t("pending"):t("active")}</Label>
+                    </Stack>
+                  </TableCell>
+                  <TableCell align="center">
+                    <UserMenu onEdit={buttonEdit(d)} onDelete={()=>setDDelete(d)} editDisabled={!!d?.pending} allDisabled={!outlet?.isAdmin} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Scrollbar>
+        <TablePagination
+          count={data?.total||0}
+          rowsPerPage={rowsPerPage}
+          page={page-1}
+          {...pagination}
+        />
+      </Card>
 
       <Dialog loading={loading} open={dCreate} handleClose={()=>setDCreate(false)}>
         <form onSubmit={handleCreate}>
-          <DialogTitle>{t("General.add",{what:t("Menu.team")})}</DialogTitle>
-          <DialogContent>
+          <DialogTitle>{tCom("add_ctx",{what:tMenu("team")})}</DialogTitle>
+          <DialogContent dividers>
             <Grid container spacing={4}>
               <Grid item xs={12}>
                 <TextField
@@ -398,7 +404,7 @@ export function TeamSetting() {
                   fullWidth
                   required
                   autoFocus
-                  placeholder={t("Outlet.email")}
+                  placeholder={t("email")}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -409,20 +415,20 @@ export function TeamSetting() {
                     }
                     label={"Admin"}
                   />
-                  <Popover icon='clarity:help-outline-badged' >{t("Outlet.admin_help")}</Popover>
+                  <Popover icon='clarity:help-outline-badged' >{t("admin_help")}</Popover>
                 </FormGroup>
               </Grid>
             </Grid>
           </DialogContent>
           <DialogActions>
-            <Button disabled={loading} text color='inherit' onClick={()=>setDCreate(false)}>{t("General.cancel")}</Button>
-            <Button disabled={loading} loading={loading} type='submit' icon='submit'>{t("General.save")}</Button>
+            <Button disabled={loading} text color='inherit' onClick={()=>setDCreate(false)}>{tCom("cancel")}</Button>
+            <Button disabled={loading} loading={loading} type='submit' icon='submit'>{tCom("save")}</Button>
           </DialogActions>
         </form>
       </Dialog>
       <Dialog loading={loading} open={dEdit!==null} handleClose={()=>setDEdit(null)}>
         <form onSubmit={handleEdit}>
-          <DialogTitle>{`Edit ${t("Menu.team")}`}</DialogTitle>
+          <DialogTitle>{`Edit ${tMenu("team")}`}</DialogTitle>
           <DialogContent>
             <Grid container spacing={4}>
               <Grid item xs={12}>
@@ -437,22 +443,22 @@ export function TeamSetting() {
                     }
                     label={"Admin"}
                   />
-                  <Popover icon='clarity:help-outline-badged' >{t("Outlet.admin_help")}</Popover>
+                  <Popover icon='clarity:help-outline-badged' >{t("admin_help")}</Popover>
                 </FormGroup>
               </Grid>
             </Grid>
           </DialogContent>
           <DialogActions>
-            <Button disabled={loading} text color='inherit' onClick={()=>setDEdit(null)}>{t("General.cancel")}</Button>
-            <Button disabled={loading} loading={loading} type='submit' icon='submit'>{t("General.save")}</Button>
+            <Button disabled={loading} text color='inherit' onClick={()=>setDEdit(null)}>{tCom("cancel")}</Button>
+            <Button disabled={loading} loading={loading} type='submit' icon='submit'>{tCom("save")}</Button>
           </DialogActions>
         </form>
       </Dialog>
       <Dialog maxWidth='xs' loading={loading} open={dDelete!==null} handleClose={()=>setDDelete(null)} fullScreen={false}>
-        <DialogTitle>{t("General.are_you_sure")}</DialogTitle>
+        <DialogTitle>{t("are_you_sure")}</DialogTitle>
         <DialogActions>
-          <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{t("General.cancel")}</Button>
-          <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{t("General._delete")}</Button>
+          <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{tCom("cancel")}</Button>
+          <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{tCom("delete")}</Button>
         </DialogActions>
       </Dialog>
       <Recaptcha ref={captchaRef} />
@@ -461,7 +467,7 @@ export function TeamSetting() {
 }
 
 export default function OutletSetting({meta}: IPages) {
-  const t = useTranslations();
+  const {t:tMenu} = useTranslation('menu');
   const router = useRouter();
   const {slug,toko_id,outlet_id} = router.query;
 
@@ -472,7 +478,7 @@ export default function OutletSetting({meta}: IPages) {
   },[slug,toko_id,outlet_id])
 
   return (
-    <Header title={`${slug?.[0] === 'team' ? t("Menu.team") : t("Menu.setting")} - ${meta?.title}`} desc={meta?.description}>
+    <Header title={`${slug?.[0] === 'team' ? tMenu("team") : tMenu("setting")} - ${meta?.title}`} desc={meta?.description}>
       <Dashboard title={meta?.title} subtitle={meta?.toko_name}>
         <Container>          
           <Box>

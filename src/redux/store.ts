@@ -11,6 +11,9 @@ import { ParsedUrlQuery } from 'querystring'
 import {useDispatch as originalUseDispatch,useSelector as originalUseSelector} from 'react-redux'
 import {convertToPlaintext} from '@utils/marked'
 import { photoUrl } from '@utils/Main';
+import {serverSideTranslations} from 'next-i18next/serverSideTranslations'
+import nextI18nextConfig from '@rootnext-i18next.config';
+import { SSRConfig } from 'next-i18next';
 
 export const useDispatch = ()=>originalUseDispatch<Dispatch<ActionType>>()
 export const useSelector = <D=State>(selector: (state: State)=>D)=>originalUseSelector<State,D>(selector)
@@ -38,17 +41,24 @@ type IOutlet = {
 
 type IQuery = {
     name:'check_toko'|'check_outlet',
-    outlet?: IOutlet
+    outlet?: IOutlet,
+    translation?: string|string[]
 }
 
 type CallbackParams<P> = GetServerSidePropsContext<ParsedUrlQuery,any> & ({store: Store<State, ActionType> & {
     dispatch: Dispatch<ActionType>;
 }}) & ({
     redirect(urlOrNotFound?:string): GetServerSidePropsResult<P>,
-    checkToko(): Promise<GetServerSidePropsResult<P>>,
-    checkOutlet(data?: IOutlet): Promise<GetServerSidePropsResult<P>>,
+    checkToko(data?:IOutlet,translation?:string|string[]): Promise<GetServerSidePropsResult<P>>,
+    checkOutlet(data?:IOutlet,translation?:string|string[]): Promise<GetServerSidePropsResult<P>>,
+    getTranslation(translation?: string|string[],locale?: string): Promise<SSRConfig>
 })
 type Callback<P=IPages> = (params: CallbackParams<P>)=>Promise<GetServerSidePropsResult<P>>
+
+async function getTranslation(translation?: string|string[],locale: string='en') {
+  const translations = translation ? ['menu','common'].concat(typeof translation === 'string' ? [translation] : translation) : ['menu','common'];
+  return await serverSideTranslations(locale,translations,nextI18nextConfig)
+}
 
 export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
     // @ts-ignore
@@ -56,8 +66,7 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
         let props: IPages = {}
         try {
           const userid = ctx.req.cookies?.['_so_token_'];
-
-          async function checkOutlet(dt: IOutlet = {}): Promise<GetServerSidePropsResult<P>> {
+          async function checkOutlet(dt: IOutlet = {},translation?:string|string[]): Promise<GetServerSidePropsResult<P>> {
             dt.notfound=dt.notfound||true;
             if(!userid && dt.onlyMyToko) return db.redirect<P>("/apps");
             const toko_id = ctx.params?.toko_id;
@@ -84,12 +93,13 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
                   slug: toko[0]?.slug,
                   toko_name: toko[0]?.toko_name,
                   image: `${photoUrl(toko[0]?.logo||null)}&watermark=no&export=banner&size=300`
-                }
-              } as unknown as P
+                },
+                ...(await getTranslation(translation,ctx.locale))
+              } as unknown as P,
             }
           }
 
-          async function checkToko(dt: IOutlet = {}): Promise<GetServerSidePropsResult<P>> {
+          async function checkToko(dt: IOutlet = {},translation?:string|string[]): Promise<GetServerSidePropsResult<P>> {
             dt.notfound=dt.notfound||true;
             const toko_id = ctx.params?.toko_id;
             if(typeof toko_id !== 'string') return db.redirect();
@@ -110,25 +120,25 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
                   description:convertToPlaintext(check?.description),
                   slug: check?.slug,
                   image: `${photoUrl(check?.logo||null)}&watermark=no&export=banner&size=300`
-                }
+                },
+                ...(await getTranslation(translation,ctx.locale))
               } as unknown as P
             }
           }
 
           if(!callback) return {props};
           if(typeof callback === 'object') {
-            
             //console.log(userid,props.req.cookies)
             if(callback.name === 'check_toko') {
-              return await checkToko();
+              return await checkToko({},callback.translation);
             }
             if(callback.name === 'check_outlet') {
-              return await checkOutlet(callback.outlet)
+              return await checkOutlet(callback.outlet,callback.translation)
             }
 
             return {props}
           }
-          const result = await callback({store,redirect:db.redirect,checkToko,checkOutlet,...ctx})
+          const result = await callback({store,redirect:db.redirect,checkToko,checkOutlet,getTranslation,...ctx})
           return result
         } catch(err) {
           console.log(err)
@@ -144,8 +154,13 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
   })
 }
 
-export function staticProps(){
-  return async()=>{
-    return {props:{}};
+
+export function staticProps(config?: Pick<IQuery,'translation'>){
+  return async(ctx: GetStaticPropsContext)=>{
+    return {
+      props:{
+        ...(await getTranslation(config?.translation,ctx.locale))
+      },
+    };
   }
 }

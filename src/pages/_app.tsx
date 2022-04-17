@@ -12,10 +12,9 @@ import { EmotionCache } from '@emotion/cache';
 import {wrapperRoot,State} from '@redux/index';
 import {connect} from 'react-redux';
 import {SnackbarProvider} from 'notistack'
-import {NextIntlProvider} from 'next-intl'
-import en from '@locale/en.json'
-import id from '@locale/id.json'
 import {useRouter} from 'next/router';
+import {appWithTranslation} from 'next-i18next'
+import nextI18NextConfig from '@root/next-i18next.config'
 // ----------------------------------------------------------------------
 
 export interface AppProps {
@@ -28,27 +27,19 @@ export interface AppProps {
 
 const clientSideCache = createEmotionCache();
 
-function App({Component,pageProps,theme,emotionCache=clientSideCache}: AppProps) {
-  const router = useRouter();
-  const {locale,defaultLocale} = router;
-  const lang = useMemo(()=>{
-    const lang = locale||defaultLocale;
-    return lang === 'id' ? id : en;
-  },[locale])
+function App({Component,pageProps,emotionCache=clientSideCache}: AppProps) {
 
   return (
-    <NextIntlProvider messages={lang}>
-      <CacheProvider value={emotionCache}>
-        <ThemeConfig>
-          <GlobalStyles />
-          <SnackbarProvider anchorOrigin={{horizontal:'right',vertical:'bottom'}} maxSnack={4}>
-            <Component {...pageProps} />
-            <Loader />
-          </SnackbarProvider>
-        </ThemeConfig>
-      </CacheProvider>
-    </NextIntlProvider>
+    <CacheProvider value={emotionCache}>
+      <ThemeConfig>
+        <GlobalStyles />
+        <SnackbarProvider anchorOrigin={{horizontal:'right',vertical:'bottom'}} maxSnack={4}>
+          <Component {...pageProps} />
+          <Loader />
+        </SnackbarProvider>
+      </ThemeConfig>
+    </CacheProvider>
   );
 }
 
-export default wrapperRoot.withRedux(connect<{theme:'light'|'dark'},{},{},State>(state=>({theme:state.redux_theme}))(App));
+export default appWithTranslation(wrapperRoot.withRedux(App),nextI18NextConfig);

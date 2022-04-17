@@ -8,14 +8,14 @@ import { Box, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
 //import account from '../../_mocks_/account';
 // hooks
 import useResponsive from '@comp/useResponsive';
-import {useTranslations} from 'next-intl'
+import {useTranslation} from 'next-i18next'
 // components
 import Logo from '../../components/Logo';
 import Scrollbar from '../../components/Scrollbar';
 import NavSection from '../../components/NavSection';
 import sidebarConfig from './SidebarConfig';
 import MenuQr from '@comp/MenuQr';
-
+import footerMenu from '@layout/FooterConfig';
 // ----------------------------------------------------------------------
 
 const DRAWER_WIDTH = 280;
@@ -35,6 +35,70 @@ const AccountStyle = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.grey[500_12]
 }));
 
+export const FooterRoot = styled('div')(({theme})=>({
+  WebkitBoxAlign:'stretch',
+  WebkitBoxDirection:'normal',
+  WebkitBoxOrient:'vertical',
+  WebkitFlexBasis:'auto',
+  WebkitFlexDirection:'column',
+  WebkitFlexShrink:0,
+  alignItems:'stretch',
+  boxSizing:'border-box',
+  display:'flex',
+  flexBasis:'auto',
+  flexDirection:'column',
+  flexShrink:0,
+  margin:0,
+  marginBottom:15,
+  padding:0,
+  position:'relative',
+  zIndex:0,
+  '& a:hover':{
+    textDecoration:'underline'
+  },
+  '& span':{
+    overflowWrap:'break-word',
+    lineHeight:1.3125,
+    color:theme.palette.text.secondary,
+    whiteSpace:'pre-wrap',
+  }
+}))
+
+export const FooterMenu = styled('div')(({theme})=>({
+  WebkitFlexDirection:'row',
+  WebkitFlexWrap:'wrap',
+  WebkitBoxDirection:'normal',
+  WebkitBoxOrient:'horizontal',
+  flexWrap:'wrap',
+  flexDirection:'row',
+  marginBottom:0,
+  paddingLeft:theme.spacing(2),
+  paddingRight:theme.spacing(2)
+}))
+
+export const FooterChild = styled('div')(({theme})=>({
+  color:theme.palette.text.secondary,
+  lineHeight:'20px',
+  fontSize:13,
+  overflowWrap:'break-word',
+  margin:'2px 0',
+  padding:0,
+  paddingRight:10,
+  whiteSpace:'pre-wrap',
+}))
+
+export const FooterAChild = styled('a')(({theme})=>({
+  color:theme.palette.text.secondary,
+  lineHeight:'20px',
+  fontSize:13,
+  overflowWrap:'break-word',
+  margin:'2px 0',
+  padding:0,
+  paddingRight:10,
+  whiteSpace:'pre-wrap',
+}))
+
+
 // ----------------------------------------------------------------------
 
 export interface DashboardSidebarProps {
@@ -44,10 +108,29 @@ export interface DashboardSidebarProps {
   subtitle?: string
 };
 
+export function MenuItem({data}: {data: ReturnType<typeof footerMenu>[number]}) {
+
+  return (
+    <>
+      {data.link ? (
+        <Link href={data.link} passHref>
+          <FooterAChild>
+            <span>{data.name}</span>
+          </FooterAChild>
+        </Link>
+      ) : data.exlink ? (
+        <FooterAChild href={data.exlink} target='blank' rel='nofollow noopener noreferrer'>
+          <span>{data.name}</span>
+        </FooterAChild>
+      ) : null}
+    </>
+  )
+}
+
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title, subtitle }: DashboardSidebarProps) {
   const router = useRouter();
   const pathname = router.pathname;
-  const t = useTranslations();
+  const {t} = useTranslation('menu');
   const isDesktop = useResponsive('up', 'lg');
 
   useEffect(() => {
@@ -84,14 +167,30 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title,
         </Box>
       )}
 
-      <NavSection navConfig={sidebarConfig(t,router)} />
+      <NavSection navConfig={sidebarConfig(t)} />
 
       <MenuQr />
 
       <Box sx={{ flexGrow: 1 }} />
 
       <Box sx={{ px: 2.5, pb: 3, mt: 10 }}>
-        
+        <FooterRoot>
+          <FooterMenu>
+            {footerMenu(t).map((f)=>(
+              <MenuItem key={f.name} data={f} />
+            ))}
+          </FooterMenu>
+        </FooterRoot>
+        <FooterRoot>
+          <FooterMenu>
+            <FooterChild>
+              <span {...({"xmlns:cc":"http://creativecommons.org/ns#","xmlns:dct":"http://purl.org/dc/terms/"})}>
+                <a property="dct:title" rel="cc:attributionURL" href={process.env.URL}>SansOrder</a> © {(new Date().getFullYear())}
+              </span>
+            </FooterChild>
+            <FooterChild><span>Powered by <a target='_blank' href={process.env.PORTAL_URL}>Portalnesia</a></span></FooterChild>
+          </FooterMenu>
+        </FooterRoot>
       </Box>
     </Scrollbar>
   );

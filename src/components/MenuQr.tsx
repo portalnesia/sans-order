@@ -7,7 +7,7 @@ import { Box, Stack, BoxProps, List, IconButton, ListItemText, ListItemIcon, Lis
 import {Close} from '@mui/icons-material'
 import Iconify from './Iconify';
 import Image from './Image'
-import {useTranslations} from 'next-intl'
+import {useTranslation} from 'next-i18next'
 import dynamic from 'next/dynamic'
 import Button from './Button';
 import useOutlet from '@utils/useOutlet';
@@ -22,7 +22,7 @@ export interface MenuQrProps extends BoxProps {
 };
 
 export default function MenuQr({...other}: MenuQrProps) {
-  const t = useTranslations();
+  const {t} = useTranslation('common');
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
   const [imgUrl,setImgUrl] = useState<string|undefined>()
@@ -83,7 +83,7 @@ export default function MenuQr({...other}: MenuQrProps) {
               <TextField
                 value={table}
                 onChange={(e)=>setTable(e.target.value)}
-                label={t("Subcribe.feature.table_number")}
+                label={t("table_number")}
                 placeholder="A1"
               />
               <Button onClick={handleGenerate}>Generate</Button>

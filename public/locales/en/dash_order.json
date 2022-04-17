@@ -1,0 +1,21 @@
+{
+  "price":"Price",
+  "disscount":"Disscount",
+  "pay":"Pay",
+  "payment":"Payment",
+  "process":"Process",
+  "update_order_status":"Update order status to `FINISHED`",
+  "print":"Print",
+  "month":"This Month",
+  "week":"This Week",
+  "today":"Today",
+  "custom":"Custom",
+  "from":"From",
+  "to":"To",
+  "type":"Type",
+  "payment_status":"Payment Status",
+  "order_status":"Order Status",
+  "payment_method":"Payment Method",
+  "detail":"{{what}} Detail",
+  "date":"Date"
+}

@@ -40,8 +40,9 @@
         "./src/redux*"
       ],
       "@sections*":["./src/sections*"],
-      "@locale*":["./locale*"],
       "@type*":["./src/types*"],
+      "@lottie*":["./src/lottie*"],
+      "@locale*":["./locale*"],
       "@root*":["./*"],
     },
     "strict": true,

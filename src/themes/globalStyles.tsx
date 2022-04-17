@@ -67,7 +67,53 @@ export default function GlobalStyles() {
           marginTop:16,
           marginBottom:16
         },
-        a: {color:'inherit',textDecoration:'unset',WebkitTapHighlightColor:'transparent','&:hover':{textDecoration:'underline'}},
+        blockquote:{
+          fontSize:16,
+          width:'100%',
+          margin:'10px 0 10px 0',
+          padding: '0.5em 10px .5em 15px',
+          borderLeft:'8px solid #78c0a8',
+          position:'relative',
+          overflowX:'auto'
+        },
+        'blockquote::before':{
+          fontFamily:'Arial',
+          color:'#78c0a8',
+          fontSize:'4em',
+          position:'absolute',
+          left:10,
+          top:-10
+        },
+        'blockquote::after':{
+          content:"''"
+        },
+        'blockquote span':{
+          display:'block',
+          color:'#333',
+          fontStyle:'normal',
+          fontWeight:700,
+          marginTop:'1em'
+        },
+        'code:not(.hljs), blockquote, code.code:not(.hljs)':{
+          background:theme.palette.action.hover,
+          borderRadius:'.5rem'
+        },
+        li:{
+          listStylePosition:'inside'
+        },
+        'li:not(.MuiListItem-container):not(.MuiBreadcrumbs-li):not(.MuiBreadcrumbs-separator)':{
+          marginBottom:10
+        },
+        'li:not(.MuiListItem-container):not(.MuiBreadcrumbs-li):not(.MuiBreadcrumbs-separator):last-child': {
+          marginBottom:'unset'
+        },
+        'ul.MuiPagination-ul li': {
+          marginBottom:'inherit'
+        },
+        a: {color:'inherit',textDecoration:'unset',WebkitTapHighlightColor:'transparent'},
+        'a p':{
+          '&:hover':{textDecoration:'underline'}
+        },
         img: { display: 'block', maxWidth: '100%' },
 
         // Lazy Load Img

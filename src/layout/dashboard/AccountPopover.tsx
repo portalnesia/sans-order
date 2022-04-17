@@ -12,18 +12,18 @@ import Image from '@comp/Image'
 import portalnesia from '@utils/portalnesia'
 import SessionStorage from '@utils/session-storage'
 import Backdrop from '@comp/Backdrop'
-import {useTranslations} from 'next-intl'
+import {useTranslation,TFunction} from 'next-i18next'
 import cookie from 'js-cookie'
 
-const MENU_OPTIONS = (t: ReturnType<typeof useTranslations>,user: IUser)=>([
+const MENU_OPTIONS = (t: TFunction,user: IUser)=>([
   {
-    label: t("Menu.profile"),
+    label: t("profile"),
     icon: 'eva:person-fill',
     target:'_blank',
     linkTo: `${process.env.DOMAIN}/user/${user.username}`
   },
   {
-    label: t("Menu.setting"),
+    label: t("setting"),
     icon: 'eva:settings-2-fill',
     target:'_blank',
     linkTo: `${process.env.DOMAIN}/setting`
@@ -31,7 +31,7 @@ const MENU_OPTIONS = (t: ReturnType<typeof useTranslations>,user: IUser)=>([
 ]);
 
 export default function AccountPopover() {
-  const t = useTranslations();
+  const {t} = useTranslation('menu');
   const user = useSelector<State['user']>(s=>s.user);
   const dispatch = useDispatch();
   const anchorRef = useRef(null);
@@ -129,11 +129,11 @@ export default function AccountPopover() {
         <Box sx={{ p: 2, pt: 1.5 }}>
           {user ? (
             <Button onClick={logout} fullWidth color="inherit" variant="outlined">
-              {t("Menu.logout")}
+              {t("logout")}
             </Button>
           ) : (
             <Button fullWidth color="inherit" variant="outlined">
-              {t("Login.sign")}
+              {t("signin")}
             </Button>
           )}
           

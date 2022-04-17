@@ -96,6 +96,15 @@ export type ITransaction<D=any> = {
   token_print?: string
 }
 
+export interface WalletHistory<D=any> extends ITransaction<D> {
+  toko: IToko | ({
+    id: number,
+    name: string
+    address: string|null,
+    description: string|null,
+    toko?:IToko
+  })
+}
 
 export interface TransactionsDetail<D=any> extends ITransaction<D> {
   toko:IOutlet

@@ -1,0 +1,19 @@
+{
+  "online_payment":"Pembayaran Online",
+  "cod":"Bayar di Tempat",
+  "op_desc":"Bila diaktifkan, pelanggan Anda dapat melakukan pembayaran secara online menggunakan Bank, E-Wallet, atau QRIS",
+  "cod_desc":"Bila diaktifkan, pelanggan Anda dapat melakukan pembayaran secara langsung setelah melakukan pemesanan, misalnya pembayaran langsung di kasir",
+  "so_desc":"Bila diaktifkan, pelanggan Anda akan dapat melakukan pemesanan langsung melalui situs web",
+  "tn_desc":"Bila diaktifkan, pelanggan atau kasir Anda harus menginput nomor meja saat melakukan pemesanan",
+  "email":"Ketikkan Email Pengguna Portalnesia",
+  "admin_help":"Bila diaktifkan, pengguna ini akan mendapatkan hak akses sebagai admin. Pengguna ini dapat menambah, mengedit dan/atau menghapus produk, tim, pengaturan outlet, tetapi tidak dapat menghapus outlet. Hanya pemilik merchant yang dapat menghapus outlet.",
+  "address":"Alamat",
+  "team":{
+    "online_payment":"Bisnis ini harus membuat akun dompet untuk dapat mengaktifkan `PEMBAYARAN ONLINE`.",
+    "online_payment_owner":"Jika Anda pemilik merchant ini, Anda dapat membuat akun dompet pada Halaman Bisnis.",
+    "online_payment_team":"Jika Anda bukan pemililk merchant ini, harap menghubungi pemilik merchant ini dan memintanya untuk mendaftarkan akun dompet untuk merchant ini."
+  },
+  "wallet":"Dompet",
+  "pending":"Tertunda",
+  "active":"Aktif"
+}
