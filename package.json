@@ -8,8 +8,8 @@
     "version": "npx genversion --es6 src/version.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node server.js",
-    "build": "npx genversion version.js && next build",
-    "buildprod": "rm -rf .next/static/ .next/cache/ && npx genversion version.js && next build",
+    "build": "npx genversion --es6 src/version.ts && next build",
+    "buildprod": "rm -rf .next/static/ .next/cache/ && npx genversion --es6 src/version.ts && next build",
     "tsc": "npx tsc ./server.ts --module commonjs --esModuleInterop"
   },
   "repository": {
