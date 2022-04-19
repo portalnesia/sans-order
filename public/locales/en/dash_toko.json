@@ -1,0 +1,6 @@
+{
+  "wallet":"Wallet",
+  "address":"Address",
+  "delete_wallet":"If your wallet still contains balance, please withdraw your balance first before deleting the merchant",
+  "delete":"All data on your merchant, including wallets, transactions, products, teams will be deleted.\nTHIS COMMAND CANNOT BE UNDONE!"
+}

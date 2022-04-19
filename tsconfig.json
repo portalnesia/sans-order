@@ -1,0 +1,59 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "lib": [
+      "dom",
+      "ESNext",
+      "DOM.Iterable"
+    ],
+    "module": "esnext",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "noEmitOnError": true,
+    //"removeComments": false,
+    //"noImplicitAny": false,
+    //"noImplicitThis": true,
+    //"strictNullChecks": true,
+    "skipLibCheck": true,
+    "target": "esnext",
+    "noEmit": true,
+    "baseUrl": ".",
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@utils*": [
+        "./src/utils*"
+      ],
+      "@comp*": [
+        "./src/components*"
+      ],
+      "@layout*": [
+        "./src/layout*"
+      ],
+      "@themes*": [
+        "./src/themes*"
+      ],
+      "@redux*": [
+        "./src/redux*"
+      ],
+      "@sections*":["./src/sections*"],
+      "@locale*":["./locale*"],
+      "@type*":["./src/types*"],
+      "@root*":["./*"],
+    },
+    "strict": true,
+    "incremental": true
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx"
+  ]
+}

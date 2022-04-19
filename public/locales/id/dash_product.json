@@ -1,0 +1,12 @@
+{
+  "price":"Harga",
+  "disscount":"Diskon",
+  "stock":"Stok",
+  "show_in_menu":"Ditampilkan pada Katalog",
+  "category":"Kategori",
+  "catalogue":"Katalog",
+  "active":"Aktif",
+  "active_not":"Tidak Aktif",
+  "selected_zero":"Tidak ada yang dipilih",
+  "selected_other":"{{count}} dipilih"
+}

@@ -1,0 +1,47 @@
+{
+  "id":"ID {{what}}",
+  "view_more":"Selengkapnya",
+  "pay":"Bayar",
+  "payment":"Pembayaran",
+  "payment_method":"Metode Pembayaran",
+  "add_cart":"Tambahkan ke Keranjang",
+  "cart":"Keranjang",
+  "order_summary":"Ringkasan Pesanan",
+  "pay_before":"Lakukan Pembayaran Sebelum",
+  "disscount":"Diskon",
+  "name":"Name",
+  "telephone":"Telepon",
+  "error":{
+    "method":"Silahkan pilih metode pembayaran!"
+  },
+  "instruction":{
+    "title":"Tata Cata Membayar",
+    "cod":"Pergi ke kasir.\nBeritahu kasir jika Anda ingin melakukan pembayaran untuk pemesanan online.\nKasir akan menanyakan ID transaksi Anda, yang tertera di atas.\nLakukan pembayaran.\nSetelah membayar, struk elektronik akan dikirimkan melalui email Anda.",
+    "qris":{
+      "scan":"Pindai Kode QR untuk membayar",
+      "accept":"Kode QR diterima di",
+      "other":"dan aplikasi lainnya yang menerima QRIS"
+    },
+    "ewallet":{
+      "redirect":"Mengarahkan Anda ke halaman checkout {{what}} dalam beberapa saat…"
+    }
+  },
+  "success":{
+    "title":"Pembayaran Berhasil",
+    "description":"Kami telah menerima pembayaran Anda.",
+    "redirect":"Anda akan diarahkan ke halaman transaksi dalam beberapa saat..."
+  },
+  "operational_hour":"Jam Operasional",
+  "hour":"Jam",
+  "day":"Hari",
+  "sunday":"Minggu",
+  "monday":"Senin",
+  "tuesday":"Selasa",
+  "wednesday":"Rabu",
+  "thursday":"Kamis",
+  "friday":"Jumat",
+  "saturday":"Sabtu",
+  "busy":"Tutup Sementara",
+  "close":"Tutup",
+  "open":"Buka"
+}

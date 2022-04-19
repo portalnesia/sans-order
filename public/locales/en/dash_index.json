@@ -1,0 +1,13 @@
+{
+  "month":"This Month",
+  "week":"This Week",
+  "today":"Today",
+  "custom":"Custom",
+  "from":"From",
+  "to":"To",
+  "income":"Income",
+  "transactions":"Transactions",
+  "best_seller":"Best Seller",
+  "chart":"{{what}} Chart",
+  "sold":"Sold"
+}

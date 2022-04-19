@@ -1,0 +1,21 @@
+{
+  "price":"Harga",
+  "disscount":"Diskon",
+  "pay":"Bayar",
+  "payment":"Pembayaran",
+  "process":"Proses",
+  "update_order_status":"Perbarui status pemesanan menjadi `FINISHED`",
+  "print":"Cetak",
+  "month":"Bulan Ini",
+  "week":"Minggu ini",
+  "today":"Hari ini",
+  "custom":"Kustom",
+  "from":"Dari",
+  "to":"Sampai",
+  "type":"Tipe",
+  "payment_status":"Status Pembayaran",
+  "order_status":"Status Pemesanan",
+  "payment_method":"Metode Pembayaran",
+  "detail":"Detail {{what}}",
+  "date":"Tanggal"
+}
