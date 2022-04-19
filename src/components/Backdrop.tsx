@@ -1,5 +1,5 @@
 import React from 'react'
-import {BackdropProps as BDProps} from '@mui/material'
+import {BackdropProps as BDProps,Portal} from '@mui/material'
 import {styled} from '@mui/material/styles';
 import dynamic from 'next/dynamic'
 
@@ -55,20 +55,21 @@ export const ProgressLinear = React.memo(ProgressComponent)
 
 function CustomBackdrop(props: BackdropProps) {
     const {open,children,progress,loading=true,textColor='white',...other} = props;
-
-    if(!open) return null;
+    
     return(
-        <Backdrops open={open} sx={{zIndex:2000,...(textColor==='white' ? {color:'#fff'} : {})}} {...other}>
-            <Div>
-                {loading && (
-                    <div style={{margin:'20px 0'}}>
-                        <CircularProgress color='inherit' thickness={5} size={50} />
-                    </div>
-                )}
-                {progress && <ProgressLinear progress={progress} textColor={textColor} /> }
-                {children && <div style={{...(textColor==='white' ? {color:'#fff'} : {})}}>{children}</div>}
-            </Div>
-        </Backdrops>
+        <Portal>
+            <Backdrops unmountOnExit open={open} sx={{zIndex:2000,...(textColor==='white' ? {color:'#fff'} : {})}} {...other}>
+                <Div>
+                    {loading && (
+                        <div style={{margin:'20px 0'}}>
+                            <CircularProgress color='inherit' thickness={5} size={50} />
+                        </div>
+                    )}
+                    {progress && <ProgressLinear progress={progress} textColor={textColor} /> }
+                    {children && <div style={{...(textColor==='white' ? {color:'#fff'} : {})}}>{children}</div>}
+                </Div>
+            </Backdrops>
+        </Portal>
     )
 }
 const Backdrop = React.memo(CustomBackdrop);

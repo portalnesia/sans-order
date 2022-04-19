@@ -57,7 +57,6 @@ export default function AccountPopover() {
     }
   },[])
 
-  if(!user) return null;
   return (
     <>
       <IconButton
@@ -81,9 +80,9 @@ export default function AccountPopover() {
         }}
       >
         <Avatar alt="Profiles">
-          {user?.picture ? (
+          {user && user?.picture ? (
             <Image src={`${user?.picture}&watermark=no`} webp alt={user?.name} />
-          ) : user?.name}
+          ) : user ? user?.name : undefined}
         </Avatar>
         {/*<Avatar src={account.photoURL} alt="photoURL" />*/}
       </IconButton>
@@ -96,16 +95,16 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle1" noWrap>
-            {user?.name}
+            {user ? user?.name : "Guest"}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {`@${user?.username}`}
+            {user ? `@${user?.username}` : '@portalnesia'}
           </Typography>
         </Box>
 
         <Divider sx={{ my: 1 }} />
 
-        {MENU_OPTIONS(t,user).map((option) => (
+        {user && MENU_OPTIONS(t,user).map((option) => (
           <Link key={option.label} href={option.linkTo} passHref>
             <MenuItem
               component='a'
@@ -128,9 +127,16 @@ export default function AccountPopover() {
         ))}
 
         <Box sx={{ p: 2, pt: 1.5 }}>
-          <Button onClick={logout} fullWidth color="inherit" variant="outlined">
-            {t("Menu.logout")}
-          </Button>
+          {user ? (
+            <Button onClick={logout} fullWidth color="inherit" variant="outlined">
+              {t("Menu.logout")}
+            </Button>
+          ) : (
+            <Button fullWidth color="inherit" variant="outlined">
+              {t("Login.sign")}
+            </Button>
+          )}
+          
         </Box>
         <Backdrop open={loading} />
       </MenuPopover>

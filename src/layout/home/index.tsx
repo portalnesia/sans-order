@@ -5,6 +5,7 @@ import HomeNavbar from './Navbar';
 import Footer from './Footer'
 import loadingImage from '@comp/loading-image-base64'
 import useInitData from '@utils/init-data'
+import { useSelector } from '@redux/store';
 
 
 
@@ -36,11 +37,13 @@ const MainStyle = styled('div')<{withPadding?:boolean}>(({ theme,withPadding=tru
 export interface HomeProps {
   children: ReactNode
   withPadding?:boolean
-  withNavbar?:boolean
+  withNavbar?:boolean,
+  withDashboard?: boolean
 }
 
-export default function HomeLayout({children,withPadding=true,withNavbar=true}: HomeProps) {
-  const {loaded,adBlock} = useInitData();
+export default function HomeLayout({children,withPadding=true,withNavbar=true,withDashboard=true}: HomeProps) {
+  const loaded = useSelector<boolean>(s=>s.ready);
+  const {adBlock} = useInitData();
   
   return (
     <RootStyle>
@@ -49,7 +52,7 @@ export default function HomeLayout({children,withPadding=true,withNavbar=true}: 
           <img style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)'}} onContextMenu={(e)=>e.preventDefault()} className='load-child no-drag' alt='Portalnesia' src={loadingImage} />
         </div>
       )}
-      <HomeNavbar withNavbar={withNavbar} />
+      <HomeNavbar withNavbar={withNavbar} withDashboard={withDashboard} />
       <MainStyle withPadding={withPadding}>
         {children}
       </MainStyle>

@@ -5,15 +5,16 @@ import {Reducer} from 'redux'
 const initialState: State={
   theme:'auto',
   redux_theme:'light',
-  user:undefined,
-  appToken:undefined
+  user:null,
+  appToken:null,
+  ready:false
 }
 
 const rootReducer: Reducer<State,ActionType> = (state = initialState, action) => {
   switch (action.type) {
     case HYDRATE:
       const nextState={
-          ...state
+        ...state
       }
       return nextState
     case 'CHANGE_THEME':

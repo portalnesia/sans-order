@@ -1,0 +1,57 @@
+diff --git a/node_modules/easymde/src/js/easymde.js b/node_modules/easymde/src/js/easymde.js
+index f7c1e46..8e78062 100644
+--- a/node_modules/easymde/src/js/easymde.js
++++ b/node_modules/easymde/src/js/easymde.js
+@@ -833,20 +833,25 @@ function drawLink(editor) {
+ /**
+  * Action for drawing an img.
+  */
+-function drawImage(editor) {
++function drawImage(editor,uuu,capt) {
+     var cm = editor.codemirror;
+     var stat = getState(cm);
+     var options = editor.options;
+-    var url = 'https://';
+-    if (options.promptURLs) {
++    var url = (uuu||'https://');
++    if (options.promptURLs && typeof uuu === 'undefined') {
+         url = prompt(options.promptTexts.image, 'https://');
+         if (!url) {
+             return false;
+         }
+     }
+-    _replaceSelection(cm, stat.image, options.insertTexts.image, url);
++    let insertTexts = options.insertTexts.image;
++    if(typeof capt === 'string') {
++        insertTexts = ['<figure class="image image_resized"><img src="','#url#" /><figcaption>'+ capt +'</figcaption></figure>',]
++    }
++    _replaceSelection(cm, stat.image, insertTexts, url);
+ }
+ 
++
+ /**
+  * Action for opening the browse-file window to upload an image to a server.
+  * @param editor {EasyMDE} The EasyMDE object
+@@ -2831,6 +2836,9 @@ EasyMDE.prototype.drawLink = function () {
+ EasyMDE.prototype.drawImage = function () {
+     drawImage(this);
+ };
++EasyMDE.prototype.drawImages = function (url,capt) {
++    drawImage(this,url,capt);
++};
+ EasyMDE.prototype.drawUploadedImage = function () {
+     drawUploadedImage(this);
+ };
+diff --git a/node_modules/easymde/types/easymde.d.ts b/node_modules/easymde/types/easymde.d.ts
+index f74d6f4..afea311 100644
+--- a/node_modules/easymde/types/easymde.d.ts
++++ b/node_modules/easymde/types/easymde.d.ts
+@@ -238,7 +238,7 @@ declare class EasyMDE {
+     isFullscreenActive(): boolean;
+ 
+     clearAutosavedValue(): void;
+-
++    drawImages: (url: string) => void;
+     static toggleBold: (editor: EasyMDE) => void;
+     static toggleItalic: (editor: EasyMDE) => void;
+     static toggleStrikethrough: (editor: EasyMDE) => void;

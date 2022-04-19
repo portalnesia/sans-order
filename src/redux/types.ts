@@ -15,12 +15,14 @@ export type IUser = {
 export type State = {
   theme:'auto'|'light'|'dark',
   redux_theme:'light'|'dark',
-  user?: IUser | false,
-  appToken?: string
+  user: IUser | false | null,
+  appToken: string | null,
+  ready: boolean
 }
 
 export type ActionType = {
-  type: typeof HYDRATE
+  type: typeof HYDRATE,
+  payload: Partial<State>
 } | {
   type: 'CHANGE_THEME',
   payload: State['theme']

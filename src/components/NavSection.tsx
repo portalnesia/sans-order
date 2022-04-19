@@ -62,6 +62,7 @@ interface NavItemProps {
 };
 
 function NavItem({ item, active }: NavItemProps) {
+  const router = useRouter();
   const theme = useTheme();
   const isActiveRoot = active(item.path);
   const { title, path, icon, info, children } = item;
@@ -109,8 +110,9 @@ function NavItem({ item, active }: NavItemProps) {
               const isActiveSub = active(path);
 
               return (
-                <Link href={path} passHref>
+                <Link href={`/apps/${router.query?.toko_id}/${router.query?.outlet_id}${path}`} passHref>
                   <ListItemStyle
+                    component='a'
                     disableGutters
                     key={title}
                     sx={{
@@ -148,7 +150,7 @@ function NavItem({ item, active }: NavItemProps) {
   }
 
   return (
-    <Link href={path} passHref>
+    <Link href={`/apps/${router.query?.toko_id}/${router.query?.outlet_id}${path}`} passHref>
       <ListItemStyle
         component='a'
         disableGutters
@@ -171,11 +173,12 @@ export interface NavConfigProps extends BoxProps {
 export default function NavSection({ navConfig, ...other }: NavConfigProps) {
   const router = useRouter();
   const pathname = router.pathname
+  const asPath = router.asPath
 
   const match = useCallback((path?: string) => {
-    const a = (path ? path === '/' ? path === pathname : new RegExp((path||'/'),'i').test(pathname) : false)
+    const a = (path ? path === '/' ? '/apps/[toko_id]/[outlet_id]' === pathname : new RegExp((path||'/'),'i').test(asPath) : false)
     return a;
-  },[pathname]);
+  },[pathname,asPath]);
 
   return (
     <Box {...other}>

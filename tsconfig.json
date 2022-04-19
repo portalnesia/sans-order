@@ -14,9 +14,9 @@
     "allowSyntheticDefaultImports": true,
     "noEmitOnError": true,
     //"removeComments": false,
-    "noImplicitAny": false,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
+    //"noImplicitAny": false,
+    //"noImplicitThis": true,
+    //"strictNullChecks": true,
     "skipLibCheck": true,
     "target": "esnext",
     "noEmit": true,
@@ -39,8 +39,10 @@
       "@redux*": [
         "./src/redux*"
       ],
+      "@sections*":["./src/sections*"],
       "@locale*":["./locale*"],
-      "@type*":["./src/types*"]
+      "@type*":["./src/types*"],
+      "@root*":["./*"],
     },
     "strict": true,
     "incremental": true

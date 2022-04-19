@@ -1,11 +1,63 @@
 {
   "General":{
     "wait":"Please wait",
-    "error":"Something went wrong"
+    "error":"Something went wrong",
+    "add":"Add {what}",
+    "change":"Change {what}",
+    "remove":"Remove {what}",
+    "delete":"Delete {what}",
+    "deleted":"Deleted",
+    "removed":"Removed",
+    "_delete":"Delete",
+    "_remove":"Remove",
+    "_add":"Add",
+    "_change":"Change",
+    "save":"Save",
+    "cancel":"Cancel",
+    "description":"Description",
+    "business":"Business",
+    "new":"New {what}",
+    "create":"Create {what}",
+    "no":"No {what}",
+    "wallet":"Wallet",
+    "saved":"Saved",
+    "success":"Success",
+    "note":"Note",
+    "name":"{what} Name",
+    "_name":"Name",
+    "back":"Back",
+    "back_to":"Back to {what}",
+    "setting":"{what} Setting",
+    "general":"General",
+    "access_denied":"Access Denied",
+    "close":"Close",
+    "pending":"Pending",
+    "active":"Active",
+    "not":"Not {what}",
+    "image":"Image",
+    "selected":"{what} selected",
+    "date":"Date",
+    "detail":"{what} Detail",
+    "search":"Search",
+    "update":"Update {what}",
+    "_update":"Update",
+    "print":"Print",
+    "are_you_sure":"Are You Sure?",
+    "view":"View {what}",
+    "telephone":"Telephone",
+    "country":"Country",
+    "next":"Next",
+    "id":"{what} ID"
+  },
+  "Theme":{
+    "theme":"Theme",
+    "dark":"Dark Theme",
+    "light":"Light Theme",
+    "device":"Device Theme"
   },
   "Landing":{
     "section1":{
-      "start":"Start Your Business",
+      "start":"Grow Your Business",
       "with":"with",
       "desc":"Smart Order System for Your Business"
     },
@@ -21,14 +73,22 @@
     "dashboard":"DASHBOARD",
     "profile":"Profile",
     "setting":"Setting",
-    "logout":"Logout"
+    "logout":"Logout",
+    "team":"Team",
+    "products":"Products",
+    "cashier":"Cashier",
+    "transactions":"Transactions",
+    "order":"Order",
+    "customer":"Customer"
   },
   "Login":{
     "hi":"Hi, Welcome Back",
     "signin":"Sign in with Portalnesia",
     "not_register":"Don’t have an account?",
     "register":"Register Now",
-    "sign":"Signin"
+    "sign":"Signin",
+    "owned_merchant":"Owned Merchant",
+    "managed_merchant":"Managed Merchant"
   },
   "Subcribe":{
     "title":"You Haven't Subcribed Yet!",
@@ -37,7 +97,89 @@
     "subcribe":"Subcribe",
     "feature":{
       "title":"Features",
-      "free":"{qty} month free"
+      "free":"{qty} month free",
+      "order_system":"Order system",
+      "cashier_system":"Cashier system",
+      "table_number":"Table number",
+      "banner":"Banner",
+      "media_promotion":"Media promotion ( tiktok/instagram )",
+      "first_free":"For first time purchase",
+      "max_table_number":"Maximum 12 pcs"
     }
+  },
+  "Toko":{
+    "delete":"All data on your merchant, including wallets, transactions, products, teams will be deleted.\nTHIS COMMAND CANNOT BE UNDONE!",
+    "address":"Address"
+  },
+  "Wallet":{
+    "no_wallet_title":"You do not have a wallet account for this merchant yet",
+    "no_wallet":"The wallet account creation is only done once",
+    "delete":"The wallet account will be deleted ONLY if you delete your merchant. So if your wallet still contains balance, please withdraw your balance first before deleting the merchant.",
+    "delete_wallet":"If your wallet still contains balance, please withdraw your balance first before deleting the merchant",
+    "online_payment":"This merchant must create a wallet account to activate `ONLINE PAYMENT`.",
+    "online_payment_owner":"If you are the owner of this merchant, you can create a wallet account on the Business Page.",
+    "online_payment_team":"If you are not the owner of this merchant, please contact the owner of this merchant and ask him to register a wallet account for this merchant."
+  },
+  "Outlet":{
+    "online_payment":"Online Payment",
+    "cod":"Cash on Delivery",
+    "self_order":"Self Order",
+    "op_desc":"When enabled, your customers can make online payments using Bank, E-Wallet, or QRIS",
+    "cod_desc":"When enabled, your customers can make payments directly after placing an order, for example paying directly at the cashier",
+    "so_desc":"When enabled, your customers will be able to place an order directly through the website",
+    "tn_desc":"When enabled, your customers and cashier must input the table number when ordering",
+    "email":"Enter Portalnesia Users Email",
+    "admin_help":"When enabled, this user gets admin privileges. This user can add, edit and/or delete product, team, outlet settings, but cannot delete outlets. Only merchant owners can delete outlets."
+  },
+  "Payment":{
+    "pay":"Pay",
+    "payment":"Payment",
+    "account_name":"Account Name",
+    "account_number":"Account Number",
+    "payment_method":"Payment Method",
+    "withdraw_method":"Withdraw Method",
+    "add_cart":"Add to Cart",
+    "view_more":"View More",
+    "cart":"Cart",
+    "order_summary":"Order Summary",
+    "pay_before":"Pay Before",
+    "error":{
+      "method":"Please select payment method!"
+    },
+    "instruction":{
+      "title":"Payment Instruction",
+      "cod":"Go to the cashier.\nTell the cashier if you want to make a payment for the online orders.\nThe cashier will ask for your transaction ID listed above.\nMake payment.\nAfter paying, an E-Receipt will be sent to your email.",
+      "qris":{
+        "scan":"Scan QR Code to pay",
+        "accept":"QR Code accepted in",
+        "other":"and other applications that accept QRIS"
+      },
+      "ewallet":{
+        "redirect":"Redirecting you to {what} checkout page in a moment…"
+      }
+    }
+  },
+  "Product":{
+    "price":"Price",
+    "disscount":"Disscount",
+    "stock":"Stock",
+    "show_in_menu":"Show in Catalog",
+    "category":"Category",
+    "catalog":"Catalog"
+  },
+  "Cashier":{
+    "process":"Process",
+    "update_order_status":"Update order status to `FINISHED`"
+  },
+  "Transaction":{
+    "month":"This Month",
+    "week":"This Week",
+    "today":"Today",
+    "custom":"Custom",
+    "from":"From",
+    "to":"To",
+    "type":"Type",
+    "payment_status":"Payment Status",
+    "order_status":"Order Status"
   }
 }

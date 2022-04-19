@@ -1,6 +1,8 @@
 import React from 'react'
 import {LazyLoadImage} from 'react-lazy-load-image-component'
 import {Menu,MenuItem} from '@mui/material'
+import '@fancyapps/fancybox/dist/jquery.fancybox.min.css';
+import { useTranslations } from 'use-intl';
 
 export interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     id?: string;
@@ -58,6 +60,7 @@ function getPortalnesiaImagePng(img: string) {
  */
 const Image=(props: ImageProps)=>{
     const {webp,src,lazy=true,type,withPng,className,fancybox,dataFancybox='images',dataSrc,alt,onContextMenu: __,placeholder:_,blured:p,caption,...rest}=props
+    const t = useTranslations();
     const [anchorEl,setAnchorEl]=React.useState<[number,number]|null>(null)
     const [menu,setMenu]=React.useState(false);
     const imgRef=React.useRef<HTMLAnchorElement|null>(null);
@@ -149,7 +152,7 @@ const Image=(props: ImageProps)=>{
                     open={menu}
                     onClose={onClose}
                 >
-                    <MenuItem onClick={()=>{onClose(),imgRef?.current?.click()}}>Open images</MenuItem>
+                    <MenuItem onClick={()=>{onClose(),imgRef?.current?.click()}}>{t("General.view",{what:t("General.image")})}</MenuItem>
                 </Menu>
             </div>
         )
@@ -178,7 +181,7 @@ const Image=(props: ImageProps)=>{
                     open={menu}
                     onClose={onClose}
                 >
-                    <MenuItem onClick={()=>{onClose(),imgRef?.current?.click()}}>Open images</MenuItem>
+                    <MenuItem onClick={()=>{onClose(),imgRef?.current?.click()}}>{t("General.view",{what:t("General.image")})}</MenuItem>
                 </Menu>
             </div>
         )

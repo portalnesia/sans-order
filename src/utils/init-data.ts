@@ -2,33 +2,42 @@ import {useState,useEffect} from 'react'
 import SessionStorage from "./local-storage";
 import portalnesia from './portalnesia'
 import {TokenResponse} from '@portalnesia/portalnesia-js'
-import {useDispatch,State} from '@redux/index'
+import {useDispatch,State, useSelector} from '@redux/index'
 import {getToken,initializeAppCheck,ReCaptchaV3Provider,onTokenChanged,Unsubscribe} from 'firebase/app-check'
 import firebase from './firebase'
 import {useRouter} from 'next/router'
 import cookie from 'js-cookie'
 import {getDayJs} from '@utils/Main'
+import useDarkTheme from '@utils/useDarkTheme'
 
 async function initData() {
-  const savedToken = SessionStorage.get<TokenResponse>('sans_token');
-  if(savedToken) {
-    let tokens = portalnesia.oauth.setToken(savedToken);
-
-    if(tokens.isExpired()) {
-      tokens = await portalnesia.oauth.refreshToken();
-    }
-    if(tokens.token.id_token) {
-      try {
-        const user = await portalnesia.oauth.verifyIdToken(tokens.token.id_token) as any;
-        if(user.sub) user.sub = Number.parseInt(user.sub);
-        return user as State['user'];
-      } catch {
-        return false;
+  try {
+    const savedToken = SessionStorage.get<TokenResponse>('sans_token');
+    if(savedToken) {
+      let tokens = portalnesia.oauth.setToken(savedToken);
+      if(tokens.isExpired()) {
+        tokens = await portalnesia.oauth.refreshToken();
       }
+      SessionStorage.set('sans_token',tokens.token);
+      return tokens
     }
+    return undefined;
+  } catch(e) {
+    console.log(e);
+
+    //SessionStorage.remove('sans_token');
+    return undefined;
+  }
+}
+
+async function verifyIdToken(token: string) {
+  try {
+    const user = await portalnesia.oauth.verifyIdToken(token) as any;
+    if(user.sub) user.sub = Number.parseInt(user.sub);
+    return user as State['user'];
+  } catch {
     return false;
   }
-  return false;
 }
 
 async function getAppToken(callback: (token: string)=>void) {
@@ -50,12 +59,12 @@ async function getAppToken(callback: (token: string)=>void) {
   };
 }
 
-let _loaded=false
 export default function useIniData() {
   const router = useRouter();
+  const {ready,user} = useSelector<Pick<State,'user'|'ready'>>(s=>({ready:s.ready,user:s.user}));
   const dispatch = useDispatch();
-  const [loaded,setLoaded] = useState(_loaded);
   const [adBlock,setAdBlock] = useState(false);
+  const {checkTheme,setTheme} = useDarkTheme();
 
   useEffect(()=>{
     let unsubcribe: Unsubscribe|undefined;
@@ -76,36 +85,55 @@ export default function useIniData() {
 
     async function init() {
       try {
+        setTheme(checkTheme());
         const token = await getAppToken(onTokenIsChanged);
         unsubcribe = token.unsubcribe;
-        dispatch({type:"CUSTOM",payload:{appToken:token.token}});
-        const user = await initData();
-        dispatch({type:"CUSTOM",payload:{user}});
+        await initData();
+        dispatch({type:"CUSTOM",payload:{appToken:token.token,ready:true}});
       } catch(e) {
-        console.log(e)
-        dispatch({type:"CUSTOM",payload:{user:false}})
-      } finally {
-        _loaded=true;
-        setLoaded(true);
+        dispatch({type:"CUSTOM",payload:{user:false,ready:true}})
       }
     }
 
-    function PNtokenRefresh(token: TokenResponse & ({expiredAt: number})){
-      cookie.set("_so_token_",token.access_token,{
-        expires:getDayJs(token.expiredAt).toDate()
-      })
+    async function PNtokenRefresh(token: TokenResponse & ({expiredAt: number})){
+      try {
+        if(token.id_token) {
+          const user = await portalnesia.oauth.verifyIdToken(token.id_token) as any;
+          if(user.sub) user.sub = Number.parseInt(user.sub);
+
+          cookie.set("_so_token_",`${user.sub}`,{
+            expires:getDayJs().add(1,'month').toDate()
+          })
+
+          dispatch({type:"CUSTOM",payload:{user}});
+        }
+      } catch {}
       SessionStorage.set('sans_token',token);
     }
-
     portalnesia.on('token-refresh',PNtokenRefresh)
-    //console.log("LOADED",_loaded)
-    if(!_loaded) init();
+    init();
 
     return ()=>{
       if(unsubcribe) unsubcribe();
       portalnesia.off('token-refresh',PNtokenRefresh)
     }
   },[])
+
+  useEffect(()=>{
+    async function initUser() {
+      try {
+        if(portalnesia.token?.token.id_token) {
+          const users = await verifyIdToken(portalnesia.token?.token.id_token);
+          dispatch({type:"CUSTOM",payload:{user:users}})
+          return;
+        }
+      } catch {}
+      dispatch({type:"CUSTOM",payload:{user:false}})
+    }
+    if(ready && user===null) {
+      initUser();
+    }
+  },[ready,user])
 
   useEffect(()=>{
     if(router.isReady) {
@@ -117,5 +145,5 @@ export default function useIniData() {
     }
   },[router.isReady])
 
-  return {loaded,adBlock}
+  return {adBlock}
 }

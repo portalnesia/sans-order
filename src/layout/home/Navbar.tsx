@@ -15,6 +15,7 @@ import {useTranslations} from 'next-intl'
 import useResponsive from '@comp/useResponsive'
 import {useSelector,State} from '@redux/index'
 import AccountPopover from '../dashboard/AccountPopover';
+import ThemePopover from '../ThemePopover'
 
 const APPBAR_MOBILE = 64;
 const APPBAR_DESKTOP = 92;
@@ -197,10 +198,11 @@ function MobileNavItem({items}: MobileNavItemProps) {
 }
 
 export interface HomeNavbarProps {
-  withNavbar?: boolean
+  withNavbar?: boolean,
+  withDashboard?: boolean
 }
 
-export default function HomeNavbar({withNavbar=true} : HomeNavbarProps) {
+export default function HomeNavbar({withNavbar=true,withDashboard=true} : HomeNavbarProps) {
   const router = useRouter();
   const t = useTranslations();
   const user = useSelector<State['user']>(s=>s.user);
@@ -228,27 +230,33 @@ export default function HomeNavbar({withNavbar=true} : HomeNavbarProps) {
             {menuDesktop && navbar.map((n,i)=>(
               <HomeNavbarItems key={`navbar-${i}`} item={n} />
             ))}
+            <ThemePopover />
             <LanguagePopover />
-            {typeof user === 'undefined' ? (
-              <Button loading />
-            ) : typeof user === 'boolean' ? (
-              <Button
-                variant='contained'
-                size='large'
-                onClick={()=>router.push('/apps')}
-                color='secondary'
-              >
-                {t("Menu.start")}
-              </Button>
-            ) : (
-              <Button
-                variant='contained'
-                size='large'
-                onClick={()=>router.push('/apps')}
-                color='secondary'
-              >
-                {t("Menu.dashboard")}
-              </Button>
+
+            {withDashboard ? 
+              typeof user === 'undefined' ? (
+                <Button loading />
+              ) : typeof user === 'boolean' ? (
+                <Button
+                  variant='contained'
+                  size='large'
+                  onClick={()=>router.push('/apps')}
+                  color='secondary'
+                >
+                  {t("Menu.start")}
+                </Button>
+              ) : (
+                <Button
+                  variant='contained'
+                  size='large'
+                  onClick={()=>router.push('/apps')}
+                  color='secondary'
+                >
+                  {t("Menu.dashboard")}
+                </Button>
+              )
+            : (
+              <AccountPopover />
             )}
             
             {menuMobile && (
@@ -257,6 +265,7 @@ export default function HomeNavbar({withNavbar=true} : HomeNavbarProps) {
           </Stack>
         ) : (
           <Stack direction="row" alignItems="center" spacing={1.5}>
+            <ThemePopover />
             <LanguagePopover />
             <AccountPopover />
           </Stack>

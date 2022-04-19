@@ -56,7 +56,18 @@ export default function GlobalStyles() {
             color: theme.palette.text.disabled
           }
         },
-
+        'pre code':{
+          overflowX: 'auto',
+          width:'100%',
+          padding:'.6rem .8125rem',
+          boxSizing:'border-box',
+          whiteSpace: 'pre-wrap',
+        },
+        pre:{
+          marginTop:16,
+          marginBottom:16
+        },
+        a: {color:'inherit',textDecoration:'unset',WebkitTapHighlightColor:'transparent','&:hover':{textDecoration:'underline'}},
         img: { display: 'block', maxWidth: '100%' },
 
         // Lazy Load Img
@@ -68,6 +79,31 @@ export default function GlobalStyles() {
         '.blur-up.lazyloaded ': {
           WebkitFilter: 'blur(0)',
           filter: 'blur(0)'
+        },
+        '.flex-header':{
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'space-between'
+        },
+        '.image-container': {
+          borderRadius:'.525rem',
+          objectFit:'cover',
+          objectPosition:'center',
+          opacity: 1,
+          WebkitTransition: '.3s ease-in-out',
+          transition: '.3s ease-in-out',
+          '&:hover':{
+            opacity:'0.6 !important',
+          }
+        },
+        '#nprogress .bar':{
+          background: `${theme.palette.primary.main} !important`,
+          zIndex: '9999  !important',
+          height: '4px !important',
+        },
+        '.underline-heading':{
+          paddingBottom:'.1rem',
+          borderBottom:`1px solid ${theme.palette.divider}`
         }
       }}
     />

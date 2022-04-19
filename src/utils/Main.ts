@@ -37,3 +37,7 @@ export function staticUrl(path?: string) {
 export function href(path?: string) {
   return process.env.URL + (path ? "/" + path : '');
 }
+
+export function photoUrl(path: string|null) {
+  return (path === null) ? staticUrl(`img/content?image=${encodeURIComponent("notfound.png")}`) : path; 
+}

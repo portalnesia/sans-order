@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------
 
-import { Theme } from "@mui/material";
+import { alpha, Theme } from "@mui/material";
 
 export default function Button(theme: Theme) {
   return {
@@ -38,7 +38,7 @@ export default function Button(theme: Theme) {
             backgroundColor: theme.palette.action.hover
           }
         }
-      }
+      },
     }
   };
 }

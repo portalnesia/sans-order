@@ -7,6 +7,7 @@ import DashboardSidebar from './DashboardSidebar';
 import loadingImage from '@comp/loading-image-base64'
 import useInitData from '@utils/init-data'
 import {useSelector,State} from '@redux/index'
+import {Socket} from '@utils/Socket';
 // ----------------------------------------------------------------------
 
 const APP_BAR_MOBILE = 64;
@@ -34,12 +35,15 @@ const MainStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export interface DashboardProps {
-  children: ReactNode
+  children: ReactNode,
+  title?: string,
+  subtitle?: string
 }
-export default function DashboardLayout({children}: DashboardProps) {
-  const user = useSelector<State['user']>(s=>s.user);
+
+export default function DashboardLayout({children,title,subtitle}: DashboardProps) {
+  const {user,ready:loaded} = useSelector<Pick<State,'user'|'ready'>>(s=>({user:s.user,ready:s.ready}));
   const [open, setOpen] = useState(false);
-  const {loaded,adBlock} = useInitData();
+  const {adBlock} = useInitData();
 
   return (
     <RootStyle>
@@ -50,8 +54,9 @@ export default function DashboardLayout({children}: DashboardProps) {
       )}
       {user && (
         <>
+          <Socket />
           <DashboardNavbar onOpenSidebar={() => setOpen(true)} />
-          <DashboardSidebar isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
+          <DashboardSidebar title={title} subtitle={subtitle} isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
           <MainStyle>
             {loaded && children}
           </MainStyle>

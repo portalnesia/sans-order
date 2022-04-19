@@ -41,3 +41,4 @@ version.js
 *.crt
 /public/*.js
 /ORIGINAL
+db.ts

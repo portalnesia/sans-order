@@ -1,4 +1,4 @@
-import { alpha } from '@mui/material/styles';
+import { alpha,PaletteOptions } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
@@ -93,7 +93,8 @@ export const CHART_COLORS = {
   red: ['#FF6C40', '#FF8F6D', '#FFBD98', '#FFF2D4']
 };
 
-const palette = {
+const palette: PaletteOptions = {
+  mode:'light',
   common: { black: '#000', white: '#fff' },
   primary: { ...PRIMARY },
   secondary: { ...SECONDARY },

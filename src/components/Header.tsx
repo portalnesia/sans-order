@@ -1,23 +1,26 @@
-import PropTypes from 'prop-types';
-import { forwardRef,ReactNode,useMemo,useState,useCallback } from 'react';
+import { ReactNode,useMemo } from 'react';
 import Head from 'next/head'
+import config from '@root/web.config.json'
 // material
-import { Box, BoxProps } from '@mui/material';
-
 // ----------------------------------------------------------------------
 
-export interface HeaderProps extends BoxProps {
+export interface HeaderProps {
   children: ReactNode,
-  title?: string
+  title?: string,
+  desc?: string|null,
+  image?: string|null
 }
 
-export default function Header({ children, title, ...other }: HeaderProps) {
-  const titles = useMemo(()=>title ? `${title} | Sans Order` : `Sans Order`,[title]);
+
+export default function Header({ children, title,desc }: HeaderProps) {
+  const titles = useMemo(()=>title ? `${title} | ${config.title}` : config.title,[title]);
+  const description = useMemo(()=>typeof desc === 'string' && desc.length > 0 ? `${desc} - ${config.description}` : config.description,[desc]);
 
   return (
     <>
       <Head>
         <title>{titles}</title>
+        <meta name='description' content={description} />
       </Head>
       {children}
     </>

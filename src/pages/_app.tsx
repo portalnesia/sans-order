@@ -7,12 +7,15 @@ import GlobalStyles from '@themes/globalStyles';
 import {CacheProvider} from '@emotion/react'
 import createEmotionCache from '@utils/emotion-cache'
 import Loader from '@comp/Loader'
-import React from 'react';
+import {useMemo} from 'react';
 import { EmotionCache } from '@emotion/cache';
 import {wrapperRoot,State} from '@redux/index';
 import {connect} from 'react-redux';
 import {SnackbarProvider} from 'notistack'
 import {NextIntlProvider} from 'next-intl'
+import en from '@locale/en.json'
+import id from '@locale/id.json'
+import {useRouter} from 'next/router';
 // ----------------------------------------------------------------------
 
 export interface AppProps {
@@ -25,9 +28,16 @@ export interface AppProps {
 
 const clientSideCache = createEmotionCache();
 
-function App({Component,pageProps,theme,emotionCache=clientSideCache,messages}: AppProps) {
+function App({Component,pageProps,theme,emotionCache=clientSideCache}: AppProps) {
+  const router = useRouter();
+  const {locale,defaultLocale} = router;
+  const lang = useMemo(()=>{
+    const lang = locale||defaultLocale;
+    return lang === 'id' ? id : en;
+  },[locale])
+
   return (
-    <NextIntlProvider messages={pageProps.messages}>
+    <NextIntlProvider messages={lang}>
       <CacheProvider value={emotionCache}>
         <ThemeConfig>
           <GlobalStyles />
