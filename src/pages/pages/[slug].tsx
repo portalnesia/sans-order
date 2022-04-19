@@ -31,7 +31,7 @@ import Sidebar from '@comp/Sidebar'
 async function getData(slug: string) {
   try {
     if(process.env.NODE_ENV === 'development') {
-      const github = await fs.promises.readFile(slug);
+      const github = await fs.promises.readFile(`./data/pages/${slug}.md`);
       return github.toString();
     } else {
       const github = `https://raw.githubusercontent.com/portalnesia/sans-order/main/data/pages/${slug}.md`
@@ -62,11 +62,11 @@ export const getServerSideProps = wrapper(async({params,locale,redirect,getTrans
   if(typeof slug !== 'string') return redirect();
   try {
     let callbackLang = false;
-    const path = bhs === 'id' ? `./data/pages/${slug}.md` : `./data/pages/en/${slug}.md`
+    const path = bhs === 'id' ? `${slug}` : `en/${slug}`
     let github: string|undefined = await getData(path);
     if(!github) {
       callbackLang = true;
-      github = await getData(`./data/pages/${slug}.md`);
+      github = await getData(`${slug}`);
     }
     if(!github) return redirect();
 
