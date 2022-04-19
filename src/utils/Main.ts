@@ -42,7 +42,6 @@ export function href(path?: string) {
 
 export function photoUrl(path: string|null) {
   return (path === null) ? staticUrl(`img/content?image=${encodeURIComponent("notfound.png")}`) : path; 
-<<<<<<< HEAD
 }
 
 export function getDayList(t: TFunction) {
@@ -101,6 +100,4 @@ export function isBetweenHour(d1: dayjs.Dayjs,d2:dayjs.Dayjs) {
   }
 
   return false;
-=======
->>>>>>> main
 }

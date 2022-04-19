@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { ReactNode,useMemo } from 'react';
 import Head from 'next/head'
 import config from '@root/web.config.json'
@@ -11,11 +10,6 @@ import { useAPI } from '@utils/portalnesia';
 import { useTranslation } from 'next-i18next';
 import useNotification from '@utils/notification';
 import {Portal} from '@mui/material'
-=======
-import { ReactNode,useMemo } from 'react';
-import Head from 'next/head'
-import config from '@root/web.config.json'
->>>>>>> main
 // material
 // ----------------------------------------------------------------------
 
@@ -28,7 +22,6 @@ export interface HeaderProps {
 
 
 export default function Header({ children, title,desc }: HeaderProps) {
-<<<<<<< HEAD
   const {t} = useTranslation('common')
   const titles = useMemo(()=>title ? `${title} | ${config.title}` : config.title,[title]);
   const description = useMemo(()=>typeof desc === 'string' && desc.length > 0 ? `${desc} - ${config.description}` : config.description,[desc]);
@@ -59,10 +52,6 @@ export default function Header({ children, title,desc }: HeaderProps) {
       setLoading(null)
     }
   },[post,setNotif,t])
-=======
-  const titles = useMemo(()=>title ? `${title} | ${config.title}` : config.title,[title]);
-  const description = useMemo(()=>typeof desc === 'string' && desc.length > 0 ? `${desc} - ${config.description}` : config.description,[desc]);
->>>>>>> main
 
   return (
     <>

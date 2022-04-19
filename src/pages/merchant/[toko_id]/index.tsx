@@ -4,11 +4,7 @@ import { Box, Grid, Container, Typography,Card,CardContent,CardActionArea } from
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'
 import Image from '@comp/Image'
-<<<<<<< HEAD
 import {useTranslation} from 'next-i18next';
-=======
-import {useTranslations} from 'next-intl';
->>>>>>> main
 import useSWR from '@utils/swr'
 import {Circular} from '@comp/Loading'
 import Iconify from '@comp/Iconify'
@@ -23,11 +19,7 @@ import { Markdown } from '@comp/Parser';
 export const getServerSideProps = wrapper({name:'check_toko',outlet:{onlyMyToko:false}});
 
 export default function MerchantIndex({meta}: IPages) {
-<<<<<<< HEAD
 	const {t} = useTranslation('common');
-=======
-	const t = useTranslations();
->>>>>>> main
 	const router = useRouter();
 	const {toko_id} = router.query;
 	const {toko,errToko} = useToko(toko_id);
@@ -74,11 +66,7 @@ export default function MerchantIndex({meta}: IPages) {
 										</Grid>
 									) : outlet?.data?.length === 0 ? (
 										<Grid item xs={12}>
-<<<<<<< HEAD
 											<Box textAlign='center'><Typography>{t("no_what",{what:"Outlet"})}</Typography></Box>
-=======
-											<Box textAlign='center'><Typography>{t("General.no",{what:"Outlet"})}</Typography></Box>
->>>>>>> main
 										</Grid>
 									) : outlet?.data.map((d,i)=>(
 										<Grid item xs={12} sm={6} md={4} lg={3} key={`merchant-${i}`}>

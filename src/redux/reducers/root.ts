@@ -8,13 +8,9 @@ const initialState: State={
   redux_theme:'light',
   user:null,
   appToken:null,
-<<<<<<< HEAD
   ready:false,
   socket:null,
   report:null
-=======
-  ready:false
->>>>>>> main
 }
 
 const rootReducer: Reducer<State,ActionType> = (state = initialState, action) => {

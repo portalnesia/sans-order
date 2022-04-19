@@ -2,13 +2,8 @@ import {useCallback,useMemo,useState,useContext,FormEvent, ChangeEvent,useEffect
 import {Box,Typography,Stack,IconButton,Slide,Fade,Collapse,ListItem,List,ListItemText,ListItemSecondaryAction, Divider,Grid, TextField,Autocomplete, CircularProgress, Paper } from '@mui/material'
 import {Close,ArrowBackIosRounded,ExpandMore as ExpandMoreIcon} from '@mui/icons-material'
 import Button from './Button';
-<<<<<<< HEAD
 import { useTranslation } from 'next-i18next';
 import { BankCode, CopyRequired, EWalletCode, EWalletResults, IItems, IPayment, paymentCodeName, PaymentResult, paymentType, QrCodeResults, VirtualAccResults,sendBankCode,walletChannelCodetoEwalletCode,ITransaction } from '@type/index';
-=======
-import { useTranslations } from 'use-intl';
-import { BankCode, CopyRequired, EWalletCode, EWalletResults, IItems, IPayment, paymentCodeName, PaymentResult, paymentType, QrCodeResults, VirtualAccResults,sendBankCode,walletChannelCodetoEwalletCode } from '@type/index';
->>>>>>> main
 import { Context } from '@redux/cart';
 import { useSelector,State } from '@redux/index';
 import ExpandMore from './ExpandMore';
@@ -28,11 +23,8 @@ import qrOptions from '@utils/defaultQr';
 import {QrisIcon,BankIcon,EWalletIcon,DanaIcon,ShopeePayIcon,LinkAjaIcon,RedirectIcon,} from '@comp/payment-icon/index'
 import { isMobile } from 'react-device-detect';
 import Recaptcha from './Recaptcha';
-<<<<<<< HEAD
 import useSocket from '@utils/Socket';
 import Lottie from './Lottie';
-=======
->>>>>>> main
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -50,20 +42,12 @@ export interface PaymentProps {
 }
 
 function Cart({cart,total,subtotal,disscount}: {cart:IItems[],total:number,subtotal:number,disscount:number}) {
-<<<<<<< HEAD
   const {t} = useTranslation('catalogue');
-=======
-  const t = useTranslations();
->>>>>>> main
   const [expand,setExpand] = useState(false);
   return (
     <>
       <Button onClick={()=>setExpand(!expand)} sx={{width:'100%',borderRadius:0,px:2,py:1}} text color='inherit'>
-<<<<<<< HEAD
         <Typography>{`${t("order_summary")} (${cart.length} items)`}</Typography>
-=======
-        <Typography>{`${t("Payment.order_summary")} (${cart.length} items)`}</Typography>
->>>>>>> main
         <ExpandMore disabled={!expand} onClick={()=>setExpand(!expand)} expand={expand}>
           <ExpandMoreIcon />
         </ExpandMore>
@@ -80,32 +64,19 @@ function Cart({cart,total,subtotal,disscount}: {cart:IItems[],total:number,subto
             </ListItem>
           ))}
           <Divider sx={{my:2}} />
-<<<<<<< HEAD
           <ListItem disablePadding sx={{px:2}}>
-=======
-          <ListItem>
->>>>>>> main
             <ListItemText primary="Subtotal" />
             <ListItemSecondaryAction>
               <Typography variant='body2'>{`IDR ${numberFormat(`${subtotal}`)}`}</Typography>
             </ListItemSecondaryAction>
           </ListItem>
-<<<<<<< HEAD
           <ListItem disablePadding sx={{px:2}}>
             <ListItemText primary={t("disscount")} />
-=======
-          <ListItem>
-            <ListItemText primary={t("Product.disscount")} />
->>>>>>> main
             <ListItemSecondaryAction>
               <Typography variant='body2'>{`IDR ${numberFormat(`${disscount}`)}`}</Typography>
             </ListItemSecondaryAction>
           </ListItem>
-<<<<<<< HEAD
           <ListItem disablePadding sx={{px:2}}>
-=======
-          <ListItem>
->>>>>>> main
             <ListItemText primary="Total" />
             <ListItemSecondaryAction>
               <Typography variant='body2'>{`IDR ${numberFormat(`${total}`)}`}</Typography>
@@ -155,12 +126,8 @@ const defaultInput: Pick<CopyRequired<IForm['input'],'payment'|'tel'>,'tel'|'pay
 }
 
 function Form({input,user,setInput,loading,table_number}: IForm) {
-<<<<<<< HEAD
   const {t} = useTranslation('catalogue');
   const {t:tCom} = useTranslation('common');
-=======
-  const t = useTranslations();
->>>>>>> main
   const {get} = useAPI();
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
@@ -221,19 +188,11 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
       <Grid container spacing={2}>
         <Grid item xs={12}>
           {table_number ? (
-<<<<<<< HEAD
             <Typography>{`${tCom("table_number")}: ${table_number}`}</Typography>
           ) : (
             <TextField
               fullWidth
               label={tCom("table_number")}
-=======
-            <Typography>{`${t("Subcribe.feature.table_number")}: ${table_number}`}</Typography>
-          ) : (
-            <TextField
-              fullWidth
-              label={t("Subcribe.feature.table_number")}
->>>>>>> main
               value={input.metadata?.table_number||''}
               onChange={handleChange('table_number')}
               required={!!outlet?.table_number}
@@ -246,11 +205,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-<<<<<<< HEAD
                 label={t("name")}
-=======
-                label={t("General._name")}
->>>>>>> main
                 value={input.name||''}
                 onChange={handleChange('name')}
                 required
@@ -312,11 +267,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
                 <Grid item xs={8}>
                   <TextField
                     fullWidth
-<<<<<<< HEAD
                     label={t("telephone")}
-=======
-                    label={t("General.telephone")}
->>>>>>> main
                     value={input.telephone||''}
                     onChange={handleChange('telephone')}
                     placeholder='8123456789'
@@ -417,15 +368,11 @@ function Method({payment,onChange}: {payment:IForm['input']['payment'],onChange(
 
   const dt = useMemo(()=>{
     if(!data) return undefined;
-<<<<<<< HEAD
     const filter = data.filter(d=>{
 
       return d.is_enabled && ((process.env.NODE_ENV !== 'production' && d.channel_category !== 'EWALLET') || process.env.NODE_ENV==='production')
     });
     console.log(filter)
-=======
-    const filter = data.filter(d=>d.is_enabled);
->>>>>>> main
     const dt = filter.reduce((p,n)=>{
       (p[n.channel_category] = p[n.channel_category] || []).push(n);
       return p;
@@ -446,21 +393,12 @@ function Method({payment,onChange}: {payment:IForm['input']['payment'],onChange(
 type PaymentResponse<D=any> = PaymentResult<D> & ({name: string,email: string})
 
 function CodInformation({data}: {data: PaymentResponse}) {
-<<<<<<< HEAD
   const {t} = useTranslation('catalogue');
   return (
     <Box>
       <Typography variant='h6' component='h6'>{t("instruction.title")}</Typography>
       <List component={'ol'} sx={{listStyle:'decimal',listStylePosition:'inside'}}>
         {t("instruction.cod").split("\n").map((k,i)=>(
-=======
-  const t = useTranslations();
-  return (
-    <Box>
-      <Typography variant='h6' component='h6'>{t("Payment.instruction.title")}</Typography>
-      <List component={'ol'} sx={{listStyle:'decimal',listStylePosition:'inside'}}>
-        {t("Payment.instruction.cod").split("\n").map((k,i)=>(
->>>>>>> main
           <ListItem key={`cod-${i}`} disablePadding sx={{display:'list-item'}}>{k}</ListItem>
         ))}
       </List>
@@ -469,11 +407,7 @@ function CodInformation({data}: {data: PaymentResponse}) {
 }
 
 function QrisInformation({data}: {data: PaymentResponse<QrCodeResults>}) {
-<<<<<<< HEAD
   const {t} = useTranslation('catalogue');
-=======
-  const t = useTranslations();
->>>>>>> main
   const [img,setImg] = useState<string>();
 
   useEffect(()=>{
@@ -494,13 +428,8 @@ function QrisInformation({data}: {data: PaymentResponse<QrCodeResults>}) {
 
   return (
     <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
-<<<<<<< HEAD
       <Typography>{t("instruction.qris.scan")}</Typography>
       <Typography gutterBottom>{t("instruction.qris.accept")}</Typography>
-=======
-      <Typography>{t("Payment.instruction.qris.scan")}</Typography>
-      <Typography gutterBottom>{t("Payment.instruction.qris.accept")}</Typography>
->>>>>>> main
       
       <Grid container spacing={1} justifyContent='center'>
         <Grid key={`chip-1`} item xs="auto" zeroMinWidth>
@@ -514,11 +443,7 @@ function QrisInformation({data}: {data: PaymentResponse<QrCodeResults>}) {
         </Grid>
       </Grid>
       <Box sx={{mt:2}}>
-<<<<<<< HEAD
         <Typography gutterBottom>{t("instruction.qris.other")}</Typography>
-=======
-        <Typography gutterBottom>{t("Payment.instruction.qris.other")}</Typography>
->>>>>>> main
       </Box>
       {img && (
         <Box mt={3} display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
@@ -533,11 +458,7 @@ function QrisInformation({data}: {data: PaymentResponse<QrCodeResults>}) {
 }
 
 function EwalletInformation({data}: {data: PaymentResponse<EWalletResults>}) {
-<<<<<<< HEAD
   const {t} = useTranslation('catalogue');
-=======
-  const t = useTranslations();
->>>>>>> main
   const [img,setImg] = useState<string>();
 
   useEffect(()=>{
@@ -559,26 +480,16 @@ function EwalletInformation({data}: {data: PaymentResponse<EWalletResults>}) {
 
   const redirectName = useMemo(()=>{
     if(typeof walletChannelCodetoEwalletCode[data.payload.channel_code] !== 'undefined') {
-<<<<<<< HEAD
       return t("instruction.ewallet.redirect",{what:walletChannelCodetoEwalletCode[data.payload.channel_code]})
     }
     return t("instruction.ewallet.redirect",{what:data.payload.channel_code})
-=======
-      return t("Payment.instruction.ewallet.redirect",{what:walletChannelCodetoEwalletCode[data.payload.channel_code]})
-    }
-    return t("Payment.instruction.ewallet.redirect",{what:data.payload.channel_code})
->>>>>>> main
   },[data.payload.channel_code,t])
 
   return (
     <Box>
       {data.payload.channel_code === 'ID_SHOPEEPAY' ? (
         <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
-<<<<<<< HEAD
           <Typography>{t("instruction.qris.scan")}</Typography>
-=======
-          <Typography>{t("Payment.instruction.qris.scan")}</Typography>
->>>>>>> main
           {img && (
             <Box mt={3}  display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
               <a href={isMobile ? data.payload.actions?.mobile_deeplink_checkout_url||'#' : '#'}>
@@ -601,11 +512,7 @@ function EwalletInformation({data}: {data: PaymentResponse<EWalletResults>}) {
 }
 
 function VaInformation({data}: {data: PaymentResponse<VirtualAccResults>}) {
-<<<<<<< HEAD
   const {t} = useTranslation('catalogue');
-=======
-  const t = useTranslations();
->>>>>>> main
 
   const icon = useMemo(()=>{
     if(typeof BankIcon[data.payload.bank_code as BankCode] !== 'undefined') {
@@ -639,33 +546,22 @@ function VaInformation({data}: {data: PaymentResponse<VirtualAccResults>}) {
 
 export default function PaymentMethod({open,handleClose,table_number}: PaymentProps) {
   const user = useSelector<State['user']>(s=>s.user);
-<<<<<<< HEAD
   const socket = useSocket();
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
   const {t} = useTranslation('catalogue');
   const {t: tCom} = useTranslation('common');
   const {t: tMenu} = useTranslation('menu');
-=======
-  const router = useRouter();
-  const {toko_id,outlet_id} = router.query;
-  const t = useTranslations();
->>>>>>> main
   const {post} = useAPI();
   const setNotif = useNotification();
   const [loading,setLoading] = useState<string|null>(null);
   const [input,setInput] = useState<IForm['input']>(defaultInput);
   const {outlet,errOutlet} = useOutlet(toko_id,outlet_id);
   const [menu,setMenu] = useState<PaymentResponse|null>(null);
-<<<<<<< HEAD
   const [dSuccess,setDSuccess] = useState<ITransaction|null>(null);
 
   const captchaRef = useRef<Recaptcha>(null)
   let timeout = useRef<NodeJS.Timeout|undefined>();
-=======
-
-  const captchaRef = useRef<Recaptcha>(null)
->>>>>>> main
 
   const context = useContext(Context);
   const {cart,removeCart} = context;
@@ -692,29 +588,19 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
 
   const handleSubmit = useCallback(async(e?: FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e?.preventDefault();
-<<<<<<< HEAD
     if(!input.payment.type || !paymentType.includes(input.payment.type)) return setNotif(t("error.method"),true);
-=======
-    if(!input.payment.type || !paymentType.includes(input.payment.type)) return setNotif(t("Payment.error.method"),true);
->>>>>>> main
     setLoading('submit')
     try {
       const name = (!user ? input.name : user?.name) as string;
       const email = (!user ? input.email : user?.email) as string;
       const telephone = input.telephone && input.telephone.length > 0 ? `${input.tel.code}${input.telephone}` : undefined;
       const dt = {
-<<<<<<< HEAD
         type:'self_order',
         cash:total,
         items:cart.map(c=>({id:c.id,qty:c.qty})),
         ...(!user ? {name,email,telephone} : {}),
         payment:input.payment,
         metadata:input.metadata
-=======
-        cash:total,
-        items:cart.map(c=>({id:c.id,qty:c.qty})),
-        ...(!user ? {name,email,telephone} : {})
->>>>>>> main
       }
       const recaptcha = await captchaRef.current?.execute();
       const response = await post<PaymentResult>(`/toko/${toko_id}/${outlet_id}/transactions`,{...dt,recaptcha});
@@ -737,7 +623,6 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
       }
       setMenu(r);
     } catch(e: any) {
-<<<<<<< HEAD
       setNotif(e?.message||tCom("error_500"),true);
     } finally {
       setLoading(null)
@@ -768,20 +653,12 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
     }
     setDSuccess(null)
   },[])
-=======
-      setNotif(e?.message||t("General.error"),true);
-    } finally {
-      setLoading(null)
-    }
-  },[post,toko_id,outlet_id,removeCart,input,cart,total,user,setNotif,t])
->>>>>>> main
 
   useEffect(()=>{
     if(!open) {
       setInput(defaultInput)
       setMenu(null);
       setLoading(null);
-<<<<<<< HEAD
     }
   },[open])
 
@@ -801,11 +678,6 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
       socket?.off('toko transactions',handleOnTransactions)
     }
   },[socket,menu,onClose])
-=======
-
-    }
-  },[open])
->>>>>>> main
   
   return (
     <>
@@ -817,11 +689,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
                 <Fade in={false} unmountOnExit>
                   <IconButton><ArrowBackIosRounded /></IconButton>
                 </Fade>
-<<<<<<< HEAD
                 <Typography variant='h6'>{t("payment_method")}</Typography>
-=======
-                <Typography variant='h6'>{t("Payment.payment_method")}</Typography>
->>>>>>> main
               </Stack>
               <IconButton onClick={onClose}><Close /></IconButton>
             </Stack>
@@ -849,7 +717,6 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
                     <Table>
                       <TableBody>
                         <TableRow sx={{borderBottom:'unset'}}>
-<<<<<<< HEAD
                           <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${t("id",{what:tMenu("transactions")})}`}</TableCell>
                           <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${menu.id}`}</TableCell>
                         </TableRow>
@@ -859,17 +726,6 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
                         </TableRow>
                         <TableRow sx={{borderBottom:'unset'}}>
                           <TableCell sx={{borderBottom:'unset',py:0.5}}>{t("name")}</TableCell>
-=======
-                          <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${t("General.id",{what:t("Menu.transactions")})}`}</TableCell>
-                          <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${menu.id}`}</TableCell>
-                        </TableRow>
-                        <TableRow sx={{borderBottom:'unset'}}>
-                          <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${t("Payment.payment_method")}`}</TableCell>
-                          <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${menu.payment === 'VIRTUAL_ACCOUNT' ? "BANK TRANSFER" : menu.payment}`}</TableCell>
-                        </TableRow>
-                        <TableRow sx={{borderBottom:'unset'}}>
-                          <TableCell sx={{borderBottom:'unset',py:0.5}}>{t("General._name")}</TableCell>
->>>>>>> main
                           <TableCell sx={{borderBottom:'unset',py:0.5}}>{menu.name}</TableCell>
                         </TableRow>
                         <TableRow sx={{borderBottom:'unset'}}>
@@ -882,11 +738,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
                 </Box>
                 <Divider />
                 <Box p={2} textAlign='center'>
-<<<<<<< HEAD
                   <Typography>{(`${t("pay_before")} `).toUpperCase()}</Typography>
-=======
-                  <Typography>{(`${t("Payment.pay_before")} `).toUpperCase()}</Typography>
->>>>>>> main
                   <Typography gutterBottom variant='h6' component='h6'>{(getDayJs(menu.expired).pn_format('full')).toUpperCase()}</Typography>
                   <Typography variant='h3' component='h3'>{`IDR ${numberFormat(`${menu.total}`)}`}</Typography>
                 </Box>
@@ -907,21 +759,16 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
           </DialogContent>
           {menu===null && (
             <DialogActions>
-<<<<<<< HEAD
               <Button type='submit' disabled={loading!==null} loading={loading==='submit'} icon='submit'>{t("pay")}</Button>
             </DialogActions>
           )}
           {(menu !== null && process.env.NODE_ENV!=='production') && (
             <DialogActions>
               <Button onClick={handleSimulation} disabled={loading!==null} loading={loading==='simulation'} icon='submit'>Simulate</Button>
-=======
-              <Button type='submit' disabled={loading!==null} loading={loading==='submit'} icon='submit'>{t("Payment.pay")}</Button>
->>>>>>> main
             </DialogActions>
           )}
         </form>
       </Dialog>
-<<<<<<< HEAD
       <Dialog open={dSuccess!==null} handleClose={handleCloseDSuccess}>
         <DialogContent>
           <Box display='flex' justifyContent={'center'} alignItems='center'><Lottie animation='payment-success' sx={{width:250}} /></Box>
@@ -956,8 +803,6 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
           <Button text color='inherit' onClick={handleCloseDSuccess}>{tCom('close')}</Button>
         </DialogActions>
       </Dialog>
-=======
->>>>>>> main
       <Backdrop open={loading==='submit'} />
       <Recaptcha ref={captchaRef} />
     </>

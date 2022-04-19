@@ -41,10 +41,6 @@ version.js
 *.crt
 /public/*.js
 /ORIGINAL
-<<<<<<< HEAD
 db.ts
 src/version.ts
 server.js
-=======
-db.ts
->>>>>>> main

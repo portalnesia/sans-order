@@ -19,11 +19,7 @@ const RootStyle = styled('div')(({ theme }) => ({
 const Custom404=()=>{
   
   return (
-<<<<<<< HEAD
     <Page title="404 Page Not Found">
-=======
-    <Page title="404 Page Not Found | Sans Order">
->>>>>>> main
       <RootStyle>
         <Container>
           <MotionContainer open>

@@ -1,12 +1,9 @@
 import { IPayment,IStatus,IOrderStatus } from "./payment"
 import { UserPagination } from "./user"
 
-<<<<<<< HEAD
 export type IDay = 'sunday'|'monday'|'tuesday'|'wednesday'|'thursday'|'friday'|'saturday';
 export const daysArray = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] as IDay[]
 
-=======
->>>>>>> main
 export type IToko = {
   id: number,
   name: string,
@@ -40,11 +37,8 @@ export interface IOutlet {
   table_number: boolean,
   token_download_qr?: string,
   owner?: UserPagination,
-<<<<<<< HEAD
   busy: boolean,
   business_hour: Record<Partial<IDay>,[number,number]>|null
-=======
->>>>>>> main
   toko:{
       id: number,
       name: string,
@@ -98,11 +92,7 @@ export type ITransaction<D=any> = {
   payment:IPayment,
   status:IStatus,
   order_status:IOrderStatus,
-<<<<<<< HEAD
   user?: (UserPagination|{name: string}) & ({email?: string})
-=======
-  user?: UserPagination|{name: string}
->>>>>>> main
   payload: Record<string,any>|null
   platform_fees: number,
   metadata: D|null,
@@ -111,7 +101,6 @@ export type ITransaction<D=any> = {
   token_print?: string
 }
 
-<<<<<<< HEAD
 export interface WalletHistory<D=any> extends ITransaction<D> {
   toko: IToko | ({
     id: number,
@@ -121,8 +110,6 @@ export interface WalletHistory<D=any> extends ITransaction<D> {
     toko?:IToko
   })
 }
-=======
->>>>>>> main
 
 export interface TransactionsDetail<D=any> extends ITransaction<D> {
   toko:IOutlet

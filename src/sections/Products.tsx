@@ -5,7 +5,6 @@ import { styled } from '@mui/material/styles';
 import Image from '@comp/Image'
 import Label from '@comp/Label'
 import { numberFormat } from '@portalnesia/utils';
-<<<<<<< HEAD
 import { daysArray, IMenu } from '@type/index';
 import { getDayJs, isBetweenHour, isOutletOpen, photoUrl } from '@utils/Main';
 import Iconify from '@comp/Iconify';
@@ -13,16 +12,6 @@ import Button from '@comp/Button';
 import {Context} from '@redux/cart'
 import { useRouter } from 'next/router';
 import { useCallback, useMemo,useContext,MouseEvent, useState, useEffect } from 'react';
-=======
-import { IMenu } from '@type/index';
-import { photoUrl } from '@utils/Main';
-import Iconify from '@comp/Iconify';
-import { useTranslations } from 'use-intl';
-import Button from '@comp/Button';
-import {Context} from '@redux/cart'
-import { useRouter } from 'next/router';
-import { useCallback, useMemo,useContext,MouseEvent, useState } from 'react';
->>>>>>> main
 import useOutlet from '@utils/useOutlet';
 
 
@@ -40,10 +29,6 @@ interface ProductsProps {
 
 export default function Products({ items,maxWidth }: ProductsProps) {
   const { name, image, price, disscount:priceSale } = items;
-<<<<<<< HEAD
-=======
-  const t = useTranslations();
->>>>>>> main
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
   const context = useContext(Context);
@@ -72,13 +57,10 @@ export default function Products({ items,maxWidth }: ProductsProps) {
   const clickProduct = useCallback(()=>{
     console.log(items.name)
   },[items])
-<<<<<<< HEAD
 
   const enabled = useMemo(()=>{
     return isOutletOpen(outlet).enabled;
   },[outlet])
-=======
->>>>>>> main
 
   return (
     <Card {...(maxWidth ? {sx:{width:{xs:200,md:250,lg:300}}} : {})}>
@@ -115,11 +97,7 @@ export default function Products({ items,maxWidth }: ProductsProps) {
           </Stack>
         </CardContent>
       </CardActionArea>
-<<<<<<< HEAD
       {enabled && (
-=======
-      {outlet?.self_order && (
->>>>>>> main
         <>
           <Divider />
           <CardActions sx={{justifyContent:'space-between',pt:1}}>

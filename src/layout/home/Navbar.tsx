@@ -243,11 +243,7 @@ export default function HomeNavbar({withNavbar=true,withDashboard=true} : HomeNa
                   onClick={()=>router.push('/apps')}
                   color='secondary'
                 >
-<<<<<<< HEAD
                   {t("start")}
-=======
-                  {t("Menu.start")}
->>>>>>> main
                 </Button>
               ) : (
                 <Button
@@ -256,11 +252,7 @@ export default function HomeNavbar({withNavbar=true,withDashboard=true} : HomeNa
                   onClick={()=>router.push('/apps')}
                   color='secondary'
                 >
-<<<<<<< HEAD
                   {t("dashboard")}
-=======
-                  {t("Menu.dashboard")}
->>>>>>> main
                 </Button>
               )
             : (

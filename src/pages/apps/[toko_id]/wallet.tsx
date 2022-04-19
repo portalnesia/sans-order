@@ -1,13 +1,8 @@
 // material
-<<<<<<< HEAD
 import { Box, Grid, Container, Typography,CardContent,Card, Divider,IconButton, Stack, useMediaQuery, MenuItem, ListItemText,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress } from '@mui/material';
 import {Close} from '@mui/icons-material'
 import {DatePicker,LocalizationProvider} from '@mui/lab'
 import AdapterDayjs from '@mui/lab/AdapterDayjs'
-=======
-import { Box, Grid, Container, Typography,CardContent,CardActionArea,Card, CardMedia,Divider,IconButton } from '@mui/material';
-import {AddAPhoto,Delete} from '@mui/icons-material'
->>>>>>> main
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'
@@ -19,33 +14,22 @@ import Button from '@comp/Button'
 import Backdrop from '@comp/Backdrop'
 import {Circular} from '@comp/Loading'
 import Image from '@comp/Image'
-<<<<<<< HEAD
 import Scrollbar from '@comp/Scrollbar'
 import usePagination from '@comp/TablePagination'
 import {sendAllCodeArray} from '@type/payment'
 import {ResponsePagination, IPages, WalletHistory} from '@type/index'
 import wrapper from '@redux/store'
 import {useTranslation} from 'next-i18next';
-=======
-import Pagination,{usePagination} from '@comp/Pagination'
-import {sendAllCodeArray} from '@type/payment'
-import type {IToko,IOutletPagination,ResponsePagination, Without,IPages} from '@type/index'
-import wrapper from '@redux/store'
-import {useTranslations} from 'next-intl';
->>>>>>> main
 import useSWR from '@utils/swr';
 import { useRouter } from 'next/router';
 import Iconify from '@comp/Iconify';
 import Select from '@comp/Select'
 import Breadcrumbs from '@comp/Breadcrumbs';
 import dynamic from 'next/dynamic'
-<<<<<<< HEAD
 import { numberFormat } from '@portalnesia/utils';
 import { getDayJs } from '@utils/Main';
 import Search from '@comp/Search';
 import MenuPopover from '@comp/MenuPopover';
-=======
->>>>>>> main
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -55,11 +39,7 @@ const TextField=dynamic(()=>import('@mui/material/TextField'))
 const Browser = dynamic(()=>import('@comp/Browser'))
 const Tooltip = dynamic(()=>import('@mui/material/Tooltip'))
 
-<<<<<<< HEAD
 export const getServerSideProps = wrapper({name:'check_toko',outlet:{onlyMyToko:true},translation:'dash_wallet'});
-=======
-export const getServerSideProps = wrapper({name:'check_toko',outlet:{onlyMyToko:true}});
->>>>>>> main
 
 type IForm = {
   bank_code: string,
@@ -74,22 +54,13 @@ interface FormProps {
 }
 
 export function Form({input,setInput,disabled}: FormProps) {
-<<<<<<< HEAD
   const {t} = useTranslation('dash_wallet');
-=======
-  const t = useTranslations();
-
->>>>>>> main
   return (
     <Grid container spacing={4}>
       <Grid item xs={12} md={6}>
         <TextField
           select
-<<<<<<< HEAD
           label={t("withdraw_method")}
-=======
-          label={t("Payment.withdraw_method")}
->>>>>>> main
           value={input.bank_code}
           onChange={setInput('bank_code')}
           required
@@ -103,11 +74,7 @@ export function Form({input,setInput,disabled}: FormProps) {
       </Grid>
       <Grid item xs={12} md={6}>
         <TextField
-<<<<<<< HEAD
           label={t("account_number")}
-=======
-          label={t("Payment.account_number")}
->>>>>>> main
           value={input.account_number}
           onChange={setInput('account_number')}
           required
@@ -118,11 +85,7 @@ export function Form({input,setInput,disabled}: FormProps) {
       </Grid>
       <Grid item xs={12}>
         <TextField
-<<<<<<< HEAD
           label={t("account_name")}
-=======
-          label={t("Payment.account_name")}
->>>>>>> main
           value={input.account_name}
           onChange={setInput('account_name')}
           required
@@ -136,7 +99,6 @@ export function Form({input,setInput,disabled}: FormProps) {
 
 export default function WalletPage({meta}: IPages) {
   const router = useRouter();
-<<<<<<< HEAD
   const {t} = useTranslation('dash_wallet');
   const {t:tCom} = useTranslation('common');
   const {t:tMenu} = useTranslation('menu');
@@ -229,19 +191,6 @@ export default function WalletPage({meta}: IPages) {
       });
     }
   },[range])
-=======
-  const t = useTranslations();
-  const setNotif = useNotif();
-  const toko_id = router.query?.toko_id;
-  const [dialog,setDialog] = React.useState(false);
-  const [loading,setLoading] = React.useState(false);
-  const [input,setInput] = React.useState<IForm>({bank_code:'MANDIRI',account_name:'',account_number:''})
-  const {post} = useAPI();
-  const {data,error,mutate} = useSWR<{payload?: IForm}>(`/toko/${toko_id}/wallet`,{shouldRetryOnError:(e)=>{
-    return e?.httpStatus !== 404;
-  }});
-  const captchaRef = React.useRef<Recaptcha>(null);
->>>>>>> main
 
   const handleChange=React.useCallback((name: keyof IForm)=>(e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement>)=>{
     setInput({...input,[name]:e.target.value});
@@ -249,7 +198,6 @@ export default function WalletPage({meta}: IPages) {
 
   const handleSubmit = React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
-<<<<<<< HEAD
     setLoading('submit');
     try {
       const recaptcha = await captchaRef.current?.execute();
@@ -284,29 +232,10 @@ export default function WalletPage({meta}: IPages) {
   React.useEffect(()=>{
     if(data && data.account) {
       setInput(data.account);
-=======
-    setLoading(true);
-    try {
-      const recaptcha = await captchaRef.current?.execute();
-      await post(`/toko/${toko_id}/wallet`,{...input,recaptcha});
-      setNotif(t("General.success"),false);
-      mutate();
-    } catch(e: any) {
-      setNotif(e?.message||t("General.error"),true);
-    } finally {
-      setLoading(false)
-    }
-  },[post,setNotif,input,t])
-
-  React.useEffect(()=>{
-    if(data && data.payload) {
-      setInput(data.payload);
->>>>>>> main
     }
   },[data])
 
   return (
-<<<<<<< HEAD
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Header title={t("wallet")}>
         <Dashboard withNavbar={false}>
@@ -520,68 +449,5 @@ export default function WalletPage({meta}: IPages) {
         </Dashboard>
       </Header>
     </LocalizationProvider>
-=======
-    <Header title={t("General.wallet")}>
-      <Dashboard withNavbar={false}>
-        <Container maxWidth='lg' sx={{mb:6}}>
-          {meta?.title && (
-            <>
-              <Box>
-                <Breadcrumbs title={t("General.wallet")} routes={[{label:"Merchant",href:"/apps"},{label:meta?.title,href:"/apps/[toko_id]",as:`/apps/${toko_id}`}]} />    
-              </Box>
-              <Box className='flex-header'>
-                <Button text icon='back' iconPosition='start' onClick={()=>router.back()}>{t("General.back")}</Button>
-                {error && error?.httpStatus === 404 && (
-                  <Button onClick={()=>setDialog(true)}>{t("General.create",{what:t("General.wallet")})}</Button>
-                )}
-              </Box>
-            </>
-          )}
-        </Container>
-        <Container maxWidth='md'>
-          {!data && !error ? (
-            <Box display='flex'><Circular /></Box>
-          ) : error && error.httpStatus !== 404 ? (
-            <Box display='flex' alignItems='center' flexGrow='1' justifyContent='center'>
-              <Typography variant='h3' component='h3'>{error?.message}</Typography>
-            </Box>
-          ) : error ? (
-            <Box>
-              <Typography gutterBottom variant='h4' component='h4'>{t("Wallet.no_wallet_title")}</Typography>
-              <Typography gutterBottom>{t("Wallet.no_wallet")}</Typography>
-              <Typography gutterBottom>{t("Wallet.delete")}</Typography>
-
-              <Dialog loading={loading} open={dialog} handleClose={()=>setDialog(false)}>
-                <form onSubmit={handleSubmit}>
-                  <DialogTitle>{t("General.create",{what:t("General.wallet")})}</DialogTitle>
-                  <DialogContent dividers>
-                    <Form input={input} setInput={handleChange} disabled={loading} />
-                  </DialogContent>
-                  <DialogActions>
-                    <Button text color='inherit' onClick={()=>setDialog(false)}>{t("General.cancel")}</Button>
-                    <Button disabled={loading} loading={loading}>{t("General.save")}</Button>
-                  </DialogActions>
-                </form>
-              </Dialog>
-            </Box>
-          ) : (
-            <>
-              <Box pb={2} mb={5}>
-                <Typography variant="h2" component='h2'>{t("General.wallet")}</Typography>
-                <Divider />
-                <Box>
-                  <form onSubmit={handleSubmit}>
-                    <Form input={input} setInput={handleChange} disabled={loading} />
-
-                  </form>
-                </Box>
-              </Box>
-            </>
-          )}
-        </Container>
-        <Recaptcha ref={captchaRef} />
-      </Dashboard>
-    </Header>
->>>>>>> main
   )
 }

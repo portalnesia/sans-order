@@ -1,18 +1,12 @@
 import React from 'react'
 //@ts-ignore
 import {LazyLoadImage} from 'react-lazy-load-image-component'
-<<<<<<< HEAD
 import {Menu,MenuItem,styled, SxProps, Theme} from '@mui/material'
 import '@fancyapps/fancybox/dist/jquery.fancybox.min.css';
 import { useTranslation } from 'next-i18next';
 
 const ImageStyle = styled('img')(()=>({}))
 const LazyImageStyle = styled(LazyLoadImage)(()=>({}))
-=======
-import {Menu,MenuItem} from '@mui/material'
-import '@fancyapps/fancybox/dist/jquery.fancybox.min.css';
-import { useTranslations } from 'use-intl';
->>>>>>> main
 
 export interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     id?: string;
@@ -71,11 +65,7 @@ function getPortalnesiaImagePng(img: string) {
  */
 const Image=(props: ImageProps)=>{
     const {webp,src,lazy=true,type,withPng,className,fancybox,dataFancybox='images',dataSrc,alt,onContextMenu: __,placeholder:_,blured:p,caption,...rest}=props
-<<<<<<< HEAD
     const {t} = useTranslation('common');
-=======
-    const t = useTranslations();
->>>>>>> main
     const [anchorEl,setAnchorEl]=React.useState<[number,number]|null>(null)
     const [menu,setMenu]=React.useState(false);
     const imgRef=React.useRef<HTMLAnchorElement|null>(null);
@@ -167,11 +157,7 @@ const Image=(props: ImageProps)=>{
                     open={menu}
                     onClose={onClose}
                 >
-<<<<<<< HEAD
                     <MenuItem onClick={()=>{onClose(),imgRef?.current?.click()}}>{t("view",{what:t("image")})}</MenuItem>
-=======
-                    <MenuItem onClick={()=>{onClose(),imgRef?.current?.click()}}>{t("General.view",{what:t("General.image")})}</MenuItem>
->>>>>>> main
                 </Menu>
             </div>
         )
@@ -200,11 +186,7 @@ const Image=(props: ImageProps)=>{
                     open={menu}
                     onClose={onClose}
                 >
-<<<<<<< HEAD
                     <MenuItem onClick={()=>{onClose(),imgRef?.current?.click()}}>{t("view",{what:t("image")})}</MenuItem>
-=======
-                    <MenuItem onClick={()=>{onClose(),imgRef?.current?.click()}}>{t("General.view",{what:t("General.image")})}</MenuItem>
->>>>>>> main
                 </Menu>
             </div>
         )
