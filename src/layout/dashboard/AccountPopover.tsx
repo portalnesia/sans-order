@@ -60,6 +60,7 @@ export default function AccountPopover() {
     }
   },[])
 
+<<<<<<< HEAD
   const login = useCallback(()=>{
     const code = portalnesia.oauth.generatePKCE();
     LocalStorage.set('pkce',code);
@@ -70,6 +71,8 @@ export default function AccountPopover() {
     window.location.href = url;
   },[router.asPath,router.pathname,router.query])
 
+=======
+>>>>>>> main
   return (
     <>
       <IconButton
@@ -142,11 +145,19 @@ export default function AccountPopover() {
         <Box sx={{ p: 2, pt: 1.5 }}>
           {user ? (
             <Button onClick={logout} fullWidth color="inherit" variant="outlined">
+<<<<<<< HEAD
               {t("logout")}
             </Button>
           ) : (
             <Button onClick={login} fullWidth color="inherit" variant="outlined">
               {t("signin")}
+=======
+              {t("Menu.logout")}
+            </Button>
+          ) : (
+            <Button fullWidth color="inherit" variant="outlined">
+              {t("Login.sign")}
+>>>>>>> main
             </Button>
           )}
           

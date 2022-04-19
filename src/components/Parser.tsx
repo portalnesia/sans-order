@@ -44,7 +44,10 @@ export const editorStyles=(theme: Theme)=>({
     }
   },
   '& h1:not(.no-underline), & h2:not(.no-underline), & h3:not(.no-underline), & h4:not(.no-underline), .underline':{
+<<<<<<< HEAD
     marginTop:32,
+=======
+>>>>>>> main
     paddingBottom:'.1rem',
     borderBottom:`1px solid ${theme.palette.divider}`
   },
@@ -72,6 +75,7 @@ const Img = styled(Image)(({theme})=>({
     height:'auto'
 }))
 
+<<<<<<< HEAD
 export const handlePageContent=(id: string)=>(e?: React.MouseEvent<HTMLAnchorElement>)=>{
   if(e && e.preventDefault) e.preventDefault()
   const conta=document.getElementById(id);
@@ -106,6 +110,17 @@ export function usePageContent(data?:any) {
   return null;
 }
 
+=======
+const handlePageContent=(id: string)=>(e: React.MouseEvent<HTMLAnchorElement>)=>{
+  if(e && e.preventDefault) e.preventDefault()
+  const conta=document.getElementById(id);
+  if(conta){
+      const a=conta.offsetTop,b=a-10;
+      window.scrollTo({top:b,left:0,behavior:'smooth'});
+  }
+}
+
+>>>>>>> main
 const parseOption = (opt : {preview?:boolean}): HTMLReactParserOptions =>({
   replace: (htmlNode)=>{
     const node = htmlNode as Element
@@ -134,7 +149,11 @@ const parseOption = (opt : {preview?:boolean}): HTMLReactParserOptions =>({
             && !/portalnesia\.com/.test(href)
             && !/kakek\.c1\.biz/.test(href)
           ) {
+<<<<<<< HEAD
             const hreff = /utm\_source\=portalnesia/i.test(href) ? href : `${process.env.PORTAL_URL}/link?u=${Buffer.from(encodeURIComponent(href)).toString('base64')}`
+=======
+            const hreff = /utm\_source\=portalnesia/i.test(href) ? href : `/link?u=${Buffer.from(encodeURIComponent(href)).toString('base64')}`
+>>>>>>> main
             return (
               <a target="_blank" rel='nofollow noreferrer noopener' href={hreff} {...other}>
                   {domToReact(node?.children,parseOption(opt))}

@@ -8,7 +8,11 @@ import React from 'react'
 import Image from '@comp/Image'
 import Pagination,{usePagination} from '@comp/Pagination'
 import {staticProps,useSelector,State,useDispatch, IUser} from '@redux/index'
+<<<<<<< HEAD
 import {useTranslation} from 'next-i18next';
+=======
+import {useTranslations} from 'next-intl';
+>>>>>>> main
 import Button from '@comp/Button'
 import loadingImage from '@comp/loading-image-base64'
 import {useRouter} from 'next/router'
@@ -26,6 +30,16 @@ import useInitData from '@utils/init-data'
 import {IToko,IOutletPagination} from '@type/index'
 import Recaptcha from '@comp/Recaptcha'
 import dynamic from 'next/dynamic'
+<<<<<<< HEAD
+=======
+
+const Dialog=dynamic(()=>import('@comp/Dialog'))
+const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
+const DialogContent=dynamic(()=>import('@mui/material/DialogContent'))
+const DialogActions=dynamic(()=>import('@mui/material/DialogActions'))
+const TextField=dynamic(()=>import('@mui/material/TextField'))
+const SimpleMDE = dynamic(()=>import('@comp/SimpleMDE'),{ssr:false})
+>>>>>>> main
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -118,8 +132,12 @@ function LoginSection() {
 
 function Loginned({user}: {user:IUser}) {
   const router = useRouter();
+<<<<<<< HEAD
   const {t} = useTranslation('dash_apps');
   const {t:tCom} = useTranslation('common');
+=======
+  const t = useTranslations();
+>>>>>>> main
   const [loading,setLoading] = React.useState(false);
   const [dialog,setDialog] = React.useState(false);
   const [page,setPage] = usePagination(1);
@@ -141,7 +159,11 @@ function Loginned({user}: {user:IUser}) {
       setPage({},1);
       mutate();
       setDialog(false);
+<<<<<<< HEAD
       setNotif(tCom("saved"),false);
+=======
+      setNotif(t("General.saved"),false);
+>>>>>>> main
     } catch(e: any) {
       setNotif(e?.message,true);
     } finally {
@@ -156,12 +178,20 @@ function Loginned({user}: {user:IUser}) {
           <Grid item xs={12} md={6}>
             <Box mb={2}>
               <Typography variant="h4" component='h4' gutterBottom>{`Hai ${user?.name},`}</Typography>
+<<<<<<< HEAD
               <Typography variant="h2" component='h2'>{t("owned_merchant")}</Typography>
+=======
+              <Typography variant="h2" component='h2'>{t("Login.owned_merchant")}</Typography>
+>>>>>>> main
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>
             <Box display='flex' justifyContent={'flex-end'} alignItems='flex-end'>
+<<<<<<< HEAD
               <Button size='large' icon='add' onClick={()=>setDialog(true)}>{tCom("create_ctx",{what:"Merchant"})}</Button>
+=======
+              <Button size='large' icon='add' onClick={()=>setDialog(true)}>{t("General.create",{what:"Merchant"})}</Button>
+>>>>>>> main
             </Box>
           </Grid>
         </Grid>
@@ -177,7 +207,11 @@ function Loginned({user}: {user:IUser}) {
             <Grid item xs={12}>
               {data?.data.length === 0 ? (
                 <Box mb={2}>
+<<<<<<< HEAD
                   <Typography variant="h4" component='h4'>{t("no_what",{what:"data"})}</Typography>
+=======
+                  <Typography variant="h4" component='h4'>{t("General.no",{what:"data"})}</Typography>
+>>>>>>> main
                 </Box>
               ) : (
                 <Grid container spacing={2}>
@@ -216,7 +250,11 @@ function Loginned({user}: {user:IUser}) {
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <Box mb={2}>
+<<<<<<< HEAD
               <Typography variant="h2" component='h2'>{t("managed_merchant")}</Typography>
+=======
+              <Typography variant="h2" component='h2'>{t("Login.managed_merchant")}</Typography>
+>>>>>>> main
             </Box>
           </Grid>
         </Grid>
@@ -231,7 +269,11 @@ function Loginned({user}: {user:IUser}) {
             <Grid item xs={12}>
               {outlet?.data.length === 0 ? (
                 <Box mb={2}>
+<<<<<<< HEAD
                   <Typography variant="h4" component='h4'>{tCom("no_what",{what:"data"})}</Typography>
+=======
+                  <Typography variant="h4" component='h4'>{t("General.no",{what:"data"})}</Typography>
+>>>>>>> main
                 </Box>
               ) : (
                 <Grid container spacing={2}>
@@ -262,14 +304,22 @@ function Loginned({user}: {user:IUser}) {
 
       <Dialog open={dialog} handleClose={()=>setDialog(false)}>
         <form onSubmit={createApp}>
+<<<<<<< HEAD
           <DialogTitle>{tCom("create_ctx",{what:"Merchant"}).toUpperCase()}</DialogTitle>
+=======
+          <DialogTitle>{t("General.create",{what:"Merchant"}).toUpperCase()}</DialogTitle>
+>>>>>>> main
           <DialogContent dividers>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
                   value={input.name}
                   onChange={(e)=>setInput({...input,name:e.target.value})}
+<<<<<<< HEAD
                   label={tCom("name_ctx",{what:"Merchant"})}
+=======
+                  label={t("General.name",{what:"Merchant"})}
+>>>>>>> main
                   fullWidth
                   autoFocus
                   required
@@ -280,14 +330,23 @@ function Loginned({user}: {user:IUser}) {
                   noSideBySide
                   value={input.description}
                   onChange={(e)=>setInput({...input,description:e})}
+<<<<<<< HEAD
                   label={tCom("description")}
+=======
+                  label={t("General.description")}
+>>>>>>> main
                 />
               </Grid>
             </Grid>
           </DialogContent>
           <DialogActions>
+<<<<<<< HEAD
             <Button text color='inherit' onClick={()=>setDialog(false)}>{tCom("cancel")}</Button>
             <Button icon='submit' type='submit'>{tCom("save")}</Button>
+=======
+            <Button text color='inherit' onClick={()=>setDialog(false)}>{t("General.cancel")}</Button>
+            <Button icon='submit' type='submit'>{t("General.save")}</Button>
+>>>>>>> main
           </DialogActions>
         </form>
       </Dialog>
@@ -311,12 +370,18 @@ export default function DashboardApp() {
 
   React.useEffect(()=>{
     async function login() {
+<<<<<<< HEAD
       if(typeof code === 'string' && !codeLoading.current && router.isReady) {
         codeLoading.current=true;
         const pkce = LocalStorage.get('pkce');
         const auth = SessionStorage.get('auth');
         LocalStorage.remove('pkce');
         SessionStorage.remove('auth')
+=======
+      if(typeof code === 'string') {
+        const pkce = LocalStorage.get('pkce');
+        const auth = SessionStorage.get('auth')
+>>>>>>> main
         if(pkce) {
           try {
             const token = await portalnesia.oauth.getToken({grant_type:'authorization_code',code,code_verifier:pkce.code_verifier});
@@ -331,7 +396,13 @@ export default function DashboardApp() {
                 dispatch({type:"CUSTOM",payload:{user}})
               }
             }
+<<<<<<< HEAD
             LocalStorage.set('sans_token',token.token);
+=======
+            
+            LocalStorage.set('sans_token',token.token);
+            LocalStorage.remove('pkce');
+>>>>>>> main
             if(auth?.pathname) {
               router.replace({pathname:auth?.pathname,query:auth?.query},auth?.asPath);
             } else {
@@ -339,7 +410,11 @@ export default function DashboardApp() {
             }
           } catch(e: any) {
             router.replace({pathname:router.pathname,query:{error_description:e?.message}},undefined,{shallow:true});
+<<<<<<< HEAD
             setNotif(e?.message||tCom("error_500"),true);
+=======
+            setNotif(e?.message||t("General.error"),true);
+>>>>>>> main
           }
         }
       }
@@ -349,7 +424,11 @@ export default function DashboardApp() {
   },[code,router.isReady])
 
   return (
+<<<<<<< HEAD
     <Header title={ucwords(tMenu("dashboard"))}>
+=======
+    <Header title={ucwords(t("Menu.dashboard"))}>
+>>>>>>> main
       {!router.isReady || (user===null||loaded===false) ? (
         <div style={{position:'fixed',top:0,left:0,height:'100%',width:'100%',background:'#2f6f4e',zIndex:5000}}>
           <img style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)'}} onContextMenu={(e)=>e.preventDefault()} className='load-child no-drag' alt='Portalnesia' src={loadingImage} />

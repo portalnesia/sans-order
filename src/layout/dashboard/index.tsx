@@ -7,11 +7,15 @@ import DashboardSidebar from './DashboardSidebar';
 import loadingImage from '@comp/loading-image-base64'
 import useInitData from '@utils/init-data'
 import {useSelector,State} from '@redux/index'
+<<<<<<< HEAD
 import {ISocket, Socket} from '@utils/Socket';
 import ForbiddenComp from '@comp/Forbidden';
 import { ITransaction } from '@type/index';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
+=======
+import {Socket} from '@utils/Socket';
+>>>>>>> main
 // ----------------------------------------------------------------------
 
 const APP_BAR_MOBILE = 64;
@@ -44,6 +48,7 @@ export interface DashboardProps {
   subtitle?: string
 }
 
+<<<<<<< HEAD
 
 
 export default function DashboardLayout({children,title,subtitle}: DashboardProps) {
@@ -96,6 +101,12 @@ export default function DashboardLayout({children,title,subtitle}: DashboardProp
       socket?.off('toko cashier',onCashier);
     }
   },[socket,t,locale,toko_id,outlet_id])
+=======
+export default function DashboardLayout({children,title,subtitle}: DashboardProps) {
+  const {user,ready:loaded} = useSelector<Pick<State,'user'|'ready'>>(s=>({user:s.user,ready:s.ready}));
+  const [open, setOpen] = useState(false);
+  const {adBlock} = useInitData();
+>>>>>>> main
 
   return (
     <>
@@ -117,6 +128,20 @@ export default function DashboardLayout({children,title,subtitle}: DashboardProp
           ) : null}
         </RootStyle>
       )}
+<<<<<<< HEAD
     </>
+=======
+      {user && (
+        <>
+          <Socket />
+          <DashboardNavbar onOpenSidebar={() => setOpen(true)} />
+          <DashboardSidebar title={title} subtitle={subtitle} isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
+          <MainStyle>
+            {loaded && children}
+          </MainStyle>
+        </>
+      )}
+    </RootStyle>
+>>>>>>> main
   );
 }

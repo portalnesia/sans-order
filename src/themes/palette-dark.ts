@@ -107,7 +107,11 @@ const palette: PaletteOptions = {
   chart: CHART_COLORS,
   divider: GREY[700],
   text: { primary: GREY[200], secondary: GREY[400], disabled: GREY[500] },
+<<<<<<< HEAD
   background: { paper: '#212b36', default: 'rgb(22, 28, 36)', neutral: GREY[800] },
+=======
+  background: { paper: 'rgb(33, 43, 54)', default: 'rgb(22, 28, 36)', neutral: GREY[800] },
+>>>>>>> main
   action: {
     active: GREY[400],
     hover: GREY[500_8],

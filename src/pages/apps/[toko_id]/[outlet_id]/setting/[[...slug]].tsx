@@ -1,8 +1,13 @@
 // material
+<<<<<<< HEAD
 import { Box, Grid, Container, Typography,Checkbox,Divider,IconButton,TextField, FormGroup,FormLabel, FormControlLabel, Switch,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText, Card } from '@mui/material';
 // components
 import {DatePicker,LocalizationProvider, TimePicker} from '@mui/lab'
 import AdapterDayjs from '@mui/lab/AdapterDayjs'
+=======
+import { Box, Grid, Container, Typography,Tabs,Tab,Divider,IconButton,TextField, FormGroup, FormControlLabel, Switch,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText } from '@mui/material';
+// components
+>>>>>>> main
 import Header from '@comp/Header';
 import Dashboard from '@layout/dashboard/index'
 import React from 'react'
@@ -13,9 +18,15 @@ import Button from '@comp/Button'
 import Backdrop from '@comp/Backdrop'
 import Image from '@comp/Image'
 import Popover from '@comp/Popover'
+<<<<<<< HEAD
 import {IDay, IOutlet,IPages,ResponsePagination,TokoUsers} from '@type/index'
 import wrapper from '@redux/store'
 import {useTranslation} from 'next-i18next';
+=======
+import {IOutlet,IPages,ResponsePagination,TokoUsers} from '@type/index'
+import wrapper from '@redux/store'
+import {useTranslations} from 'next-intl';
+>>>>>>> main
 import useSWR from '@utils/swr';
 import { useRouter } from 'next/router';
 import Iconify from '@comp/Iconify';
@@ -26,11 +37,16 @@ import usePagination from '@comp/TablePagination'
 import Avatar from '@comp/Avatar'
 import Label from '@comp/Label'
 import dynamic from 'next/dynamic'
+<<<<<<< HEAD
 import { isEmptyObj, ucwords } from '@portalnesia/utils';
 import { useMousetrap } from '@utils/useKeys';
 import { Dayjs } from 'dayjs';
 import { getDayJs, getDayList } from '@utils/Main';
 import { Circular } from '@comp/Loading';
+=======
+import { ucwords } from '@portalnesia/utils';
+import { useMousetrap } from '@utils/useKeys';
+>>>>>>> main
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -43,6 +59,7 @@ export const getServerSideProps = wrapper(async({checkOutlet,params,redirect})=>
   if(typeof slug?.[0] === 'string' && !['outlet','team'].includes(slug?.[0])) {
     return redirect();
   }
+<<<<<<< HEAD
   return await checkOutlet({onlyAdmin:true},'dash_setting');
 })
 
@@ -106,16 +123,28 @@ export function GeneralSetting() {
   const {t} = useTranslation('dash_setting');
   const {t:tMenu} = useTranslation('menu');
   const {t:tCom} = useTranslation('common');
+=======
+  return await checkOutlet({onlyAdmin:true});
+})
+
+export function GeneralSetting() {
+  const t = useTranslations();
+>>>>>>> main
   const router = useRouter();
   const {put} = useAPI();
   const setNotif = useNotif();
   const {toko_id,outlet_id} = router.query;
   const [loading,setLoading] = React.useState<'submit'|null>(null)
   const [opDialog,setOpDialog] = React.useState(false)
+<<<<<<< HEAD
   const [input,setInput] = React.useState<Pick<IOutlet,'name'|'description'|'address'|'cod'|'online_payment'|'self_order'|'table_number'|'busy'|'business_hour'>>({name:'',description:null,address:null,cod:false,online_payment:false,self_order:false,table_number:false,busy:false,business_hour:null});
   const {outlet,errOutlet,mutateOutlet} = useOutlet(toko_id,outlet_id,{with_wallet:true});
   const [busHour,setBusHour] = React.useState< IDay | null>(null)
   const [tempHour,setTempHour] = React.useState<[Dayjs,Dayjs]>([getDayJs(),getDayJs()])
+=======
+  const [input,setInput] = React.useState<Pick<IOutlet,'name'|'description'|'address'|'cod'|'online_payment'|'self_order'|'table_number'>>({name:'',description:null,address:null,cod:false,online_payment:false,self_order:false,table_number:false});
+  const {outlet,errOutlet,mutateOutlet} = useOutlet(toko_id,outlet_id);
+>>>>>>> main
 
   const captchaRef = React.useRef<Recaptcha>(null);
 
@@ -123,16 +152,23 @@ export function GeneralSetting() {
     handleSubmit(e as any)
   },true)
 
+<<<<<<< HEAD
   const days = React.useMemo(()=>{
     return getDayList(t);
   },[t])
 
+=======
+>>>>>>> main
   const handleChange=React.useCallback((name: keyof typeof input)=>(e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement> | string)=>{
     const inp = typeof e === 'string' ? e : e.target.value;
     setInput({...input,[name]:inp});
   },[input])
 
+<<<<<<< HEAD
   const handleCheckedChange=React.useCallback((name: 'cod'|'online_payment'|'self_order'|'table_number'|'busy')=>(e: React.ChangeEvent<HTMLInputElement>)=>{
+=======
+  const handleCheckedChange=React.useCallback((name: 'cod'|'online_payment'|'self_order'|'table_number')=>(e: React.ChangeEvent<HTMLInputElement>)=>{
+>>>>>>> main
     if(name === 'self_order' && e.target?.checked === false) {
       setInput({...input,self_order:false,cod:false,online_payment:false})
       return;
@@ -144,6 +180,7 @@ export function GeneralSetting() {
     setInput({...input,[name]:e.target.checked});
   },[input,outlet])
 
+<<<<<<< HEAD
   const handleCheckedHourChange=React.useCallback((name: IDay)=>(e: React.ChangeEvent<HTMLInputElement>)=>{
     if(e.target.checked===false) {
       const inp = input.business_hour;
@@ -183,6 +220,8 @@ export function GeneralSetting() {
     setBusHour(null);
   },[tempHour,input])
 
+=======
+>>>>>>> main
   const handleSubmit = React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
     setLoading('submit');
@@ -190,6 +229,7 @@ export function GeneralSetting() {
       const recaptcha = await captchaRef.current?.execute();
       await put(`/toko/${toko_id}/${outlet_id}`,{...input,recaptcha});
       setLoading(null);
+<<<<<<< HEAD
       setNotif(tCom("saved"),false);
       mutateOutlet();
     } catch(e: any) {
@@ -203,10 +243,26 @@ export function GeneralSetting() {
     if(input.name.length === 0 && outlet) {
       const {owner:_,toko:_1,id:_2,isAdmin:_3,isOwner:_4,isMyToko:_5,token_download_qr:_6,busy,business_hour,...rest} = outlet;
       setInput({...rest,busy,business_hour});
+=======
+      setNotif(t("General.saved"),false);
+      mutateOutlet();
+    } catch(e: any) {
+      setNotif(e?.message||t("General.error"),true);
+    } finally {
+      setLoading(null)
+    }
+  },[put,setNotif,input,t])
+
+  React.useEffect(()=>{
+    if(input.name.length === 0 && outlet) {
+      const {owner:_,toko:_1,id:_2,isAdmin:_3,isOwner:_4,isMyToko:_5,token_download_qr:_6,...rest} = outlet;
+      setInput(rest);
+>>>>>>> main
     }
   },[outlet])
 
   return (
+<<<<<<< HEAD
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       {errOutlet ? (
         <Box display='flex' alignItems='center' flexGrow='1' justifyContent='center'>
@@ -354,6 +410,113 @@ export function GeneralSetting() {
       <Recaptcha ref={captchaRef} />
       <Backdrop open={!outlet && !errOutlet} />
     </LocalizationProvider>
+=======
+    <form onSubmit={handleSubmit}>
+      <Box pb={2} mb={5}>
+        <Typography variant="h3" component='h3'>{t("Menu.setting")}</Typography>
+        <Divider />
+      </Box>
+      <Grid container spacing={4}>
+        <Grid item xs={12}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6} lg={3}>
+              <FormGroup sx={{flexDirection:'row'}}>
+                <FormControlLabel
+                  style={{marginTop:0}}
+                  control={
+                    <Switch disabled={loading!==null} checked={input?.table_number||false} color="primary" onChange={handleCheckedChange('table_number')} />
+                  }
+                  label={ucwords(t("Subcribe.feature.table_number"))}
+                />
+                <Popover icon='clarity:help-outline-badged' >{t("Outlet.tn_desc")}</Popover>
+              </FormGroup>
+            </Grid>
+            <Grid item xs={12} md={6} lg={3}>
+              <Box>
+                <FormGroup sx={{flexDirection:'row'}}>
+                  <FormControlLabel
+                    style={{marginTop:0}}
+                    control={
+                      <Switch disabled={loading!==null} checked={input?.self_order||false} color="primary" onChange={handleCheckedChange('self_order')} />
+                    }
+                    label={t("Outlet.self_order")}
+                  />
+                  <Popover icon='clarity:help-outline-badged'>{t("Outlet.so_desc")}</Popover>
+                </FormGroup>
+              </Box>
+            </Grid>
+            {input.self_order && (
+              <>
+                <Grid item xs={12} md={6} lg={3}>
+                  <FormGroup sx={{flexDirection:'row'}}>
+                    <FormControlLabel
+                      style={{marginTop:0}}
+                      control={
+                        <Switch disabled={loading!==null} checked={input?.online_payment||false} color="primary" onChange={handleCheckedChange('online_payment')} />
+                      }
+                      label={t("Outlet.online_payment")}
+                    />
+                    <Popover icon='clarity:help-outline-badged' >{t("Outlet.op_desc")}</Popover>
+                  </FormGroup>
+                </Grid>
+                <Grid item xs={12} md={6} lg={3}>
+                  <FormGroup sx={{flexDirection:'row'}}>
+                    <FormControlLabel
+                      style={{marginTop:0}}
+                      control={
+                        <Switch disabled={loading!==null} checked={input?.cod||false} color="primary" onChange={handleCheckedChange('cod')} />
+                      }
+                      label={t("Outlet.cod")}
+                    />
+                    <Popover icon='clarity:help-outline-badged' >{t("Outlet.cod_desc")}</Popover>
+                  </FormGroup>
+                </Grid>
+              </>
+            )}
+          </Grid>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label={t("General.name",{what:"Outlet"})}
+            value={input.name}
+            onChange={handleChange('name')}
+            required
+            fullWidth
+            disabled={loading!==null}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label={t("Toko.address")}
+            value={input.address}
+            onChange={handleChange('address')}
+            fullWidth
+            disabled={loading!==null}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <SimpleMDE disabled={loading!==null} value={input.description||''} onChange={handleChange('description')} label={t("General.description")} />
+        </Grid>
+        <Grid item xs={12}>
+          <Button disabled={loading!==null||!outlet?.isAdmin} loading={loading==='submit'} type='submit' icon='submit'>{t("General.save")}</Button>
+        </Grid>
+      </Grid>
+      <Backdrop open={!outlet && !errOutlet} />
+      <Recaptcha ref={captchaRef} />
+      <Dialog open={opDialog} handleClose={()=>setOpDialog(false)} fullScreen={false}>
+        <DialogTitle>{t("General.access_denied")}</DialogTitle>
+        <DialogContent dividers>
+          <Typography gutterBottom>{t("Wallet.online_payment")}</Typography>
+          <Typography gutterBottom>{t("Wallet.online_payment_owner")}</Typography>
+          <Typography>{t("Wallet.online_payment_team")}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button text color='inherit' onClick={()=>setOpDialog(false)}>{t("General.close")}</Button>
+          {outlet?.isOwner && <Button onClick={()=>router.push(`/apps/${toko_id}/wallet`)}>{t("General.create",{what:t("General.wallet")})}</Button>}
+        </DialogActions>
+      </Dialog>
+    </form>
+>>>>>>> main
   )
 }
 
@@ -399,9 +562,13 @@ function UserMenu({onEdit,onDelete,editDisabled,allDisabled}: UserMenu) {
 }
 
 export function TeamSetting() {
+<<<<<<< HEAD
   const {t} = useTranslation('dash_setting');
   const {t:tMenu} = useTranslation('menu');
   const {t:tCom} = useTranslation('common');
+=======
+  const t = useTranslations();
+>>>>>>> main
   const router = useRouter();
   const {post,del,put} = useAPI();
   const setNotif = useNotif();
@@ -434,6 +601,7 @@ export function TeamSetting() {
       const recaptcha = await captchaRef.current?.execute();
       await post(`/toko/${toko_id}/${outlet_id}/users`,{...iCreate,recaptcha});
       mutate();
+<<<<<<< HEAD
       setNotif(tCom("saved"),false)
       setDCreate(false)
     } catch(e: any) {
@@ -442,6 +610,16 @@ export function TeamSetting() {
       setLoading(false);
     }
   },[iCreate,setNotif,post,toko_id,outlet_id,mutate,tCom])
+=======
+      setNotif(t("General.saved"),false)
+      setDCreate(false)
+    } catch(e: any) {
+      setNotif(e?.message||t("General.error"),true);
+    } finally {
+      setLoading(false);
+    }
+  },[iCreate,setNotif,post,toko_id,outlet_id,mutate])
+>>>>>>> main
 
   const handleEdit=React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
@@ -450,6 +628,7 @@ export function TeamSetting() {
       const recaptcha = await captchaRef.current?.execute();
       await put(`/toko/${toko_id}/${outlet_id}/users/${dEdit?.id}`,{admin:iEdit,recaptcha});
       mutate();
+<<<<<<< HEAD
       setNotif(tCom("saved"),false)
       setDEdit(null)
     } catch(e: any) {
@@ -458,12 +637,23 @@ export function TeamSetting() {
       setLoading(false);
     }
   },[dEdit,iEdit,setNotif,put,toko_id,outlet_id,mutate,tCom])
+=======
+      setNotif(t("General.saved"),false)
+      setDEdit(null)
+    } catch(e: any) {
+      setNotif(e?.message||t("General.error"),true);
+    } finally {
+      setLoading(false);
+    }
+  },[dEdit,iEdit,setNotif,put,toko_id,outlet_id,mutate])
+>>>>>>> main
 
   const handleDelete=React.useCallback(async()=>{
     setLoading(true);
     try {
       await del(`/toko/${toko_id}/${outlet_id}/users/${dDelete?.id}`);
       mutate();
+<<<<<<< HEAD
       setNotif(tCom("deleted"),false)
       setDDelete(null)
     } catch(e: any) {
@@ -472,11 +662,22 @@ export function TeamSetting() {
       setLoading(false);
     }
   },[dDelete,del,setNotif,toko_id,outlet_id,mutate,tCom])
+=======
+      setNotif(t("General.deleted"),false)
+      setDDelete(null)
+    } catch(e: any) {
+      setNotif(e?.message||t("General.error"),true);
+    } finally {
+      setLoading(false);
+    }
+  },[dDelete,del,setNotif,toko_id,outlet_id,mutate])
+>>>>>>> main
   
   return (
     <Box>
       <Box pb={2} mb={5}>
         <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
+<<<<<<< HEAD
           <Typography variant="h3" component='h3'>{tMenu("team")}</Typography>
           <Button disabled={!outlet?.isAdmin} onClick={buttonCreate}>{tCom("add_ctx",{what:tMenu("team")})}</Button>
         </Stack>
@@ -542,6 +743,71 @@ export function TeamSetting() {
         <form onSubmit={handleCreate}>
           <DialogTitle>{tCom("add_ctx",{what:tMenu("team")})}</DialogTitle>
           <DialogContent dividers>
+=======
+          <Typography variant="h3" component='h3'>{t("Menu.team")}</Typography>
+          <Button disabled={!outlet?.isAdmin} onClick={buttonCreate}>{t("General.add",{what:t("Menu.team")})}</Button>
+        </Stack>
+      </Box>
+      <Scrollbar>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell align="left">Name</TableCell>
+              <TableCell align="center">Status</TableCell>
+              <TableCell align="center"></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {!data && !error ? (
+              <TableRow>
+                <TableCell align="center" colSpan={3} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
+              </TableRow>
+            ) : error ? (
+              <TableRow>
+                <TableCell align="center" colSpan={3} sx={{ py: 3 }}><Typography>{error?.message}</Typography></TableCell>
+              </TableRow>
+            ) : data?.data && data?.data?.length === 0 ? (
+              <TableRow>
+                <TableCell align="center" colSpan={3} sx={{ py: 3 }}><Typography>{t("General.no",{what:"Data"})}</Typography></TableCell>
+              </TableRow>
+            ) : data?.data?.map((d,i)=>(
+              <TableRow>
+                <TableCell align="left">
+                  <Stack direction="row" alignItems="center" spacing={2}>
+                    <Avatar alt={d?.name}>
+                      {d?.picture === null ? d?.name : <Image src={d?.picture} />}
+                    </Avatar>
+                    <Typography variant="subtitle2" noWrap>
+                      {d?.name}
+                    </Typography>
+                  </Stack>
+                </TableCell>
+                <TableCell align="center">
+                  <Stack direction="row" alignItems="center" justifyContent='center' spacing={2}>
+                    {d?.admin && <Label variant='filled' color='info'>Admin</Label>}
+                    <Label variant='filled' color={d?.pending ? 'error':'success'}>{d?.pending ? t("General.pending"):t("General.active")}</Label>
+                  </Stack>
+                </TableCell>
+                <TableCell align="center">
+                  <UserMenu onEdit={buttonEdit(d)} onDelete={()=>setDDelete(d)} editDisabled={!!d?.pending} allDisabled={!outlet?.isAdmin} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Scrollbar>
+      <TablePagination
+        count={data?.total||0}
+        rowsPerPage={rowsPerPage}
+        page={page-1}
+        {...pagination}
+      />
+
+      <Dialog loading={loading} open={dCreate} handleClose={()=>setDCreate(false)}>
+        <form onSubmit={handleCreate}>
+          <DialogTitle>{t("General.add",{what:t("Menu.team")})}</DialogTitle>
+          <DialogContent>
+>>>>>>> main
             <Grid container spacing={4}>
               <Grid item xs={12}>
                 <TextField
@@ -552,7 +818,11 @@ export function TeamSetting() {
                   fullWidth
                   required
                   autoFocus
+<<<<<<< HEAD
                   placeholder={t("email")}
+=======
+                  placeholder={t("Outlet.email")}
+>>>>>>> main
                 />
               </Grid>
               <Grid item xs={12}>
@@ -563,20 +833,33 @@ export function TeamSetting() {
                     }
                     label={"Admin"}
                   />
+<<<<<<< HEAD
                   <Popover icon='clarity:help-outline-badged' >{t("admin_help")}</Popover>
+=======
+                  <Popover icon='clarity:help-outline-badged' >{t("Outlet.admin_help")}</Popover>
+>>>>>>> main
                 </FormGroup>
               </Grid>
             </Grid>
           </DialogContent>
           <DialogActions>
+<<<<<<< HEAD
             <Button disabled={loading} text color='inherit' onClick={()=>setDCreate(false)}>{tCom("cancel")}</Button>
             <Button disabled={loading} loading={loading} type='submit' icon='submit'>{tCom("save")}</Button>
+=======
+            <Button disabled={loading} text color='inherit' onClick={()=>setDCreate(false)}>{t("General.cancel")}</Button>
+            <Button disabled={loading} loading={loading} type='submit' icon='submit'>{t("General.save")}</Button>
+>>>>>>> main
           </DialogActions>
         </form>
       </Dialog>
       <Dialog loading={loading} open={dEdit!==null} handleClose={()=>setDEdit(null)}>
         <form onSubmit={handleEdit}>
+<<<<<<< HEAD
           <DialogTitle>{`Edit ${tMenu("team")}`}</DialogTitle>
+=======
+          <DialogTitle>{`Edit ${t("Menu.team")}`}</DialogTitle>
+>>>>>>> main
           <DialogContent>
             <Grid container spacing={4}>
               <Grid item xs={12}>
@@ -591,22 +874,38 @@ export function TeamSetting() {
                     }
                     label={"Admin"}
                   />
+<<<<<<< HEAD
                   <Popover icon='clarity:help-outline-badged' >{t("admin_help")}</Popover>
+=======
+                  <Popover icon='clarity:help-outline-badged' >{t("Outlet.admin_help")}</Popover>
+>>>>>>> main
                 </FormGroup>
               </Grid>
             </Grid>
           </DialogContent>
           <DialogActions>
+<<<<<<< HEAD
             <Button disabled={loading} text color='inherit' onClick={()=>setDEdit(null)}>{tCom("cancel")}</Button>
             <Button disabled={loading} loading={loading} type='submit' icon='submit'>{tCom("save")}</Button>
+=======
+            <Button disabled={loading} text color='inherit' onClick={()=>setDEdit(null)}>{t("General.cancel")}</Button>
+            <Button disabled={loading} loading={loading} type='submit' icon='submit'>{t("General.save")}</Button>
+>>>>>>> main
           </DialogActions>
         </form>
       </Dialog>
       <Dialog maxWidth='xs' loading={loading} open={dDelete!==null} handleClose={()=>setDDelete(null)} fullScreen={false}>
+<<<<<<< HEAD
         <DialogTitle>{t("are_you_sure")}</DialogTitle>
         <DialogActions>
           <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{tCom("cancel")}</Button>
           <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{tCom("delete")}</Button>
+=======
+        <DialogTitle>{t("General.are_you_sure")}</DialogTitle>
+        <DialogActions>
+          <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{t("General.cancel")}</Button>
+          <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{t("General._delete")}</Button>
+>>>>>>> main
         </DialogActions>
       </Dialog>
       <Recaptcha ref={captchaRef} />
@@ -615,7 +914,11 @@ export function TeamSetting() {
 }
 
 export default function OutletSetting({meta}: IPages) {
+<<<<<<< HEAD
   const {t:tMenu} = useTranslation('menu');
+=======
+  const t = useTranslations();
+>>>>>>> main
   const router = useRouter();
   const {slug,toko_id,outlet_id} = router.query;
 
@@ -626,7 +929,11 @@ export default function OutletSetting({meta}: IPages) {
   },[slug,toko_id,outlet_id])
 
   return (
+<<<<<<< HEAD
     <Header title={`${slug?.[0] === 'team' ? tMenu("team") : tMenu("setting")} - ${meta?.title}`} desc={meta?.description}>
+=======
+    <Header title={`${slug?.[0] === 'team' ? t("Menu.team") : t("Menu.setting")} - ${meta?.title}`} desc={meta?.description}>
+>>>>>>> main
       <Dashboard title={meta?.title} subtitle={meta?.toko_name}>
         <Container>          
           <Box>

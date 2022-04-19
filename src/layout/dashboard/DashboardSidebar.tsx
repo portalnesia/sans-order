@@ -8,14 +8,22 @@ import { Box, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
 //import account from '../../_mocks_/account';
 // hooks
 import useResponsive from '@comp/useResponsive';
+<<<<<<< HEAD
 import {useTranslation} from 'next-i18next'
+=======
+import {useTranslations} from 'next-intl'
+>>>>>>> main
 // components
 import Logo from '../../components/Logo';
 import Scrollbar from '../../components/Scrollbar';
 import NavSection from '../../components/NavSection';
 import sidebarConfig from './SidebarConfig';
 import MenuQr from '@comp/MenuQr';
+<<<<<<< HEAD
 import footerMenu from '@layout/FooterConfig';
+=======
+
+>>>>>>> main
 // ----------------------------------------------------------------------
 
 const DRAWER_WIDTH = 280;
@@ -108,6 +116,7 @@ export interface DashboardSidebarProps {
   subtitle?: string
 };
 
+<<<<<<< HEAD
 export function MenuItem({data}: {data: ReturnType<typeof footerMenu>[number]}) {
 
   return (
@@ -131,6 +140,12 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title,
   const router = useRouter();
   const pathname = router.pathname;
   const {t} = useTranslation('menu');
+=======
+export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title, subtitle }: DashboardSidebarProps) {
+  const router = useRouter();
+  const pathname = router.pathname;
+  const t = useTranslations();
+>>>>>>> main
   const isDesktop = useResponsive('up', 'lg');
 
   useEffect(() => {
@@ -167,13 +182,18 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title,
         </Box>
       )}
 
+<<<<<<< HEAD
       <NavSection navConfig={sidebarConfig(t)} />
+=======
+      <NavSection navConfig={sidebarConfig(t,router)} />
+>>>>>>> main
 
       <MenuQr />
 
       <Box sx={{ flexGrow: 1 }} />
 
       <Box sx={{ px: 2.5, pb: 3, mt: 10 }}>
+<<<<<<< HEAD
         <FooterRoot>
           <FooterMenu>
             {footerMenu(t).map((f)=>(
@@ -191,6 +211,9 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title,
             <FooterChild><span>Powered by <a target='_blank' href={process.env.PORTAL_URL}>Portalnesia</a></span></FooterChild>
           </FooterMenu>
         </FooterRoot>
+=======
+        
+>>>>>>> main
       </Box>
     </Scrollbar>
   );

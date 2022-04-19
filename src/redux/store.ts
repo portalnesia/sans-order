@@ -11,9 +11,12 @@ import { ParsedUrlQuery } from 'querystring'
 import {useDispatch as originalUseDispatch,useSelector as originalUseSelector} from 'react-redux'
 import {convertToPlaintext} from '@utils/marked'
 import { photoUrl } from '@utils/Main';
+<<<<<<< HEAD
 import {serverSideTranslations} from 'next-i18next/serverSideTranslations'
 import nextI18nextConfig from '@rootnext-i18next.config';
 import { SSRConfig } from 'next-i18next';
+=======
+>>>>>>> main
 
 export const useDispatch = ()=>originalUseDispatch<Dispatch<ActionType>>()
 export const useSelector = <D=State>(selector: (state: State)=>D)=>originalUseSelector<State,D>(selector)
@@ -40,15 +43,21 @@ type IOutlet = {
 }
 
 type IQuery = {
+<<<<<<< HEAD
     name:'check_toko'|'check_outlet'|'check_transactions',
     outlet?: IOutlet,
     translation?: string|string[]
+=======
+    name:'check_toko'|'check_outlet',
+    outlet?: IOutlet
+>>>>>>> main
 }
 
 type CallbackParams<P> = GetServerSidePropsContext<ParsedUrlQuery,any> & ({store: Store<State, ActionType> & {
     dispatch: Dispatch<ActionType>;
 }}) & ({
     redirect(urlOrNotFound?:string): GetServerSidePropsResult<P>,
+<<<<<<< HEAD
     checkToko(data?:IOutlet,translation?:string|string[]): Promise<GetServerSidePropsResult<P>>,
     checkOutlet(data?:IOutlet,translation?:string|string[]): Promise<GetServerSidePropsResult<P>>,
     getTranslation(translation?: string|string[],locale?: string): Promise<SSRConfig>
@@ -60,13 +69,25 @@ async function getTranslation(translation?: string|string[],locale: string='en')
   return await serverSideTranslations(locale,translations,nextI18nextConfig)
 }
 
+=======
+    checkToko(): Promise<GetServerSidePropsResult<P>>,
+    checkOutlet(data?: IOutlet): Promise<GetServerSidePropsResult<P>>,
+})
+type Callback<P=IPages> = (params: CallbackParams<P>)=>Promise<GetServerSidePropsResult<P>>
+
+>>>>>>> main
 export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
     // @ts-ignore
     return wrapperRoot.getServerSideProps((store)=>async(ctx)=>{
         let props: IPages = {}
         try {
           const userid = ctx.req.cookies?.['_so_token_'];
+<<<<<<< HEAD
           async function checkOutlet(dt: IOutlet = {},translation?:string|string[]): Promise<GetServerSidePropsResult<P>> {
+=======
+
+          async function checkOutlet(dt: IOutlet = {}): Promise<GetServerSidePropsResult<P>> {
+>>>>>>> main
             dt.notfound=dt.notfound||true;
             if(!userid && dt.onlyMyToko) return db.redirect<P>("/apps");
             const toko_id = ctx.params?.toko_id;
@@ -76,9 +97,12 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
             
             if(!toko) return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
             const isOwner = toko[0].userid == userid;
+<<<<<<< HEAD
             //return {props:{err:1818} as unknown as P}
             //if((dt.onlyAdmin||dt.onlyMyToko||dt.onlyOwner) && toko?.[0]?.online !== null) return {props:{err:1818} as unknown as P}
 
+=======
+>>>>>>> main
             if(dt.onlyOwner) {
               if(!isOwner) return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
             } else if(dt.onlyMyToko && !isOwner) {
@@ -96,6 +120,7 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
                   slug: toko[0]?.slug,
                   toko_name: toko[0]?.toko_name,
                   image: `${photoUrl(toko[0]?.logo||null)}&watermark=no&export=banner&size=300`
+<<<<<<< HEAD
                 },
                 ...(await getTranslation(translation,ctx.locale))
               } as unknown as P,
@@ -103,6 +128,14 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
           }
 
           async function checkToko(dt: IOutlet = {},translation?:string|string[]): Promise<GetServerSidePropsResult<P>> {
+=======
+                }
+              } as unknown as P
+            }
+          }
+
+          async function checkToko(dt: IOutlet = {}): Promise<GetServerSidePropsResult<P>> {
+>>>>>>> main
             dt.notfound=dt.notfound||true;
             const toko_id = ctx.params?.toko_id;
             if(typeof toko_id !== 'string') return db.redirect();
@@ -123,6 +156,7 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
                   description:convertToPlaintext(check?.description),
                   slug: check?.slug,
                   image: `${photoUrl(check?.logo||null)}&watermark=no&export=banner&size=300`
+<<<<<<< HEAD
                 },
                 ...(await getTranslation(translation,ctx.locale))
               } as unknown as P
@@ -143,12 +177,16 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
                   slug: check?.id
                 },
                 ...(await getTranslation(translation,ctx.locale))
+=======
+                }
+>>>>>>> main
               } as unknown as P
             }
           }
 
           if(!callback) return {props};
           if(typeof callback === 'object') {
+<<<<<<< HEAD
             //console.log(userid,props.req.cookies)
             if(callback.name === 'check_toko') {
               return await checkToko({},callback.translation);
@@ -162,6 +200,20 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
             return {props}
           }
           const result = await callback({store,redirect:db.redirect,checkToko,checkOutlet,getTranslation,...ctx})
+=======
+            
+            //console.log(userid,props.req.cookies)
+            if(callback.name === 'check_toko') {
+              return await checkToko();
+            }
+            if(callback.name === 'check_outlet') {
+              return await checkOutlet(callback.outlet)
+            }
+
+            return {props}
+          }
+          const result = await callback({store,redirect:db.redirect,checkToko,checkOutlet,...ctx})
+>>>>>>> main
           return result
         } catch(err) {
           console.log(err)
@@ -177,6 +229,7 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
   })
 }
 
+<<<<<<< HEAD
 
 export function staticProps(config?: Pick<IQuery,'translation'>){
   return async(ctx: GetStaticPropsContext)=>{
@@ -185,5 +238,10 @@ export function staticProps(config?: Pick<IQuery,'translation'>){
         ...(await getTranslation(config?.translation,ctx.locale))
       },
     };
+=======
+export function staticProps(){
+  return async()=>{
+    return {props:{}};
+>>>>>>> main
   }
 }

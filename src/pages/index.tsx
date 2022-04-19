@@ -57,14 +57,20 @@ function Section({children,color,isFirst,isLast,sx}: SectionProps) {
 }
 
 export default function DashboardApp() {
+<<<<<<< HEAD
   const {t: tMenu} = useTranslation('menu');
   const {t} = useTranslation('landing')
 
+=======
+  const t = useTranslations();
+  
+>>>>>>> main
   return (
     <Header title={tMenu("home")}>
       <Dashboard withPadding={false}>
         <Section color='primary.lighter' isFirst sx={{color:'#000',backgroundImage:'url("/static/illustrations/cashier.webp")',backgroundRepeat:'no-repeat',backgroundPositionY:{xs:'top',md:'center'},backgroundPositionX:'right',backgroundBlendMode:'multiply',backgroundSize:{xs:'contain',md:'auto'}}}>
           <Box>
+<<<<<<< HEAD
             <Typography variant="h2" component='h2'>{t("section1.start")}</Typography>
             <Typography variant='h2' component='h2'> {t("section1.with")} <Typography component='span' variant='h2' sx={{color:'primary.main'}}>SansOrder</Typography></Typography>
           </Box>
@@ -102,6 +108,13 @@ export default function DashboardApp() {
                 </Box>
               </Grid>
             </Grid>
+=======
+            <Typography sx={{color:'#000'}} variant="h2" component='h2'>{t("Landing.section1.start")}</Typography>
+            <Typography sx={{color:'#000'}} variant='h2' component='h2'> {t("Landing.section1.with")} <Typography component='span' variant='h2' sx={{color:'primary.main'}}>Sans Order</Typography></Typography>
+          </Box>
+          <Box mt={5}>
+            <Typography sx={{color:'#000'}}>{t("Landing.section1.desc")}</Typography>
+>>>>>>> main
           </Box>
         </Section>
         <Section sx={{alignItems:'flex-start'}}>

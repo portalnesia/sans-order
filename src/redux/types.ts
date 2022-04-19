@@ -18,9 +18,13 @@ export type State = {
   redux_theme:'light'|'dark',
   user: IUser | false | null,
   appToken: string | null,
+<<<<<<< HEAD
   ready: boolean,
   socket: ISocket|null,
   report: Record<string,any>|null
+=======
+  ready: boolean
+>>>>>>> main
 }
 
 export type ActionType = {

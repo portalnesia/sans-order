@@ -67,6 +67,7 @@ export default function GlobalStyles() {
           marginTop:16,
           marginBottom:16
         },
+<<<<<<< HEAD
         blockquote:{
           fontSize:16,
           width:'100%',
@@ -114,6 +115,9 @@ export default function GlobalStyles() {
         'a p':{
           '&:hover':{textDecoration:'underline'}
         },
+=======
+        a: {color:'inherit',textDecoration:'unset',WebkitTapHighlightColor:'transparent','&:hover':{textDecoration:'underline'}},
+>>>>>>> main
         img: { display: 'block', maxWidth: '100%' },
 
         // Lazy Load Img
