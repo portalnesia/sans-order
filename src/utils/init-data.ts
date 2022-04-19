@@ -80,7 +80,6 @@ export default function useIniData() {
     },500)
 
     function onTokenIsChanged(token: string){
-      console.log("AppTokenChange",token)
       dispatch({type:"CUSTOM",payload:{appToken:token}})
     }
 

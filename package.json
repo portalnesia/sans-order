@@ -5,15 +5,8 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "npx patch-package",
-<<<<<<< HEAD
-    "version": "npx genversion --es6 src/version.ts",
-=======
->>>>>>> main
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node server.js",
-    "build": "npx genversion version.js && npx tsc ./server.ts --module commonjs --target esnext && next build",
-    "buildprod": "rm -rf .next/static/ .next/cache/ && npx genversion version.js && npx tsc ./server.ts --module commonjs --target esnext && next build",
-    "tsc": "npx tsc ./server.ts --module commonjs --esModuleInterop"
+    "dev": "npx next dev -p 3001"
   },
   "repository": {
     "type": "git",
@@ -42,56 +35,33 @@
     "@mui/material": "^5.5.2",
     "@mui/styles": "^5.5.1",
     "@portalnesia/dayjs-plugins": "^1.0.1",
-    "@portalnesia/portalnesia-js": "^0.0.1-alpha.0",
+    "@portalnesia/portalnesia-js": "link:../portalnesia/packages/portalnesia-js",
     "@portalnesia/utils": "^1.1.5",
     "array-move": "^4.0.0",
     "axios": "^0.26.1",
     "axios-cache-adapter": "^2.7.3",
     "cardinal": "^2.1.1",
-<<<<<<< HEAD
-    "cheerio": "^1.0.0-rc.10",
-=======
->>>>>>> main
     "classnames": "^2.3.1",
-    "cors": "^2.8.5",
     "dayjs": "^1.11.0",
     "dompurify": "^2.3.6",
     "easymde": "2.15.0",
     "encoding": "^0.1.13",
-    "express": "^4.17.3",
     "firebase": "^9.6.9",
     "framer-motion": "^6.2.8",
-    "helmet": "^5.0.2",
-    "highcharts": "^10.0.0",
-    "highcharts-react-official": "^3.1.0",
     "highlight.js": "^11.5.0",
     "html-react-parser": "^1.4.10",
-<<<<<<< HEAD
-    "html-to-text": "^8.2.0",
-    "html2canvas": "^1.4.1",
-    "http-proxy-middleware": "^2.0.4",
-    "i18next-sync-fs-backend": "^1.1.1",
-    "jquery": "^3.6.0",
-    "js-cookie": "^3.0.1",
-    "js-yaml": "^4.1.0",
-    "localforage": "^1.10.0",
-    "localforage-driver-memory": "^1.0.5",
-    "lodash": "^4.17.21",
-    "lottie-react": "^2.2.1",
-=======
     "html-to-text": "^8.1.0",
     "jquery": "^3.6.0",
     "js-cookie": "^3.0.1",
     "localforage": "^1.10.0",
     "localforage-driver-memory": "^1.0.5",
     "lodash": "^4.17.21",
->>>>>>> main
     "marked": "^4.0.12",
     "marked-plaintext": "^0.0.2",
     "mousetrap": "^1.6.5",
     "mysql2": "^2.3.3",
     "next": "^12.1.0",
-    "next-i18next": "^11.0.0",
+    "next-intl": "^2.4.1-alpha.1",
     "next-redux-wrapper": "^7.0.5",
     "node-fetch": "2",
     "notistack": "^2.0.3",
@@ -117,16 +87,8 @@
     "@babel/core": "^7.17.8",
     "@babel/runtime": "^7.17.8",
     "@emotion/babel-plugin": "^11.7.2",
-<<<<<<< HEAD
-    "@types/cors": "^2.8.12",
     "@types/dompurify": "^2.3.3",
-    "@types/express": "^4.17.13",
-    "@types/html-to-text": "^8.1.0",
-=======
-    "@types/dompurify": "^2.3.3",
->>>>>>> main
     "@types/js-cookie": "^3.0.1",
-    "@types/js-yaml": "^4.0.5",
     "@types/marked": "^4.0.3",
     "@types/node": "^17.0.22",
     "@types/qs": "^6.9.7",
@@ -139,7 +101,7 @@
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "css-minimizer-webpack-plugin": "^3.4.1",
     "file-loader": "^6.2.0",
-    "genversion": "^3.1.1",
+    "genversion": "^3.0.2",
     "next-transpile-modules": "^9.0.0",
     "patch-package": "^6.4.7",
     "terser-webpack-plugin": "^5.3.1",

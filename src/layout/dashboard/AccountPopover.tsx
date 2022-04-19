@@ -12,20 +12,18 @@ import Image from '@comp/Image'
 import portalnesia from '@utils/portalnesia'
 import SessionStorage from '@utils/session-storage'
 import Backdrop from '@comp/Backdrop'
-import {useTranslation,TFunction} from 'next-i18next'
+import {useTranslations} from 'next-intl'
 import cookie from 'js-cookie'
-import { useRouter } from 'next/router';
-import LocalStorage from '@utils/local-storage';
 
-const MENU_OPTIONS = (t: TFunction,user: IUser)=>([
+const MENU_OPTIONS = (t: ReturnType<typeof useTranslations>,user: IUser)=>([
   {
-    label: t("profile"),
+    label: t("Menu.profile"),
     icon: 'eva:person-fill',
     target:'_blank',
     linkTo: `${process.env.DOMAIN}/user/${user.username}`
   },
   {
-    label: t("setting"),
+    label: t("Menu.setting"),
     icon: 'eva:settings-2-fill',
     target:'_blank',
     linkTo: `${process.env.DOMAIN}/setting`
@@ -33,8 +31,7 @@ const MENU_OPTIONS = (t: TFunction,user: IUser)=>([
 ]);
 
 export default function AccountPopover() {
-  const {t} = useTranslation('menu');
-  const router = useRouter();
+  const t = useTranslations();
   const user = useSelector<State['user']>(s=>s.user);
   const dispatch = useDispatch();
   const anchorRef = useRef(null);
@@ -54,25 +51,12 @@ export default function AccountPopover() {
       await portalnesia.oauth.revokeToken();
       cookie.remove("_so_token_");
     } finally {
-      LocalStorage.remove('sans_token');
+      SessionStorage.remove('sans_token');
       dispatch({type:"CUSTOM",payload:{user:false}});
       setLoading(false);
     }
   },[])
 
-<<<<<<< HEAD
-  const login = useCallback(()=>{
-    const code = portalnesia.oauth.generatePKCE();
-    LocalStorage.set('pkce',code);
-    const {pathname,query,asPath} = router;
-    SessionStorage.set('auth',{pathname,query,asPath})
-    const url = portalnesia.oauth.getAuthorizationUrl({code_challenge:code.code_challenge});
-    
-    window.location.href = url;
-  },[router.asPath,router.pathname,router.query])
-
-=======
->>>>>>> main
   return (
     <>
       <IconButton
@@ -145,19 +129,11 @@ export default function AccountPopover() {
         <Box sx={{ p: 2, pt: 1.5 }}>
           {user ? (
             <Button onClick={logout} fullWidth color="inherit" variant="outlined">
-<<<<<<< HEAD
-              {t("logout")}
-            </Button>
-          ) : (
-            <Button onClick={login} fullWidth color="inherit" variant="outlined">
-              {t("signin")}
-=======
               {t("Menu.logout")}
             </Button>
           ) : (
             <Button fullWidth color="inherit" variant="outlined">
               {t("Login.sign")}
->>>>>>> main
             </Button>
           )}
           

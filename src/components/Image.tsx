@@ -1,18 +1,8 @@
 import React from 'react'
-//@ts-ignore
 import {LazyLoadImage} from 'react-lazy-load-image-component'
-<<<<<<< HEAD
-import {Menu,MenuItem,styled, SxProps, Theme} from '@mui/material'
-import '@fancyapps/fancybox/dist/jquery.fancybox.min.css';
-import { useTranslation } from 'next-i18next';
-
-const ImageStyle = styled('img')(()=>({}))
-const LazyImageStyle = styled(LazyLoadImage)(()=>({}))
-=======
 import {Menu,MenuItem} from '@mui/material'
 import '@fancyapps/fancybox/dist/jquery.fancybox.min.css';
 import { useTranslations } from 'use-intl';
->>>>>>> main
 
 export interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     id?: string;
@@ -49,7 +39,6 @@ export interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     withPng?:boolean;
     blured?: boolean;
     caption?: string;
-    sx?: SxProps<Theme>
 }
 
 function getPortalnesiaImagePng(img: string) {
@@ -71,11 +60,7 @@ function getPortalnesiaImagePng(img: string) {
  */
 const Image=(props: ImageProps)=>{
     const {webp,src,lazy=true,type,withPng,className,fancybox,dataFancybox='images',dataSrc,alt,onContextMenu: __,placeholder:_,blured:p,caption,...rest}=props
-<<<<<<< HEAD
-    const {t} = useTranslation('common');
-=======
     const t = useTranslations();
->>>>>>> main
     const [anchorEl,setAnchorEl]=React.useState<[number,number]|null>(null)
     const [menu,setMenu]=React.useState(false);
     const imgRef=React.useRef<HTMLAnchorElement|null>(null);
@@ -142,9 +127,9 @@ const Image=(props: ImageProps)=>{
                             {!withPng && <source type='image/webp' srcSet={webpSrc}/>}
                             <source type={withPng ? 'image/png' : 'image/jpeg'} srcSet={withPng ? pngSrc : src}/>
                             {lazy ? (
-                                <LazyImageStyle src={withPng ? pngSrc : src} className={`no-drag ${className ? ' '+className : ''}`} onContextMenu={onRightClick} {...(alt ? {alt:alt} : {})} {...rest} />
+                                <LazyLoadImage src={withPng ? pngSrc : src} className={`no-drag ${className ? ' '+className : ''}`} onContextMenu={onRightClick} {...(alt ? {alt:alt} : {})} {...rest} />
                             ) : (
-                                <ImageStyle src={withPng ? pngSrc : src} className={`no-drag ${className ? ' '+className : ''}`} onContextMenu={onRightClick} {...(alt ? {alt:alt} : {})} {...rest} />
+                                <img src={withPng ? pngSrc : src} className={`no-drag ${className ? ' '+className : ''}`} onContextMenu={onRightClick} {...(alt ? {alt:alt} : {})} {...rest} />
                             )}
                         </picture>
                     </a>
@@ -153,9 +138,9 @@ const Image=(props: ImageProps)=>{
                         {!withPng && <source type='image/webp' srcSet={webpSrc}/> }
                         <source type={withPng ? 'image/png' : 'image/jpeg'} srcSet={withPng ? pngSrc : src}/>
                         {lazy ? (
-                            <LazyImageStyle src={withPng ? pngSrc : src} className={`no-drag${className ? ' '+className : ''}`} onContextMenu={(e: any)=>e.preventDefault()} {...(alt ? {alt:alt} : {})} {...rest} />
+                            <LazyLoadImage src={withPng ? pngSrc : src} className={`no-drag${className ? ' '+className : ''}`} onContextMenu={(e)=>e.preventDefault()} {...(alt ? {alt:alt} : {})} {...rest} />
                         ) : (
-                            <ImageStyle src={withPng ? pngSrc : src} className={`no-drag${className ? ' '+className : ''}`} onContextMenu={(e)=>e.preventDefault()} {...(alt ? {alt:alt} : {})} {...rest} />
+                            <img src={withPng ? pngSrc : src} className={`no-drag${className ? ' '+className : ''}`} onContextMenu={(e)=>e.preventDefault()} {...(alt ? {alt:alt} : {})} {...rest} />
                         )}
                     </picture>
                 )}
@@ -167,11 +152,7 @@ const Image=(props: ImageProps)=>{
                     open={menu}
                     onClose={onClose}
                 >
-<<<<<<< HEAD
-                    <MenuItem onClick={()=>{onClose(),imgRef?.current?.click()}}>{t("view",{what:t("image")})}</MenuItem>
-=======
                     <MenuItem onClick={()=>{onClose(),imgRef?.current?.click()}}>{t("General.view",{what:t("General.image")})}</MenuItem>
->>>>>>> main
                 </Menu>
             </div>
         )
@@ -181,16 +162,16 @@ const Image=(props: ImageProps)=>{
                 {fancybox ? (
                     <a ref={(ref)=>imgRef.current=ref} data-fancybox={dataFancybox} data-src={withPng ? pngDataSrc : (dataSrc||src)} data-options="{'protect':'true'}" {...(caption||alt ? {'data-caption':caption||alt} : {})}>
                         {lazy ? (
-                            <LazyImageStyle src={withPng ? `${src}&output=png` : src} className={`no-drag${className ? ' '+className : ''}`} onContextMenu={onRightClick} {...(alt ? {alt:alt} : {})} {...rest} />
+                            <LazyLoadImage src={withPng ? `${src}&output=png` : src} className={`no-drag${className ? ' '+className : ''}`} onContextMenu={onRightClick} {...(alt ? {alt:alt} : {})} {...rest} />
                         ) : (
-                            <ImageStyle src={withPng ? `${src}&output=png` : src} className={`no-drag${className ? ' '+className : ''}`} onContextMenu={onRightClick} {...(alt ? {alt:alt} : {})} {...rest} />
+                            <img src={withPng ? `${src}&output=png` : src} className={`no-drag${className ? ' '+className : ''}`} onContextMenu={onRightClick} {...(alt ? {alt:alt} : {})} {...rest} />
                         )}
                         
                     </a>
                 ) : lazy ? (
-                    <LazyImageStyle src={withPng ? `${src}&output=png` : src} className={`no-drag${className ? ' '+className : ''}`} onContextMenu={(e: any)=>e.preventDefault()} {...(alt ? {alt:alt} : {})} {...rest} />
+                    <LazyLoadImage src={withPng ? `${src}&output=png` : src} className={`no-drag${className ? ' '+className : ''}`} onContextMenu={(e)=>e.preventDefault()} {...(alt ? {alt:alt} : {})} {...rest} />
                 ) : (
-                    <ImageStyle src={withPng ? `${src}&output=png` : src} className={`no-drag${className ? ' '+className : ''}`} onContextMenu={(e)=>e.preventDefault()} {...(alt ? {alt:alt} : {})} {...rest} />
+                    <img src={withPng ? `${src}&output=png` : src} className={`no-drag${className ? ' '+className : ''}`} onContextMenu={(e)=>e.preventDefault()} {...(alt ? {alt:alt} : {})} {...rest} />
                 )}
                 <Menu
                     anchorReference="anchorPosition"
@@ -200,11 +181,7 @@ const Image=(props: ImageProps)=>{
                     open={menu}
                     onClose={onClose}
                 >
-<<<<<<< HEAD
-                    <MenuItem onClick={()=>{onClose(),imgRef?.current?.click()}}>{t("view",{what:t("image")})}</MenuItem>
-=======
                     <MenuItem onClick={()=>{onClose(),imgRef?.current?.click()}}>{t("General.view",{what:t("General.image")})}</MenuItem>
->>>>>>> main
                 </Menu>
             </div>
         )

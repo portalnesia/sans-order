@@ -3,13 +3,15 @@ const withTM=require('next-transpile-modules')(['@mui/material','@mui/lab','@mui
 const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const {i18n} = require('./next-i18next.config')
 
 const nextConfig = {
     typescript:{
       ignoreBuildErrors:true
     },
-    i18n,
+    i18n:{
+      locales: ['en', 'id'],
+      defaultLocale:"en",
+    },
     env: {
       API_LOCAL_URL: process.env.NODE_ENV !== 'production' ? 'https://api.portalnesia.com' : 'http://localhost:3007',
       DOMAIN:'https://portalnesia.com',
@@ -20,7 +22,6 @@ const nextConfig = {
       API_URL:'https://api.portalnesia.com',
       ACCOUNT_URL:'https://accounts.portalnesia.com',
       LINK_URL:'https://link.portalnesia.com',
-      PORTAL_URL:"https://portalnesia.com"
       /**
        * NEXT_PUBLIC_APP_TOKEN
        * NEXT_PUBLIC_RECAPTCHA

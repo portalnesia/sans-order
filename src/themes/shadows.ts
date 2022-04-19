@@ -3,8 +3,8 @@ import { alpha, ThemeOptions } from '@mui/material/styles';
 import palette from './palette';
 
 // ----------------------------------------------------------------------
-//@ts-ignore
-const LIGHT_MODE = palette?.grey[500] as string;
+
+const LIGHT_MODE = palette.grey[500];
 
 const createShadow = (color: string): ThemeOptions['shadows'] => {
   const transparent1 = alpha(color, 0.2);
@@ -49,18 +49,12 @@ const createCustomShadow = (color: string) => {
     z16: `0 0 2px 0 ${transparent}, 0 16px 32px -4px ${transparent}`,
     z20: `0 0 2px 0 ${transparent}, 0 20px 40px -4px ${transparent}`,
     z24: `0 0 4px 0 ${transparent}, 0 24px 48px 0 ${transparent}`,
-    //@ts-ignore
-    primary: `0 8px 16px 0 ${alpha((palette?.primary?.main||''), 0.24)}`,
-    //@ts-ignore
-    secondary: `0 8px 16px 0 ${alpha((palette?.secondary?.main||''), 0.24)}`,
-    //@ts-ignore
-    info: `0 8px 16px 0 ${alpha((palette?.info?.main||''), 0.24)}`,
-    //@ts-ignore
-    success: `0 8px 16px 0 ${alpha((palette?.success?.main||''), 0.24)}`,
-    //@ts-ignore
-    warning: `0 8px 16px 0 ${alpha((palette?.warning?.main||''), 0.24)}`,
-    //@ts-ignore
-    error: `0 8px 16px 0 ${alpha((palette?.error?.main||''), 0.24)}`
+    primary: `0 8px 16px 0 ${alpha(palette.primary.main, 0.24)}`,
+    secondary: `0 8px 16px 0 ${alpha(palette.secondary.main, 0.24)}`,
+    info: `0 8px 16px 0 ${alpha(palette.info.main, 0.24)}`,
+    success: `0 8px 16px 0 ${alpha(palette.success.main, 0.24)}`,
+    warning: `0 8px 16px 0 ${alpha(palette.warning.main, 0.24)}`,
+    error: `0 8px 16px 0 ${alpha(palette.error.main, 0.24)}`
   };
 };
 

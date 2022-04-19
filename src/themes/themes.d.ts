@@ -44,13 +44,7 @@ declare module '@mui/material' {
 declare module '@mui/lab' {
   type CustomProps = {
     component?: string,
-<<<<<<< HEAD
-    download?: string,
-    target?: string,
-    rel?: string
-=======
     download?: string
->>>>>>> main
   }
   export type LoadingButtonProps<
     D extends ElementType = LoadingButtonTypeMap['defaultComponent'],

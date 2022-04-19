@@ -11,7 +11,7 @@ import navbarConfig from './NavbarConfig'
 import MenuPopover from '@comp/MenuPopover';
 import {useRouter} from 'next/router'
 import LanguagePopover from '../LanguagePopover'
-import {useTranslation} from 'next-i18next'
+import {useTranslations} from 'next-intl'
 import useResponsive from '@comp/useResponsive'
 import {useSelector,State} from '@redux/index'
 import AccountPopover from '../dashboard/AccountPopover';
@@ -204,7 +204,7 @@ export interface HomeNavbarProps {
 
 export default function HomeNavbar({withNavbar=true,withDashboard=true} : HomeNavbarProps) {
   const router = useRouter();
-  const {t} = useTranslation('menu');
+  const t = useTranslations();
   const user = useSelector<State['user']>(s=>s.user);
   const menuDesktop = useResponsive('up',722)
   const menuMobile = useResponsive('down',722);
@@ -243,11 +243,7 @@ export default function HomeNavbar({withNavbar=true,withDashboard=true} : HomeNa
                   onClick={()=>router.push('/apps')}
                   color='secondary'
                 >
-<<<<<<< HEAD
-                  {t("start")}
-=======
                   {t("Menu.start")}
->>>>>>> main
                 </Button>
               ) : (
                 <Button
@@ -256,11 +252,7 @@ export default function HomeNavbar({withNavbar=true,withDashboard=true} : HomeNa
                   onClick={()=>router.push('/apps')}
                   color='secondary'
                 >
-<<<<<<< HEAD
-                  {t("dashboard")}
-=======
                   {t("Menu.dashboard")}
->>>>>>> main
                 </Button>
               )
             : (

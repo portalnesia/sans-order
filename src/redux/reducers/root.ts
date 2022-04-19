@@ -1,20 +1,13 @@
 import {HYDRATE} from 'next-redux-wrapper';
 import {State,ActionType} from '../types'
 import {Reducer} from 'redux'
-import { ISocket } from '@utils/Socket';
 
 const initialState: State={
   theme:'auto',
   redux_theme:'light',
   user:null,
   appToken:null,
-<<<<<<< HEAD
-  ready:false,
-  socket:null,
-  report:null
-=======
   ready:false
->>>>>>> main
 }
 
 const rootReducer: Reducer<State,ActionType> = (state = initialState, action) => {

@@ -44,10 +44,6 @@ export const editorStyles=(theme: Theme)=>({
     }
   },
   '& h1:not(.no-underline), & h2:not(.no-underline), & h3:not(.no-underline), & h4:not(.no-underline), .underline':{
-<<<<<<< HEAD
-    marginTop:32,
-=======
->>>>>>> main
     paddingBottom:'.1rem',
     borderBottom:`1px solid ${theme.palette.divider}`
   },
@@ -75,42 +71,6 @@ const Img = styled(Image)(({theme})=>({
     height:'auto'
 }))
 
-<<<<<<< HEAD
-export const handlePageContent=(id: string)=>(e?: React.MouseEvent<HTMLAnchorElement>)=>{
-  if(e && e.preventDefault) e.preventDefault()
-  const conta=document.getElementById(id);
-  const x = window.matchMedia("(min-width: 1200px)")
-  if(conta){
-    const padding = x.matches ? 92+24 : 64+24;
-    const a=conta.offsetTop,b=a-padding;
-    window.scrollTo({top:b,left:0,behavior:'smooth'});
-  }
-}
-
-export function usePageContent(data?:any) {
-  let hashRef=React.useRef<number>();
-  React.useEffect(()=>{
-    let timeout: NodeJS.Timeout|undefined;
-    if(data) {
-      timeout = setTimeout(()=>{
-        if(!hashRef.current) {
-          hashRef.current=10;
-          const hash = window.location.hash;
-          if(hash.length > 0) {
-            console.log(hash)
-            handlePageContent(hash.substring(1))()
-          }
-        }
-      },500)
-    }
-
-    return ()=>timeout && clearTimeout(timeout)
-  },[data])
-
-  return null;
-}
-
-=======
 const handlePageContent=(id: string)=>(e: React.MouseEvent<HTMLAnchorElement>)=>{
   if(e && e.preventDefault) e.preventDefault()
   const conta=document.getElementById(id);
@@ -120,7 +80,6 @@ const handlePageContent=(id: string)=>(e: React.MouseEvent<HTMLAnchorElement>)=>
   }
 }
 
->>>>>>> main
 const parseOption = (opt : {preview?:boolean}): HTMLReactParserOptions =>({
   replace: (htmlNode)=>{
     const node = htmlNode as Element
@@ -149,11 +108,7 @@ const parseOption = (opt : {preview?:boolean}): HTMLReactParserOptions =>({
             && !/portalnesia\.com/.test(href)
             && !/kakek\.c1\.biz/.test(href)
           ) {
-<<<<<<< HEAD
-            const hreff = /utm\_source\=portalnesia/i.test(href) ? href : `${process.env.PORTAL_URL}/link?u=${Buffer.from(encodeURIComponent(href)).toString('base64')}`
-=======
             const hreff = /utm\_source\=portalnesia/i.test(href) ? href : `/link?u=${Buffer.from(encodeURIComponent(href)).toString('base64')}`
->>>>>>> main
             return (
               <a target="_blank" rel='nofollow noreferrer noopener' href={hreff} {...other}>
                   {domToReact(node?.children,parseOption(opt))}
