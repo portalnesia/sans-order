@@ -4,7 +4,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import {createProxyMiddleware} from 'http-proxy-middleware'
 
-const dev = process.env.NODE_ENV !== 'production'
+const dev = process.env.NODE_ENV === 'development'
 const port = 3001;
 const hostn = "localhost";
 
