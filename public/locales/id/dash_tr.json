@@ -1,0 +1,20 @@
+{
+  "month":"Bulan Ini",
+  "week":"Minggu ini",
+  "today":"Hari ini",
+  "custom":"Kustom",
+  "from":"Dari",
+  "to":"Sampai",
+  "type":"Tipe",
+  "payment_status":"Status Pembayaran",
+  "order_status":"Status Pemesanan",
+  "print":"Cetak",
+  "detail":"Detail {{what}}",
+  "disscount":"Diskon",
+  "price":"Harga",
+  "payment_method":"Metode Pembayaran",
+  "date":"Tanggal",
+  "id":"ID {{what}}",
+  "receipt":"E-Struk",
+  "customer":"Pelanggan"
+}

@@ -1,4 +1,5 @@
 //import {AccessToken} from 'simple-oauth2'
+import { ISocket } from '@utils/Socket';
 import {HYDRATE} from 'next-redux-wrapper';
 
 export type IUser = {
@@ -17,7 +18,13 @@ export type State = {
   redux_theme:'light'|'dark',
   user: IUser | false | null,
   appToken: string | null,
+<<<<<<< HEAD
+  ready: boolean,
+  socket: ISocket|null,
+  report: Record<string,any>|null
+=======
   ready: boolean
+>>>>>>> main
 }
 
 export type ActionType = {

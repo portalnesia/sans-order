@@ -1,0 +1,22 @@
+{
+  "home":"Beranda",
+  "pricing":"Harga",
+  "contact":"Kontak",
+  "contact_us":"Hubungi Kami",
+  "start":"MULAI",
+  "dashboard":"DASBOR",
+  "profile":"Profil",
+  "setting":"Pengaturan",
+  "self_order":"Pemesanan Mandiri",
+  "logout":"Keluar",
+  "signin":"Masuk",
+  "team":"Tim",
+  "products":"Produk",
+  "cashier":"Kasir",
+  "transactions":"Transaksi",
+  "order":"Pesanan",
+  "customer":"Pelanggan",
+  "terms_of_services":"Syarat & Ketentuan",
+  "policy_privacy":"Kebijakan Privasi",
+  "policy_cookie":"Kebijakan Kuki"
+}

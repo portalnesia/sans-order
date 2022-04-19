@@ -4,7 +4,11 @@ import {Close,Add,Remove} from '@mui/icons-material'
 import {Context} from '@redux/cart';
 import Iconify from '@comp/Iconify'
 import dynamic from 'next/dynamic'
+<<<<<<< HEAD
+import { useTranslation } from 'next-i18next';
+=======
 import { useTranslations } from 'use-intl';
+>>>>>>> main
 import { numberFormat } from '@portalnesia/utils';
 import Button from './Button';
 import Payment from '@comp/Payment'
@@ -25,7 +29,11 @@ const FabStyled = styled(Fab)(({theme})=>({
 }))
 
 function CartFab({onClick}:{onClick(): void}) {
+<<<<<<< HEAD
+  const {t} = useTranslation('catalogue');
+=======
   const t = useTranslations();
+>>>>>>> main
   const context = React.useContext(Context);
   const {cart} = context;
 
@@ -40,7 +48,11 @@ function CartFab({onClick}:{onClick(): void}) {
   return (
     <Portal>
       <Fade in={length > 0} unmountOnExit>
+<<<<<<< HEAD
+        <Tooltip title={t("cart")}>
+=======
         <Tooltip title={t("Payment.cart")}>
+>>>>>>> main
           <FabStyled color='primary' onClick={onClick}>
             <Badge badgeContent={length} color="error" max={10}>
               <Iconify icon="eva:shopping-cart-fill" width={24} height={24} />
@@ -53,7 +65,13 @@ function CartFab({onClick}:{onClick(): void}) {
 }
 
 export default function Cart({table_number}: {table_number?:string}) {
+<<<<<<< HEAD
+  const {t} = useTranslation('catalogue');
+  const {t: tCom} = useTranslation('common');
+  const {t: tMenu} = useTranslation('menu');
+=======
   const t = useTranslations();
+>>>>>>> main
   const context = React.useContext(Context);
   const {cart,addQty,removeQty} = context;
   const [open,setOpen] = React.useState(false);
@@ -82,7 +100,11 @@ export default function Cart({table_number}: {table_number?:string}) {
       <Dialog open={open} handleClose={()=>setOpen(false)}>
         <DialogTitle>
           <Stack direction='row' justifyContent={'space-between'} alignItems='center' spacing={2}>
+<<<<<<< HEAD
+            <Typography variant='h6'>{t("cart")}</Typography>
+=======
             <Typography variant='h6'>{t("Payment.cart")}</Typography>
+>>>>>>> main
             <IconButton onClick={()=>setOpen(false)}><Close /></IconButton>
           </Stack>
         </DialogTitle>
@@ -109,7 +131,11 @@ export default function Cart({table_number}: {table_number?:string}) {
                 </ListItemSecondaryAction>
               </ListItem>
               <ListItem>
+<<<<<<< HEAD
+                <ListItemText primary={t("disscount")} />
+=======
                 <ListItemText primary={t("Product.disscount")} />
+>>>>>>> main
                 <ListItemSecondaryAction>
                   <Typography variant='body2'>{`IDR ${numberFormat(`${disscount}`)}`}</Typography>
                 </ListItemSecondaryAction>
@@ -122,11 +148,19 @@ export default function Cart({table_number}: {table_number?:string}) {
               </ListItem>
             </List>
           ) : (
+<<<<<<< HEAD
+            <Typography>{tCom("no_what",{what:tMenu("products")})}</Typography>
+          )}
+        </DialogContent>
+        <DialogActions sx={{p:2}}>
+          <Button disabled={cart.length === 0} onClick={handlePayBtn}>{t("pay")}</Button>
+=======
             <Typography>{t("General.no",{what:t("Menu.products")})}</Typography>
           )}
         </DialogContent>
         <DialogActions sx={{p:2}}>
           <Button disabled={cart.length === 0} onClick={handlePayBtn}>{t("Payment.pay")}</Button>
+>>>>>>> main
         </DialogActions>
       </Dialog>
       <CartFab onClick={()=>setOpen(true)} />

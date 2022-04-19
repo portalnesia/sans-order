@@ -3,6 +3,8 @@ import utcDayjs from 'dayjs/plugin/utc'
 import relativeDayjs from 'dayjs/plugin/relativeTime'
 import pndayjs from '@portalnesia/dayjs-plugins'
 import 'dayjs/locale/id'
+import { TFunction } from 'next-i18next'
+import { daysArray, IDay, IOutlet } from '@type/toko'
 
 dayjs.extend(utcDayjs)
 dayjs.extend(relativeDayjs)
@@ -40,4 +42,65 @@ export function href(path?: string) {
 
 export function photoUrl(path: string|null) {
   return (path === null) ? staticUrl(`img/content?image=${encodeURIComponent("notfound.png")}`) : path; 
+<<<<<<< HEAD
+}
+
+export function getDayList(t: TFunction) {
+  const days: Record<IDay,string> = {
+    sunday:t("sunday"),
+    monday:t("monday"),
+    tuesday:t("tuesday"),
+    wednesday:t("wednesday"),
+    thursday:t("thursday"),
+    friday:t("friday"),
+    saturday:t("saturday"),
+  }
+  return days;
+}
+
+export function isOutletOpen(outlet?: Pick<IOutlet,'business_hour'|'self_order'|'busy'>) {
+  let status = {
+    enabled:false,
+    opened:false,
+    busy:!!outlet?.busy
+  }
+  if(!outlet) return status;
+  if(outlet.business_hour) {
+    const date = getDayJs();
+    const i = date.day();
+    const day = daysArray[i];
+    if(typeof outlet.business_hour[day] !== 'undefined') {
+      const [hour1,hour2] = outlet.business_hour[day];
+      const h1 = getDayJs(hour1),h2 = getDayJs(hour2);
+      if(isBetweenHour(h1,h2)) status.opened = true;
+    }
+  }
+  status.enabled = (!outlet.busy && outlet.self_order && status.opened)
+  return status;
+}
+
+export function isBetweenHour(d1: dayjs.Dayjs,d2:dayjs.Dayjs) {
+  const now = getDayJs();
+  const d1H = d1.hour();
+  const d1M = d1.minute();
+
+  const d2H = d2.hour();
+  const d2M = d2.minute();
+
+  const nowH = now.hour();
+  const nowM = now.minute();
+
+  if(nowH >= d1H && nowH <= d2H) {
+    if(nowH === d1H) {
+      if(nowM < d1M) return false;
+    }
+    if(nowH === d2H) {
+      if(nowM > d2M) return false;
+    }
+    return true;
+  }
+
+  return false;
+=======
+>>>>>>> main
 }
