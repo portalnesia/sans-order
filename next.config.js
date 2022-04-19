@@ -11,9 +11,7 @@ const nextConfig = {
     },
     i18n,
     env: {
-      API_LOCAL_URL: process.env.NODE_ENV !== 'production' ? 'https://api.portalnesia.com' : 'http://localhost:3007',
-      DOMAIN:'https://portalnesia.com',
-      URL: process.env.NODE_ENV !== 'production' ? 'http://localhost:3001' : 'https://portalnesia.com',
+      URL: process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : process.env.NODE_ENV === 'test' ? 'https://sans-stagging.portalnesia.com' : 'https://portalnesia.com',
       APP_URL: 'https://datas.portalnesia.com',
       SHORT_URL: 'http://kakek.c1.biz',
       CONTENT_URL:'https://content.portalnesia.com',
