@@ -22,13 +22,13 @@ const MENU_OPTIONS = (t: TFunction,user: IUser)=>([
     label: t("profile"),
     icon: 'eva:person-fill',
     target:'_blank',
-    linkTo: `${process.env.DOMAIN}/user/${user.username}`
+    linkTo: `${process.env.PORTAL_URL}/user/${user.username}`
   },
   {
     label: t("setting"),
     icon: 'eva:settings-2-fill',
     target:'_blank',
-    linkTo: `${process.env.DOMAIN}/setting`
+    linkTo: `${process.env.PORTAL_URL}/setting`
   }
 ]);
 

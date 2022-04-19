@@ -33,7 +33,7 @@ export default function MenuQr({...other}: MenuQrProps) {
 
   const handleGenerate = useCallback(async()=>{
     setImgUrl(undefined);
-    const op = {...qrOptions,data:`${process.env.URL}/merchant/${toko_id}/${outlet_id}${table && table.length > 0 ? `?table_number=${table}` : ''}`}
+    const op = {...qrOptions,data:`${process.env.NEXT_PUBLIC_URL}/merchant/${toko_id}/${outlet_id}${table && table.length > 0 ? `?table_number=${table}` : ''}`}
     qr.current?.update(op);
     const image = await qr.current?.getRawData('png');
     if(typeof image !== 'undefined' && image !== null) {

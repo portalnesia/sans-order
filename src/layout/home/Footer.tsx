@@ -48,7 +48,7 @@ export default function Footer() {
             <FooterMenu>
               <FooterChild sx={{textAlign:'center'}}>
                 <span {...({"xmlns:cc":"http://creativecommons.org/ns#","xmlns:dct":"http://purl.org/dc/terms/"})}>
-                  <a property="dct:title" rel="cc:attributionURL" href={process.env.URL}>SansOrder</a> © {(new Date().getFullYear())}
+                  <a property="dct:title" rel="cc:attributionURL" href={process.env.NEXT_PUBLIC_URL}>SansOrder</a> © {(new Date().getFullYear())}
                 </span>
               </FooterChild>
               <FooterChild sx={{textAlign:'center'}}><span>Powered by <a target='_blank' href={process.env.PORTAL_URL}>Portalnesia</a></span></FooterChild>

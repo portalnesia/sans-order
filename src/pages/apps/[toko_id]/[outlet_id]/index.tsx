@@ -216,7 +216,7 @@ export default function OutletIndex({meta}: IPages) {
       },
       credits: {
         enabled: true,
-        href:process.env.URL,
+        href:process.env.NEXT_PUBLIC_URL,
         text:"SansOrder",
         style:{
           fontSize:'12px',

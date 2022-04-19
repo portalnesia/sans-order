@@ -302,7 +302,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
     editDoneLabel:'Done',
     disabled:false,
     required : false,
-    proxy:`${process.env.URL}/canvas-proxy`
+    proxy:`${process.env.NEXT_PUBLIC_URL}/canvas-proxy`
   }
 
   getSysInfo() {

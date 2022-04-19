@@ -37,7 +37,7 @@ export function staticUrl(path?: string) {
 }
 
 export function href(path?: string) {
-  return process.env.URL + (path ? "/" + path : '');
+  return process.env.NEXT_PUBLIC_URL + (path ? "/" + path : '');
 }
 
 export function photoUrl(path: string|null) {

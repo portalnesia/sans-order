@@ -23,7 +23,7 @@ export default function usePagination(initialPage: number|true=1,initialPerPage=
     } else {
       const {pathname,query,asPath}=router;
       const q = {...query,page:newPage+1};
-      const url = new URL(`${process.env.URL}/${asPath}`);
+      const url = new URL(`${process.env.NEXT_PUBLIC_URL}/${asPath}`);
       const quer = url.searchParams;
       quer.set('page',`${newPage+1}`)
       const path = `${url.pathname}?${quer.toString()}`

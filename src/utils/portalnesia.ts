@@ -10,7 +10,7 @@ export type {ResponseData,ResponsePagination} from '@portalnesia/portalnesia-js'
 
 const portalnesia = new Portalnesia({
   client_id:process.env.NEXT_PUBLIC_CLIENT_ID as string,
-  redirect_uri:`${process.env.URL}/apps`,
+  redirect_uri:`${process.env.NEXT_PUBLIC_URL}/apps`,
   scope,
   ...(process.env.NODE_ENV === 'production' ? {} : {
     axios:{
