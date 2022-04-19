@@ -5,13 +5,13 @@ import { styled } from '@mui/material/styles';
 import Image from '@comp/Image'
 import Label from '@comp/Label'
 import { numberFormat } from '@portalnesia/utils';
-import { IMenu } from '@type/index';
-import { photoUrl } from '@utils/Main';
+import { daysArray, IMenu } from '@type/index';
+import { getDayJs, isBetweenHour, isOutletOpen, photoUrl } from '@utils/Main';
 import Iconify from '@comp/Iconify';
 import Button from '@comp/Button';
 import {Context} from '@redux/cart'
 import { useRouter } from 'next/router';
-import { useCallback, useMemo,useContext,MouseEvent, useState } from 'react';
+import { useCallback, useMemo,useContext,MouseEvent, useState, useEffect } from 'react';
 import useOutlet from '@utils/useOutlet';
 
 
@@ -58,6 +58,10 @@ export default function Products({ items,maxWidth }: ProductsProps) {
     console.log(items.name)
   },[items])
 
+  const enabled = useMemo(()=>{
+    return isOutletOpen(outlet).enabled;
+  },[outlet])
+
   return (
     <Card {...(maxWidth ? {sx:{width:{xs:200,md:250,lg:300}}} : {})}>
       <CardActionArea onClick={clickProduct}>
@@ -93,7 +97,7 @@ export default function Products({ items,maxWidth }: ProductsProps) {
           </Stack>
         </CardContent>
       </CardActionArea>
-      {outlet?.self_order && (
+      {enabled && (
         <>
           <Divider />
           <CardActions sx={{justifyContent:'space-between',pt:1}}>

@@ -25,5 +25,23 @@
     "ewallet":{
       "redirect":"Redirecting you to {{what}} checkout page in a moment…"
     }
-  }
+  },
+  "success":{
+    "title":"Payment Success",
+    "description":"We have received Your payment.",
+    "redirect":"You will be redirected to the transaction page in a few moments..."
+  },
+  "operational_hour":"Operational Hours",
+  "hour":"Hours",
+  "day":"Days",
+  "sunday":"Sunday",
+  "monday":"Monday",
+  "tuesday":"Tuesday",
+  "wednesday":"Wednesday",
+  "thursday":"Thursday",
+  "friday":"Friday",
+  "saturday":"Saturday",
+  "busy":"Temporary Closed",
+  "close":"Close",
+  "open":"Open"
 }

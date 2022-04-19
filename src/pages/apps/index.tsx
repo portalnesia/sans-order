@@ -307,12 +307,16 @@ export default function DashboardApp() {
   const {user,ready:loaded} = useSelector<Pick<State,'user'|'ready'>>(s=>({user:s.user,ready:s.ready}));
   const router = useRouter();
   const code = router.query?.code;
+  let codeLoading = React.useRef(false)
 
   React.useEffect(()=>{
     async function login() {
-      if(typeof code === 'string') {
+      if(typeof code === 'string' && !codeLoading.current && router.isReady) {
+        codeLoading.current=true;
         const pkce = LocalStorage.get('pkce');
-        const auth = SessionStorage.get('auth')
+        const auth = SessionStorage.get('auth');
+        LocalStorage.remove('pkce');
+        SessionStorage.remove('auth')
         if(pkce) {
           try {
             const token = await portalnesia.oauth.getToken({grant_type:'authorization_code',code,code_verifier:pkce.code_verifier});
@@ -327,9 +331,7 @@ export default function DashboardApp() {
                 dispatch({type:"CUSTOM",payload:{user}})
               }
             }
-            
             LocalStorage.set('sans_token',token.token);
-            LocalStorage.remove('pkce');
             if(auth?.pathname) {
               router.replace({pathname:auth?.pathname,query:auth?.query},auth?.asPath);
             } else {
@@ -337,14 +339,14 @@ export default function DashboardApp() {
             }
           } catch(e: any) {
             router.replace({pathname:router.pathname,query:{error_description:e?.message}},undefined,{shallow:true});
-            setNotif(e?.message||tCom("error.500"),true);
+            setNotif(e?.message||tCom("error_500"),true);
           }
         }
       }
     }
 
-    if(typeof code === 'string') login();
-  },[code])
+    if(typeof code === 'string' && !codeLoading.current && router.isReady) login();
+  },[code,router.isReady])
 
   return (
     <Header title={ucwords(tMenu("dashboard"))}>

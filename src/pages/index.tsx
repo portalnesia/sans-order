@@ -72,18 +72,51 @@ export default function DashboardApp() {
             <Typography>{t("section1.desc")}</Typography>
           </Box>
         </Section>
-        <Section sx={{alignItems:'flex-start'}}>
+        <Section>
           <Box mb={4} textAlign='center'>
-            <Typography variant='h2' component='h2'>{t("section2.start",{name:"Sans Order"})}</Typography>
+            <Typography variant='h2' component='h2'>{t("section2.title")}</Typography>
           </Box>
-          <Grid container spacing={6} justifyContent='center'>
+          <Box textAlign={{xs:'left',sm:'center'}}>
+            <Typography>{t("section2.desc")}</Typography>
+          </Box>
+          <Box mt={6}>
+            <Grid container spacing={4}>
+              <Grid item xs={12} md={6}>
+                <Box justifyContent='center' alignItems='center' display={{xs:'block',md:'flex'}} flexDirection='column'>
+                  <Typography variant='h4' component='h4'>{t("section2.target.title")}</Typography>
+                  <List component={'ol'} sx={{listStyle:'circle',listStylePosition:'inside'}}>
+                    {t("section2.target.list",{joinArrays:"\n"}).split("\n").map((k,i)=>(
+                      <ListItem key={`cod-${i}`} disablePadding sx={{display:'list-item'}}>{k}</ListItem>
+                    ))}
+                  </List>
+                </Box>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Box justifyContent='center' alignItems='center' display={{xs:'block',md:'flex'}} flexDirection='column'>
+                <Typography variant='h4' component='h4'>{t("section2.services.title")}</Typography>
+                  <List component={'ol'} sx={{listStyle:'circle',listStylePosition:'inside'}}>
+                    {t("section2.services.list",{joinArrays:"\n"}).split("\n").map((k,i)=>(
+                      <ListItem key={`cod-${i}`} disablePadding sx={{display:'list-item'}}>{k}</ListItem>
+                    ))}
+                  </List>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+        </Section>
+        <Section sx={{alignItems:'flex-start'}}>
+          <Box mb={10} textAlign='center'>
+            <Typography variant='h2' component='h2'>{t("section3.start",{name:"SansOrder"})}</Typography>
+          </Box>
+          <Grid container spacing={4} justifyContent='center'>
             <Grid item xs={12} lg={10}>
               <Grid container spacing={2} justifyContent='center' alignItems='center'>
                 <Grid item xs={12} sm={6}>
-                  <Box display='flex' justifyContent={'center'} alignItems='center'><Lottie sx={{mb:2,width:350}} animation={'order'} /></Box>
+                  <Box display='flex' justifyContent={'center'} alignItems='center'><Lottie sx={{mb:2,width:250}} animation={'design'} /></Box>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography>{t("section2.desc1")}</Typography>
+                  <Typography gutterBottom variant='h6' component='h6'>{t("section3.feature.design.title")}</Typography>
+                  <Typography>{t("section3.feature.design.desc")}</Typography>
                 </Grid>
               </Grid>
             </Grid>
@@ -91,18 +124,20 @@ export default function DashboardApp() {
               <Grid container spacing={2} justifyContent='center' alignItems='center'>
                 <Hidden smDown>
                   <Grid item xs={12} sm={6}>
-                    <Typography>{t("section2.desc2")}</Typography>
+                    <Typography gutterBottom variant='h6' component='h6'>{t("section3.feature.report.title")}</Typography>
+                    <Typography>{t("section3.feature.report.desc")}</Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <Box display='flex' justifyContent={'center'} alignItems='center'><Lottie sx={{mb:2,width:350}} animation={'order-confirm'} /></Box>
+                    <Box display='flex' justifyContent={'center'} alignItems='center'><Lottie sx={{mb:2,width:350}} animation={'report'} /></Box>
                   </Grid>
                 </Hidden>
                 <Hidden smUp>
                   <Grid item xs={12} sm={6}>
-                    <Box display='flex' justifyContent={'center'} alignItems='center'><Lottie sx={{mb:2,width:350}} animation={'order-confirm'} /></Box>
+                    <Box display='flex' justifyContent={'center'} alignItems='center'><Lottie sx={{mb:2,width:350}} animation={'report'} /></Box>
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <Typography>{t("section2.desc2")}</Typography>
+                    <Typography gutterBottom variant='h6' component='h6'>{t("section3.feature.report.title")}</Typography>
+                    <Typography>{t("section3.feature.report.desc")}</Typography>
                   </Grid>
                 </Hidden>
               </Grid>
@@ -110,51 +145,47 @@ export default function DashboardApp() {
             <Grid item xs={12} lg={10}>
               <Grid container spacing={2} justifyContent='center' alignItems='center'>
                 <Grid item xs={12} sm={6}>
-                  <Box display='flex' justifyContent={'center'} alignItems='center'><Lottie sx={{width:350}} animation={'system'} /></Box>
+                  <Box display='flex' justifyContent={'center'} alignItems='center'><Lottie sx={{mb:2,width:350}} animation={'order'} /></Box>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <Typography>{t("section2.desc3.title")}</Typography>
-                  <List component={'ul'} sx={{listStyle:'circle',listStylePosition:'inside'}}>
-                    {t("section2.desc3.list").split("\n").map((t,i)=>(
-                      <ListItem key={`desc3-${i}`} disablePadding sx={{display:'list-item'}}>{t}</ListItem>
-                    ))}
-                  </List>
+                  <Typography gutterBottom variant='h6' component='h6'>{t("section3.feature.automatic.title")}</Typography>
+                  <Typography>{t("section3.feature.automatic.desc")}</Typography>
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
         </Section>
-        <Section color={'secondary.lighter'} sx={{color:'#000'}}>
+        <Section>
           <Box mb={4} textAlign='center'>
-            <Typography variant='h2' component='h2'>{t("features",{what:"Sans Order"})}</Typography>
+            <Typography variant='h2' component='h2'>{t("features",{what:"SansOrder"})}</Typography>
           </Box>
           <Grid container spacing={4} justifyContent='center'>
             <Grid item xs={12} sm={6}>
               <Box mb={4} textAlign={{xs:'left',sm:'center'}} display='flex' justifyContent='center' flexDirection='column'>
                 <Image src={'/static/Website.png'} sx={{maxWidth:120,ml:'auto',mr:'auto',mb:2}} />
-                <Typography variant='h4' component='h4' gutterBottom>Website</Typography>
-                <Typography>Tes</Typography>
+                <Typography variant='h4' component='h4' gutterBottom>{t('section4.website.title')}</Typography>
+                <Typography>{t('section4.website.desc')}</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Box mb={4} textAlign={{xs:'left',sm:'center'}} display='flex' justifyContent='center' flexDirection='column'>
                 <Image src={'/static/Online-Payment.png'} sx={{maxWidth:100,ml:'auto',mr:'auto',mb:2}} />
-                <Typography variant='h4' component='h4' gutterBottom>{t("section3.payment")}</Typography>
-                <Typography>{t("section3.payment",{context:"desc"})}</Typography>
+                <Typography variant='h4' component='h4' gutterBottom>{t("section4.payment.title")}</Typography>
+                <Typography>{t("section4.payment.desc")}</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Box mb={4} textAlign={{xs:'left',sm:'center'}} display='flex' justifyContent='center' flexDirection='column'>
                 <Image src={'/static/Invoice.png'} sx={{maxWidth:120,ml:'auto',mr:'auto',mb:2}} />
-                <Typography variant='h4' component='h4' gutterBottom>{t("section3.invoice.title")}</Typography>
-                <Typography>{t("section3.invoice.desc")}</Typography>
+                <Typography variant='h4' component='h4' gutterBottom>{t("section4.invoice.title")}</Typography>
+                <Typography>{t("section4.invoice.desc")}</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Box mb={4} textAlign={{xs:'left',sm:'center'}} display='flex' justifyContent='center' flexDirection='column'>
                 <Image src={'/static/Marketing.png'} sx={{maxWidth:120,ml:'auto',mr:'auto',mb:2}} />
-                <Typography variant='h4' component='h4' gutterBottom>Marketing</Typography>
-                <Typography>Tes</Typography>
+                <Typography variant='h4' component='h4' gutterBottom>{t('section4.report.title')}</Typography>
+                <Typography>{t('section4.report.desc')}</Typography>
               </Box>
             </Grid>
           </Grid>
@@ -173,7 +204,7 @@ export default function DashboardApp() {
             <Grid item xs={12} sm={6} md={3}>
               <Stack direction='row' spacing={2} alignItems='center' justifyContent={{xs:'flex-start',md:'center'}}>
                 <WhatsApp />
-                <Typography>+628123456789</Typography>
+                <Typography>+6281246400074</Typography>
               </Stack>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
@@ -189,9 +220,6 @@ export default function DashboardApp() {
               </Stack>
             </Grid>
           </Grid>
-          <Box mt={8} display='flex'  justifyContent='center'>
-            <Button>{tMenu("contact")}</Button>
-          </Box>
         </Section>
       </Dashboard>
     </Header>

@@ -107,31 +107,35 @@ export function TableTr({data}: {data: TransactionsDetail}) {
                 <Table>
                   <TableBody>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{tMenu("cashier")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset'}}>{data.cashier}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{tMenu("cashier")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{data.cashier}</TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("type")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color='default'>{data.type.toUpperCase()}</Label></TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{t("type")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}><Label variant='filled' color='default'>{data.type.toUpperCase()}</Label></TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("payment_method")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color='info'>{data.payment}</Label></TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{t("payment_method")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}><Label variant='filled' color='info'>{data.payment}</Label></TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("payment_status")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color={colorStatus[data.status]}>{data.status}</Label></TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{t("payment_status")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}><Label variant='filled' color={colorStatus[data.status]}>{data.status}</Label></TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("order_status")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color={colorOrderStatus[data.order_status]}>{data.order_status}</Label></TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{t("order_status")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}><Label variant='filled' color={colorOrderStatus[data.order_status]}>{data.order_status}</Label></TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell colSpan={2}><Typography>{tMenu("customer").toUpperCase()}</Typography></TableCell>
+                      <TableCell colSpan={2} sx={{pt:4,pl:0}}><Typography variant='h6' component='h6'>{tMenu("customer")}</Typography></TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{tCom("name")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset'}}>{data.user ? data.user.name : '-'}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{tCom("name")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{data.user ? data.user.name : '-'}</TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>Email</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{data?.user?.email ? data.user.email : '-'}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -268,7 +272,7 @@ export default function OutletTransactions({meta}: IPages){
       const url = await get<string>(`/toko/${toko_id}/${outlet_id}/export?filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}`);
       window.location.href=url;
     } catch(e: any) {
-      setNotif(e?.message||tCom("error.500"),true);
+      setNotif(e?.message||tCom("error_500"),true);
     } finally {
       setLoading(null)
     }

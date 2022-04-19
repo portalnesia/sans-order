@@ -1,25 +1,64 @@
 {
-  "features":"Fitur",
+  "features":"Fitur {{what}}",
   "section1":{
     "start":"Kembangkan Bisnis Anda",
     "with":"dengan",
     "desc":"Sistem Order Pintar untuk Bisnis Anda"
   },
   "section2":{
-    "start":"Bagaimana {{name}} Akan Membantu Anda?",
-    "desc1":"SansOrder merupakan sistem berbasis teknologi yang terdiri dari Sistem Pemesanan dan Sistem Kasir, yang dapat membantu para Pelaku Usaha untuk membangun dan mengembangkan usahanya.",
-    "desc2":"SansOrder didesain guna memudahkan Pelanggan dalam hal Pemesanan dan Pembayaran yang dapat dilakukan secara langsung di meja.",
-    "desc3":{
-      "title":"SansOrder tak hanya berfokus pada Sistem Pemesanan saja melainkan juga mencangkup Sistem Kasir, yang dimana sistem juga memudahkan para Pelaku Usaha untuk:",
-      "list":"Mengontrol Inventaris\nMenejemen Stok\nHPP\nTren pendapatan\nTren produk terlaris"
+    "title":"Apa itu SansOrder?",
+    "desc":"SansOrder merupakan sistem order dan sistem kasir berbasis online yang didesain khusus untuk membantu pelanggan dalam order maupun pembayaran melalui smartphone dengan memindai barcode yang telah disediakan di setiap meja. Untuk sistem kasir telah dilengkapi dengan manajemen stok, HPP, grafik pendapatan dan produk terlaris, dan lain-lain",
+    "target":{
+      "title":"Target SansOrder",
+      "list":[
+        "Membantu meningkatkan penjualan",
+        "Didesain untuk mengembangkan usaha",
+        "Efisiensi kerja kasir",
+        "Melayani pelanggan dengan lebih cepat"
+      ]
+    },
+    "services":{
+      "title":"Melayani Jenis Usaha",
+      "list":[
+        "Coffee Shop",
+        "Restoran",
+        "Restoran cepat saji"
+      ]
     }
   },
   "section3":{
-    "payment":"Pembayaran Online",
-    "payment_desc":"Permudah pengalaman berbelanja untuk Pelanggan Anda dengan memesan dan membayar tanpa harus meninggalkan mejanya.",
+    "start":"Mengapa {{name}}?",
+    "feature":{
+      "design":{
+        "title":"Desain yang Sederhana",
+        "desc":"Desain cantik dan sederhana untuk tim dan pelanggan Anda. Memudahkan untuk mengakses setiap fitur yang tersedia"
+      },
+      "report":{
+        "title":"Perlaporan Lanjutan",
+        "desc":"Temukan dan ekspor data pesanan, pelaporan penjualan Anda dari dasbor Anda"
+      },
+      "automatic":{
+        "title": "Sistem Otomatis",
+        "desc": "Nikmati kemudahan dalam hal pemesanan secara otomatis. Pelanggan anda tidak perlu repot untuk mengantri ke kasir."
+      }
+    }
+  },
+  "section4":{
+    "website":{
+      "title":"Website",
+      "desc":"Halaman website untuk pemesanan produk Anda"
+    },
+    "payment":{
+      "title":"Pembayaran Online",
+      "desc":"Permudah pengalaman berbelanja untuk Pelanggan Anda dengan memesan dan membayar tanpa harus meninggalkan mejanya."
+    },
     "invoice":{
       "title":"Tagihan & Struk Belanja",
       "desc":"Kirim tagihan dan struk pembelian secara otomatis kepada Pelanggan Anda."
+    },
+    "report":{
+      "title":"Laporan",
+      "desc":"Laporan penjualan termasuk keuntungan kotor keuntungan bersih dari total transaksi"
     }
   }
 }

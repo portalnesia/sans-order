@@ -42,3 +42,5 @@ version.js
 /public/*.js
 /ORIGINAL
 db.ts
+src/version.ts
+server.js

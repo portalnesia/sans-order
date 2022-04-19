@@ -2,9 +2,8 @@
   "no":"Tidak Ada",
   "no_what":"Tidak ada {{what}}",
   "back":"Kembali",
-  "error":{
-    "500":"Kesalahan"
-  },
+  "error":"Kesalahan",
+  "error_500":"Kesalahan",
   "theme":{
     "theme":"Tema",
     "dark":"Tema Gelap",
@@ -38,6 +37,13 @@
   "are_you_sure":"Apakah Anda Yakin?",
   "access_denied":"Akses Ditolak",
   "close":"Tutup",
-  "update_ctx":"Perbarui {what}",
-  "update":"Perbarui"
+  "update_ctx":"Perbarui {{what}}",
+  "update":"Perbarui",
+  "notification":{
+    "new":"Transaksi Baru",
+    "updated":"Anda mendapatkan transaksi baru #{{id}}",
+    "new_desc":"Transaksi Dibayarkan",
+    "updated_desc":"Transaksi #{{id}} sudah dibayar dengan metode pembayaran {{method}}"
+  },
+  "maintenance_subs":"Berlangganan secara online sedang dalam pemeliharaan. Silakan hubungi sales kami jika Anda ingin berlangganan paket"
 }

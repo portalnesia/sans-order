@@ -14,6 +14,8 @@ import SessionStorage from '@utils/session-storage'
 import Backdrop from '@comp/Backdrop'
 import {useTranslation,TFunction} from 'next-i18next'
 import cookie from 'js-cookie'
+import { useRouter } from 'next/router';
+import LocalStorage from '@utils/local-storage';
 
 const MENU_OPTIONS = (t: TFunction,user: IUser)=>([
   {
@@ -32,6 +34,7 @@ const MENU_OPTIONS = (t: TFunction,user: IUser)=>([
 
 export default function AccountPopover() {
   const {t} = useTranslation('menu');
+  const router = useRouter();
   const user = useSelector<State['user']>(s=>s.user);
   const dispatch = useDispatch();
   const anchorRef = useRef(null);
@@ -51,11 +54,21 @@ export default function AccountPopover() {
       await portalnesia.oauth.revokeToken();
       cookie.remove("_so_token_");
     } finally {
-      SessionStorage.remove('sans_token');
+      LocalStorage.remove('sans_token');
       dispatch({type:"CUSTOM",payload:{user:false}});
       setLoading(false);
     }
   },[])
+
+  const login = useCallback(()=>{
+    const code = portalnesia.oauth.generatePKCE();
+    LocalStorage.set('pkce',code);
+    const {pathname,query,asPath} = router;
+    SessionStorage.set('auth',{pathname,query,asPath})
+    const url = portalnesia.oauth.getAuthorizationUrl({code_challenge:code.code_challenge});
+    
+    window.location.href = url;
+  },[router.asPath,router.pathname,router.query])
 
   return (
     <>
@@ -132,7 +145,7 @@ export default function AccountPopover() {
               {t("logout")}
             </Button>
           ) : (
-            <Button fullWidth color="inherit" variant="outlined">
+            <Button onClick={login} fullWidth color="inherit" variant="outlined">
               {t("signin")}
             </Button>
           )}

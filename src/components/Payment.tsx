@@ -24,6 +24,7 @@ import {QrisIcon,BankIcon,EWalletIcon,DanaIcon,ShopeePayIcon,LinkAjaIcon,Redirec
 import { isMobile } from 'react-device-detect';
 import Recaptcha from './Recaptcha';
 import useSocket from '@utils/Socket';
+import Lottie from './Lottie';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -367,7 +368,11 @@ function Method({payment,onChange}: {payment:IForm['input']['payment'],onChange(
 
   const dt = useMemo(()=>{
     if(!data) return undefined;
-    const filter = data.filter(d=>d.is_enabled);
+    const filter = data.filter(d=>{
+
+      return d.is_enabled && ((process.env.NODE_ENV !== 'production' && d.channel_category !== 'EWALLET') || process.env.NODE_ENV==='production')
+    });
+    console.log(filter)
     const dt = filter.reduce((p,n)=>{
       (p[n.channel_category] = p[n.channel_category] || []).push(n);
       return p;
@@ -556,6 +561,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
   const [dSuccess,setDSuccess] = useState<ITransaction|null>(null);
 
   const captchaRef = useRef<Recaptcha>(null)
+  let timeout = useRef<NodeJS.Timeout|undefined>();
 
   const context = useContext(Context);
   const {cart,removeCart} = context;
@@ -589,9 +595,12 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
       const email = (!user ? input.email : user?.email) as string;
       const telephone = input.telephone && input.telephone.length > 0 ? `${input.tel.code}${input.telephone}` : undefined;
       const dt = {
+        type:'self_order',
         cash:total,
         items:cart.map(c=>({id:c.id,qty:c.qty})),
-        ...(!user ? {name,email,telephone} : {})
+        ...(!user ? {name,email,telephone} : {}),
+        payment:input.payment,
+        metadata:input.metadata
       }
       const recaptcha = await captchaRef.current?.execute();
       const response = await post<PaymentResult>(`/toko/${toko_id}/${outlet_id}/transactions`,{...dt,recaptcha});
@@ -614,18 +623,42 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
       }
       setMenu(r);
     } catch(e: any) {
-      setNotif(e?.message||tCom("error.500"),true);
+      setNotif(e?.message||tCom("error_500"),true);
     } finally {
       setLoading(null)
     }
-  },[post,toko_id,outlet_id,removeCart,input,cart,total,user,setNotif,t])
+  },[post,toko_id,outlet_id,removeCart,input,cart,total,user,setNotif,tCom])
+
+  const handleSimulation = useCallback(async()=>{
+    if(process.env.NODE_ENV === 'production') return;
+    if(!menu) return;
+
+    setLoading('simulation')
+    try {
+      const recaptcha = await captchaRef.current?.execute();
+      await post(`/toko/${toko_id}/${outlet_id}/transactions/${menu.id}/simulation`,{recaptcha});
+
+    } catch(e: any) {
+      setNotif(e?.message||tCom("error_500"),true);
+    } finally {
+      setLoading(null)
+    }
+
+  },[menu,post,toko_id,outlet_id])
+
+  const handleCloseDSuccess=useCallback(()=>{
+    if(timeout.current) {
+      clearTimeout(timeout.current);
+      timeout.current=undefined;
+    }
+    setDSuccess(null)
+  },[])
 
   useEffect(()=>{
     if(!open) {
       setInput(defaultInput)
       setMenu(null);
       setLoading(null);
-
     }
   },[open])
 
@@ -634,9 +667,11 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
       if(menu && menu.id === dt.id) {
         setDSuccess(dt);
         onClose();
+        timeout.current = setTimeout(()=>{
+          router.push(`/transactions/${dt.id}`);
+        },10000)
       }
     }
-
     socket?.on('toko transactions',handleOnTransactions);
 
     return ()=>{
@@ -727,9 +762,47 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
               <Button type='submit' disabled={loading!==null} loading={loading==='submit'} icon='submit'>{t("pay")}</Button>
             </DialogActions>
           )}
+          {(menu !== null && process.env.NODE_ENV!=='production') && (
+            <DialogActions>
+              <Button onClick={handleSimulation} disabled={loading!==null} loading={loading==='simulation'} icon='submit'>Simulate</Button>
+            </DialogActions>
+          )}
         </form>
       </Dialog>
-      
+      <Dialog open={dSuccess!==null} handleClose={handleCloseDSuccess}>
+        <DialogContent>
+          <Box display='flex' justifyContent={'center'} alignItems='center'><Lottie animation='payment-success' sx={{width:250}} /></Box>
+          <Box mt={2} textAlign='center'>
+            <Typography variant='h5' component='h5'>{t("success.title")}</Typography>
+            <Typography>{t("success.description")}</Typography>
+          </Box>
+          <Divider sx={{my:2}} />
+          <Box>
+            <Table>
+              <TableBody>
+                <TableRow sx={{borderBottom:'unset'}}>
+                  <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${t("id",{what:tMenu("transactions")})}`}</TableCell>
+                  <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${dSuccess?.id}`}</TableCell>
+                </TableRow>
+                <TableRow sx={{borderBottom:'unset'}}>
+                  <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${t("payment_method")}`}</TableCell>
+                  <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${dSuccess?.payment === 'VIRTUAL_ACCOUNT' ? "BANK TRANSFER" : dSuccess?.payment}`}</TableCell>
+                </TableRow>
+                <TableRow sx={{borderBottom:'unset'}}>
+                  <TableCell sx={{borderBottom:'unset',py:0.5}}>{t("name")}</TableCell>
+                  <TableCell sx={{borderBottom:'unset',py:0.5}}>{dSuccess?.user?.name}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </Box>
+          <Box mt={4}>
+            <Typography variant='caption'>{t("success.redirect")}</Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button text color='inherit' onClick={handleCloseDSuccess}>{tCom('close')}</Button>
+        </DialogActions>
+      </Dialog>
       <Backdrop open={loading==='submit'} />
       <Recaptcha ref={captchaRef} />
     </>

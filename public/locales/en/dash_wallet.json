@@ -14,5 +14,12 @@
   "custom":"Custom",
   "from":"From",
   "to":"To",
-  "date":"Date"
+  "date":"Date",
+  "fees":"Platform Fees",
+  "total":"{{what}} Total",
+  "withdraw":"Withdraw",
+  "not_enough_balance":"Insufficient balance to withdraw!",
+  "amount":"Amount",
+  "error_min":"Minimum withdrawal amount, IDR 50.000",
+  "error_max":"Maximum withdrawal amount after adding platform fee, {{amount}}"
 }

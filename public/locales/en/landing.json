@@ -1,25 +1,64 @@
 {
-  "features":"Features",
+  "features":"{{what}} Features",
   "section1":{
     "start":"Grow Your Business",
     "with":"with",
     "desc":"Smart Order System for Your Business"
   },
   "section2":{
-    "start":"How {{name}} Will Help You?",
-    "desc1":"SansOrder is a technology-based system consisting of an Ordering System and a Cashier System, which can help Entrepreneur to build and develop their business.",
-    "desc2":"SansOrder is designed to make it easier for Customers in terms of Orders and Payments that can be made directly at the table.",
-    "desc3":{
-      "title":"SansOrder does not only focus on the Ordering System but also includes the Cashier System, where the system also makes it easier for Entrepreneur to:",
-      "list":"Controlling Inventory\nStock Management\nHPP\nRevenue trends\nBest selling product trends"
+    "title":"What is SansOrder?",
+    "desc":"SansOrder is an online-based order and cashier system specifically designed to assist customers in ordering and paying via smartphone by scanning the barcode provided at each table. The cashier system has been equipped with stock management, COGS, revenue charts and best-selling products, and others",
+    "target":{
+      "title":"SansOrder Goals",
+      "list":[
+        "Help increase sales",
+        "Designed to grow your business",
+        "Cashier work efficiency",
+        "Serve customers faster"
+      ]
+    },
+    "services":{
+      "title":"Serving Types of Business",
+      "list":[
+        "Coffee Shop",
+        "Restaurant",
+        "Fast food restaurant"
+      ]
     }
   },
   "section3":{
-    "payment":"Online Payment",
-    "payment_desc":"Simplify the shopping experience for your Customers by ordering and paying without ever leaving the table.",
+    "start":"Why {{name}}?",
+    "feature":{
+      "design":{
+        "title":"Simple by Design",
+        "desc":"Beautiful and simple design for your team and customers. Makes it easy to access every available feature"
+      },
+      "report":{
+        "title":"Advanced Reporting",
+        "desc":"Find and export your order data, sales reporting from your dashboard"
+      },
+      "automatic":{
+        "title":"Automatic System",
+        "desc":"Enjoy the convenience of automatic ordering. Your customers don't have to bother waiting in line at the cashier"
+      }
+    }
+  },
+  "section4":{
+    "website":{
+      "title":"Website",
+      "desc":"Website page for ordering your product"
+    },
+    "payment":{
+      "title":"Online Payment",
+      "desc":"Simplify the shopping experience for your Customers by ordering and paying without ever leaving the table."
+    },
     "invoice":{
       "title":"Invoice & E-Receipt",
       "desc":"Send invoices and e-receipts automatically to your Customers."
+    },
+    "report":{
+      "title":"Report",
+      "desc":"Sales report including gross profit net profit of total transactions"
     }
   }
 }

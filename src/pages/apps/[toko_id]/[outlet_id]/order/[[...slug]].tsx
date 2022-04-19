@@ -32,6 +32,7 @@ import handlePrint from '@utils/print';
 import ExpandMore from '@comp/ExpandMore';
 import Label from '@comp/Label';
 import { KeyedMutator } from 'swr';
+import useSocket from '@utils/Socket';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -115,7 +116,7 @@ function DialogPay({items,total,open,onClose,captchaRef,id,onSuccess,table_numbe
 
   const handlePay=React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
-    if(cash < total) return setNotif(tCom("error.500"),true);
+    if(cash < total) return setNotif(tCom("error_500"),true);
     setLoading(true)
     const url = id ? `/toko/${toko_id}/${outlet_id}/transactions/${id}/pay` : `/toko/${toko_id}/${outlet_id}/transactions`;
     try {
@@ -131,7 +132,7 @@ function DialogPay({items,total,open,onClose,captchaRef,id,onSuccess,table_numbe
       if(onSuccess) onSuccess(d);
       handleClose();
     } catch(e: any) {
-      setNotif(e?.message||tCom("error.500"),true);
+      setNotif(e?.message||tCom("error_500"),true);
     } finally {
       setLoading(false);
     }
@@ -505,7 +506,7 @@ function Menu({data,disabled,captchaRef,mutate}: IMenu) {
           </MenuItem>
         )}
         {(!['FINISHED','CANCELED'].includes(data.order_status)) && (
-          <MenuItem key='menu-1' disabled={loading!==null||!!disabled} sx={{ color: 'text.secondary',py:1 }} onClick={()=>{setEdit(true),setOpen(false)}}>
+          <MenuItem key='menu-1' disabled={loading!==null||!!disabled||data.status!=='PAID'} sx={{ color: 'text.secondary',py:1 }} onClick={()=>{setEdit(true),setOpen(false)}}>
             <ListItemIcon>
               <Iconify icon="icon-park-outline:transaction-order" width={24} height={24} />
             </ListItemIcon>
@@ -669,6 +670,7 @@ function OutletSelfOrder({captchaRef}: {captchaRef: PayProps['captchaRef']}) {
   const {t:tCom} = useTranslation('common');
   const router = useRouter();
   const [dPay,setDPay] = React.useState(false);
+  const socket = useSocket();
   const {toko_id,outlet_id} = router.query;
   const {page,rowsPerPage,...pagination} = usePagination(true);
   const {data,error,mutate} = useSWR<ResponsePagination<ITransactaion>>(`/toko/${toko_id}/${outlet_id}/transactions/pending?page=${page}&per_page=${rowsPerPage}`);
@@ -697,6 +699,18 @@ function OutletSelfOrder({captchaRef}: {captchaRef: PayProps['captchaRef']}) {
     setSearchVal("")
     setSearch(undefined);
   },[])
+
+  React.useEffect(()=>{
+    function onTransactions() {
+      mutate();
+    }
+    socket?.on('toko transactions',onTransactions);
+    socket?.on('toko cashier',onTransactions);
+    return ()=>{
+      socket?.off('toko transactions',onTransactions)
+      socket?.off('toko cashier',onTransactions)
+    }
+  },[socket,mutate])
 
   return (
     <>

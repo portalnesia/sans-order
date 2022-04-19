@@ -25,5 +25,23 @@
     "ewallet":{
       "redirect":"Mengarahkan Anda ke halaman checkout {{what}} dalam beberapa saat…"
     }
-  }
+  },
+  "success":{
+    "title":"Pembayaran Berhasil",
+    "description":"Kami telah menerima pembayaran Anda.",
+    "redirect":"Anda akan diarahkan ke halaman transaksi dalam beberapa saat..."
+  },
+  "operational_hour":"Jam Operasional",
+  "hour":"Jam",
+  "day":"Hari",
+  "sunday":"Minggu",
+  "monday":"Senin",
+  "tuesday":"Selasa",
+  "wednesday":"Rabu",
+  "thursday":"Kamis",
+  "friday":"Jumat",
+  "saturday":"Sabtu",
+  "busy":"Tutup Sementara",
+  "close":"Tutup",
+  "open":"Buka"
 }

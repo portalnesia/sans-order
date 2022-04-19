@@ -40,7 +40,7 @@ type IOutlet = {
 }
 
 type IQuery = {
-    name:'check_toko'|'check_outlet',
+    name:'check_toko'|'check_outlet'|'check_transactions',
     outlet?: IOutlet,
     translation?: string|string[]
 }
@@ -76,6 +76,9 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
             
             if(!toko) return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
             const isOwner = toko[0].userid == userid;
+            //return {props:{err:1818} as unknown as P}
+            //if((dt.onlyAdmin||dt.onlyMyToko||dt.onlyOwner) && toko?.[0]?.online !== null) return {props:{err:1818} as unknown as P}
+
             if(dt.onlyOwner) {
               if(!isOwner) return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
             } else if(dt.onlyMyToko && !isOwner) {
@@ -126,6 +129,24 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
             }
           }
 
+          async function checkTransactions(dt: IOutlet = {},translation?:string|string[]): Promise<GetServerSidePropsResult<P>> {
+            const slug = ctx.params?.slug;
+            if(typeof slug !== 'string') return db.redirect();
+            const check = await db.get(process.env.DB_TR_TABLE as string,"id=? AND (type='self_order' OR type='withdraw')",{limit:1},[slug]);
+            if(!check) return db.redirect();
+
+            if(check?.type === 'withdraw' && check?.userid != userid) return db.redirect();
+
+            return {
+              props :{
+                meta:{
+                  slug: check?.id
+                },
+                ...(await getTranslation(translation,ctx.locale))
+              } as unknown as P
+            }
+          }
+
           if(!callback) return {props};
           if(typeof callback === 'object') {
             //console.log(userid,props.req.cookies)
@@ -135,7 +156,9 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
             if(callback.name === 'check_outlet') {
               return await checkOutlet(callback.outlet,callback.translation)
             }
-
+            if(callback.name === 'check_transactions') {
+              return await checkTransactions(callback.outlet,callback.translation)
+            }
             return {props}
           }
           const result = await callback({store,redirect:db.redirect,checkToko,checkOutlet,getTranslation,...ctx})

@@ -15,6 +15,7 @@ import {Circular} from '@comp/Loading'
 import Label from '@comp/Label'
 import Iconify from '@comp/Iconify'
 import ExpandMore from '@comp/ExpandMore';
+import useNotification from '@utils/notification';
 
 export const getStaticProps = staticProps({translation:'subcribe'});
 
@@ -82,9 +83,14 @@ function PricingSection({item}: SectionProps) {
   const {t} = useTranslation('subcribe');
   const {t:tCom} = useTranslation('common');
   const [expand,setExpand] = React.useState(false)
+  const setNotif = useNotification();
   const {price,disscount,metadata:{id,qty}} = item
   const packages = React.useMemo(()=>PACKAGES.find(p=>p.id === id),[id])
   const fitur = React.useMemo(()=>FEATURES(t,tCom),[t,tCom])
+
+  const onSubs = React.useCallback(()=>{
+    setNotif(tCom("maintenance_subs"),'info')
+  },[tCom])
 
   if(!packages) return null;
   const {name,features,recommend}=packages;
@@ -181,7 +187,7 @@ function PricingSection({item}: SectionProps) {
         <CardContent>
           <CardActions>
             <Box flex="1 1 0">
-              <Button size='large' sx={{display:'flex',flexGrow:1,width:'100%'}}>{t("subcribe")}</Button>
+              <Button size='large' sx={{display:'flex',flexGrow:1,width:'100%'}} onClick={onSubs}>{t("subcribe")}</Button>
             </Box>
           </CardActions>
         </CardContent>

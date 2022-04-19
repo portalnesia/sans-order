@@ -1,0 +1,13 @@
+{
+  "month":"Bulan Ini",
+  "week":"Minggu ini",
+  "today":"Hari ini",
+  "custom":"Kustom",
+  "from":"Dari",
+  "to":"Sampai",
+  "income":"Pendapatan",
+  "transactions":"Transaksi",
+  "best_seller":"Terlaris",
+  "chart":"Grafik {{what}}",
+  "sold":"Terjual"
+}

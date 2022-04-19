@@ -15,5 +15,17 @@
   },
   "wallet":"Wallet",
   "pending":"Pending",
-  "active":"Active"
+  "active":"Active",
+  "busy":"Temporary Closed",
+  "busy_desc":"When enabled, your customers will not be able to order via the website even during operating hours",
+  "operational_hour":"Operational Hours",
+  "hour":"Hours",
+  "day":"Days",
+  "sunday":"Sunday",
+  "monday":"Monday",
+  "tuesday":"Tuesday",
+  "wednesday":"Wednesday",
+  "thursday":"Thursday",
+  "friday":"Friday",
+  "saturday":"Saturday"
 }

@@ -13,5 +13,8 @@
   "disscount":"Disscount",
   "price":"Price",
   "payment_method":"Payment Method",
-  "date":"Date"
+  "date":"Date",
+  "id":"{{what}} ID",
+  "receipt":"E-Receipt",
+  "customer":"Customer"
 }

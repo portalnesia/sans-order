@@ -1,5 +1,6 @@
 // material
 import { Box, Grid, Container, Typography,CardContent,Card, Divider,IconButton, Stack, useMediaQuery, MenuItem, ListItemText,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress } from '@mui/material';
+import {Close} from '@mui/icons-material'
 import {DatePicker,LocalizationProvider} from '@mui/lab'
 import AdapterDayjs from '@mui/lab/AdapterDayjs'
 // components
@@ -114,6 +115,8 @@ export default function WalletPage({meta}: IPages) {
   const [searchVal,setSearchVal] = React.useState('');
   const {page,rowsPerPage,...pagination} = usePagination(true);
   const [search,setSearch] = React.useState<WalletHistory[]|undefined>(undefined);
+  const [wd,setWD] = React.useState(50000);
+  const [dWd,setDWd] = React.useState(false)
   const is543 = useMediaQuery('(min-width:543px)')
   const {data,error,mutate} = useSWR<{account?: IForm,balance:number}>(`/toko/${toko_id}/wallet`,{shouldRetryOnError:(e)=>{
     return e?.httpStatus !== 404;
@@ -129,6 +132,14 @@ export default function WalletPage({meta}: IPages) {
     if(historyOri) return historyOri.data;
     return [];
   },[historyOri,search])
+
+  const errorWD = React.useMemo(()=>{
+    let err: string[]=[];
+    const max = (data?.balance||0)-6500;
+    if(wd < 50000) err.push(t('error_min'));
+    if(wd > (max)) err.push(t('error_max',{amount:`IDR ${numberFormat(`${max}`)}`}))
+    return err;
+  },[data,wd,t])
 
   const handleSearch = React.useCallback((e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement>)=>{
     const s = e.target.value;
@@ -194,11 +205,29 @@ export default function WalletPage({meta}: IPages) {
       setNotif(tCom("saved"),false);
       mutate();
     } catch(e: any) {
-      setNotif(e?.message||tCom("error.500"),true);
+      setNotif(e?.message||tCom("error_500"),true);
     } finally {
       setLoading(null)
     }
   },[post,setNotif,input,tCom])
+
+  const handleWithdraw = React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
+    if(e?.preventDefault) e.preventDefault();
+    if(!data) return;
+    setLoading('withdraw')
+    try {
+      if(data.balance - 6500 < wd) throw new Error(t('not_enough_balance'));
+
+      //const recaptcha = await captchaRef.current?.execute();
+      //await post(`/toko/${toko_id}/wallet/withdraw`,{amount:wd,recaptcha});
+
+      setWD(50000)
+    } catch(e: any) {
+      setNotif(e?.message||tCom("error_500"),true);
+    } finally {
+      setLoading(null)
+    }
+  },[data,wd,t,tCom]);
 
   React.useEffect(()=>{
     if(data && data.account) {
@@ -276,7 +305,7 @@ export default function WalletPage({meta}: IPages) {
                         </Grid>
                       </Grid>
                       <Stack direction='row' sx={{mt:4}} alignItems="center" justifyContent='space-between'>
-                        <Button disabled={loading!==null} color='error'>Tes</Button>
+                        <Button disabled={loading!==null||!data} color='error' onClick={()=>setDWd(true)}>{t('withdraw')}</Button>
                         <Button type='submit' disabled={loading!==null} loading={loading==='submit'} icon='submit'>{tCom('save')}</Button>
                       </Stack>
                     </form>
@@ -340,7 +369,8 @@ export default function WalletPage({meta}: IPages) {
                             <TableCell align='left'>ID</TableCell>
                             <TableCell align='left'>Outlet</TableCell>
                             <TableCell align='left'>{t("date")}</TableCell>
-                            <TableCell align='right'>Total</TableCell>
+                            <TableCell align='right'>{t("total",{what:tMenu('transactions')})}</TableCell>
+                            <TableCell align='right'>{t("fees")}</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -362,6 +392,7 @@ export default function WalletPage({meta}: IPages) {
                               <TableCell align='left'>{'toko' in d.toko ? d.toko.name : `-`}</TableCell>
                               <TableCell align='left'>{getDayJs(d.timestamp).pn_format('full')}</TableCell>
                               <TableCell align='right'>{`IDR ${numberFormat(`${d.total}`)}`}</TableCell>
+                              <TableCell align='right'>{`IDR ${numberFormat(`${d.platform_fees}`)}`}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -375,6 +406,42 @@ export default function WalletPage({meta}: IPages) {
                     />
                   </Card>
                 </Box>
+                <Dialog open={dWd} handleClose={()=>setDWd(false)}>
+                  <form onSubmit={handleWithdraw}>
+                    <DialogTitle>
+                      <Stack direction='row' justifyContent={'space-between'} alignItems='center' spacing={2}>
+                        <Typography variant='h6'>{t("withdraw")}</Typography>
+                        <IconButton onClick={()=>setDWd(false)}><Close /></IconButton>
+                      </Stack>
+                    </DialogTitle>
+                    <DialogContent dividers>
+                      <Grid container spacing={4}>
+                        <Grid item xs={12}>
+                          <TextField
+                            label={t('amount')}
+                            value={wd}
+                            onChange={(e)=>setWD(Number(e.target.value))}
+                            type='number'
+                            inputProps={{min:50000,max:((data?.balance||0)-6500)}}
+                            fullWidth
+                            autoFocus
+                            error={errorWD.length > 0}
+                            helperText={
+                              <>
+                                {errorWD.map((t,i)=>(
+                                  <Typography variant='caption' component='p' key={`error-${i}`}>{t}</Typography>
+                                ))}
+                              </>
+                            }
+                          />
+                        </Grid>
+                      </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button icon='submit' loading={loading==='withdraw'} disabled={loading!==null||errorWD.length > 0} type='submit'>Submit</Button>
+                    </DialogActions>
+                  </form>
+                </Dialog>
               </>
             )}
           </Container>

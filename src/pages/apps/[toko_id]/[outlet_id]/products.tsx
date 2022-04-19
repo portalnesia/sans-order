@@ -327,7 +327,7 @@ export default function OutletProducts({meta}: IPages) {
       setNotif(tCom("saved"),false)
       setDCreate(false)
     } catch(e: any) {
-      setNotif(e?.message||tCom("error.500"),true);
+      setNotif(e?.message||tCom("error_500"),true);
     } finally {
       setLoading(false);
     }
@@ -343,7 +343,7 @@ export default function OutletProducts({meta}: IPages) {
       setNotif(tCom("saved"),false)
       setDEdit(null)
     } catch(e: any) {
-      setNotif(e?.message||tCom("error.500"),true);
+      setNotif(e?.message||tCom("error_500"),true);
     } finally {
       setLoading(false);
     }
@@ -358,7 +358,7 @@ export default function OutletProducts({meta}: IPages) {
         setNotif(tCom("deleted"),false)
         setDDelete(null)
       } catch(e: any) {
-        setNotif(e?.message||tCom("error.500"),true);
+        setNotif(e?.message||tCom("error_500"),true);
       } finally {
         setLoading(false);
       }
@@ -375,7 +375,7 @@ export default function OutletProducts({meta}: IPages) {
         setNotif(tCom("General.deleted"),false)
         setDDelete(null)
       } catch(e: any) {
-        setNotif(e?.message||tCom("error.500"),true);
+        setNotif(e?.message||tCom("error_500"),true);
       } finally {
         setLoading(false);
       }

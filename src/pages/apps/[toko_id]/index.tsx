@@ -118,7 +118,7 @@ export default function DashboardApp({meta}: IPages) {
       setNotif(tCom("save"),false);
       router.push('/apps');
     } catch(e: any) {
-      setNotif(e?.message||tCom("error.500"),true);
+      setNotif(e?.message||tCom("error_500"),true);
     }
   },[del,setNotif,toko,tCom])
 
@@ -132,7 +132,7 @@ export default function DashboardApp({meta}: IPages) {
       setDEdit(false);
       setNotif(tCom("saved"),false);
     } catch(e: any) {
-      setNotif(e?.message||tCom("error.500"),true);
+      setNotif(e?.message||tCom("error_500"),true);
     } finally {
       setLoading(null)
     }
@@ -151,7 +151,7 @@ export default function DashboardApp({meta}: IPages) {
       setDOutlet(false);
       setNotif(tCom("saved"),false);
     } catch(e: any) {
-      setNotif(e?.message||tCom("error.500"),true);
+      setNotif(e?.message||tCom("error_500"),true);
     } finally {
       setLoading(null)
     }

@@ -4,13 +4,13 @@ import {Download} from '@mui/icons-material'
 import {DatePicker,LocalizationProvider} from '@mui/lab'
 import AdapterDayjs from '@mui/lab/AdapterDayjs'
 // components
-import Header from '@comp/Header';
+import Header,{withForbidden} from '@comp/Header';
 import Dashboard from '@layout/dashboard/index'
 import React from 'react'
 import Button from '@comp/Button'
 import {IPages} from '@type/index'
 import wrapper from '@redux/store'
-import {useTranslations} from 'next-intl';
+import {useTranslation,TFunction} from 'next-i18next';
 import useSWR from '@utils/swr';
 import { useRouter } from 'next/router';
 import Iconify from '@comp/Iconify';
@@ -26,7 +26,7 @@ import Backdrop from '@comp/Backdrop';
 if(typeof Highcharts === 'object') {
   HighchartsExporting(Highcharts)
 }
-export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true}})
+export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true},translation:'dash_index'})
 
 type IIncome = {
   income:number,
@@ -54,13 +54,13 @@ type IResponse = {
 const Div = styled('div')(()=>({}))
 
 const cardData=['income_today','tr_today','income','tr'] as ('income_today'|'tr_today'|'income'|'tr')[];
-const cardDataTitleFunction=(locale: string,t: ReturnType<typeof useTranslations>,query: {filter:string,from:null|number,to:null|number})=>{
-  const filters = query.filter === 'custom' && query.from && query.to ? `${getDayJs(query.from).locale(locale).pn_format('fulldate')} - ${getDayJs(query.to).locale(locale).pn_format('fulldate')}` : query.filter === 'weekly' ? t("Transaction.week") : t("Transaction.month");
-  return [`${t("Dashboard.income")} ${t("Transaction.today")}`,`${t("Menu.transactions")} ${t("Transaction.today")}`,`${t("Dashboard.income")} ${filters}`,`${t("Menu.transactions")} ${filters}`]
+const cardDataTitleFunction=(locale: string,t: TFunction,query: {filter:string,from:null|number,to:null|number})=>{
+  const filters = query.filter === 'custom' && query.from && query.to ? `${getDayJs(query.from).locale(locale).pn_format('fulldate')} - ${getDayJs(query.to).locale(locale).pn_format('fulldate')}` : query.filter === 'weekly' ? t("week") : t("month");
+  return [`${t("income")} ${t("today")}`,`${t("transactions")} ${t("today")}`,`${t("income")} ${filters}`,`${t("transactions")} ${filters}`]
 }
 const cardSx: SxProps<Theme>[] = [
   {
-    backgroundColor:(t)=>t.palette.mode==='dark' ? t.palette.primary.dark : t.palette.primary.lighter
+    backgroundColor:(t)=>t.palette.mode==='dark' ? t.palette.primary.dark : t.palette.primary.lighter,
   },{
     backgroundColor:(t)=>t.palette.mode==='dark' ? t.palette.info.dark : t.palette.info.lighter
   },{
@@ -71,7 +71,10 @@ const cardSx: SxProps<Theme>[] = [
 ]
 
 export default function OutletIndex({meta}: IPages) {
-  const t = useTranslations();
+  const {t} = useTranslation('dash_index');
+  const {t:tMenu} = useTranslation('menu');
+  const {t:tCom} = useTranslation('common');
+
   const router = useRouter();
   const locale = router.locale||'en'
   const {toko_id,outlet_id} = router.query;
@@ -100,11 +103,11 @@ export default function OutletIndex({meta}: IPages) {
   const title=React.useMemo(()=>{
     let title: string
     if(query.filter === 'custom' && query.from && query.to) {
-      title = `${getDayJs(query.from).locale(locale).pn_format('fulldate')} - ${getDayJs(query.to).locale(locale).pn_format('fulldate')}`;
+      title = `${getDayJs(query.from).locale(locale).utc(true).pn_format('fulldate')} - ${getDayJs(query.to).utc(true).locale(locale).pn_format('fulldate')}`;
     } else if(query.filter === 'weekly') {
-      title = `${getDayJs().subtract(1,'week').locale(locale).pn_format('fulldate')} - ${getDayJs().locale(locale).pn_format('fulldate')}`;
+      title = `${getDayJs().subtract(1,'week').utc(true).locale(locale).pn_format('fulldate')} - ${getDayJs().utc(true).locale(locale).pn_format('fulldate')}`;
     } else {
-      title = `${getDayJs().subtract(1,'month').locale(locale).pn_format('fulldate')} - ${getDayJs().locale(locale).pn_format('fulldate')}`;
+      title = `${getDayJs().subtract(1,'month').utc(true).locale(locale).pn_format('fulldate')} - ${getDayJs().utc(true).locale(locale).pn_format('fulldate')}`;
     }
     return title;
   },[query,locale])
@@ -184,13 +187,13 @@ export default function OutletIndex({meta}: IPages) {
         setLoading(false);
         const a = document.createElement('a');
         a.href = urll;
-        a.download = `${type === 'item' ? `${t("Menu.products")} ${t("Dashboard.best_seller")}` : `${t("Dashboard.chart",{what:t("Dashboard.income")})}`} ${title}.png`;
+        a.download = `${type === 'item' ? `${tMenu("products")} ${t("best_seller")}` : `${t("chart",{what:t("income")})}`} ${title}.png`;
         a.click();
         a.remove();
         o.revokeObjectURL(e)
       }
     }
-  },[title,t])
+  },[title,t,tMenu])
 
   React.useEffect(()=>{
     Highcharts.setOptions({
@@ -275,13 +278,13 @@ export default function OutletIndex({meta}: IPages) {
         ...option,
         series: [{
           data: graph?.transactions?.total,
-          name: t("Dashboard.income"),
+          name: t("income"),
           pointStart: graph?.transactions?.time[0],
           pointInterval: 864e5
         }],
         title:{
           ...option.title,
-          text:`${t("Dashboard.chart",{what:t("Dashboard.income")})} ${title}`
+          text:`${t("chart",{what:t("income")})} ${title}`
         },
         xAxis: {
           type: "datetime",
@@ -327,7 +330,7 @@ export default function OutletIndex({meta}: IPages) {
         },
         title:{
           ...option.title,
-          text:`${t("Menu.products")} ${t("Dashboard.best_seller")} ${title}`
+          text:`${tMenu("products")} ${t("best_seller")} ${title}`
         },
         xAxis: {
           type: 'category',
@@ -345,12 +348,12 @@ export default function OutletIndex({meta}: IPages) {
         },
         series:[{
           data: graph?.items,
-          name: t("Menu.products")
+          name: tMenu("products")
         }],
         tooltip: {
           shared: true,
           headerFormat: '<span style="font-weight: 600;font-size:16px;color:#000">{point.point.name}</span><br/>',
-          pointFormat: `<span style="margin-right:2px;font-size:15px;color:#000">${t("Dashboard.sold")}: <b>{point.y}</b></span><br/>`
+          pointFormat: `<span style="margin-right:2px;font-size:15px;color:#000">${t("sold")}: <b>{point.y}</b></span><br/>`
         },
         plotOptions: {
           series: {
@@ -383,7 +386,7 @@ export default function OutletIndex({meta}: IPages) {
     } else {
       setItChart(null);
     }
-  },[graph,iData,title,t,meta])
+  },[graph,iData,title,t,tMenu,meta])
 
   React.useEffect(()=>{
     if(data) {
@@ -399,18 +402,18 @@ export default function OutletIndex({meta}: IPages) {
           <Container>
             <Box pb={2} mb={5}>
               <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
-                <Typography variant="h3" component='h3'>{t("Menu.home")}</Typography>
+                <Typography variant="h3" component='h3'>{tMenu("home")}</Typography>
                 <Button startIcon={<Iconify icon='akar-icons:filter' />} text color='inherit' ref={filterRef} onClick={()=>setDFilter(true)}>Filter</Button>
               </Stack>
               <MenuPopover open={dFilter} onClose={()=>setDFilter(false)} anchorEl={filterRef.current} paperSx={{py:1,width:250}}>
                 <MenuItem sx={{ color: 'text.secondary',py:1 }} onClick={handleChange('monthly')} selected={query.filter==='monthly'}>
-                  <ListItemText primary={t("Transaction.month")} />
+                  <ListItemText primary={t("month")} />
                 </MenuItem>
                 <MenuItem sx={{ color: 'text.secondary',py:1 }}  onClick={handleChange('weekly')} selected={query.filter==='weekly'}>
-                  <ListItemText primary={t("Transaction.week")} />
+                  <ListItemText primary={t("week")} />
                 </MenuItem>
                 <MenuItem sx={{ color: 'text.secondary',py:1 }} ref={rangeRef} onClick={()=>setDRange(true)} selected={query.filter==='custom'}>
-                  <ListItemText primary={t("Transaction.custom")} />
+                  <ListItemText primary={t("custom")} />
                 </MenuItem>
               </MenuPopover>
               <MenuPopover open={dRange} onClose={()=>setDRange(false)} anchorEl={rangeRef.current} paperSx={{py:2,px:2,width:{xs:'90%',sm:200,md:300,lg:400}}}>
@@ -418,7 +421,7 @@ export default function OutletIndex({meta}: IPages) {
                   <Grid item xs={12}>
                     <DatePicker
                       disableFuture
-                      label={t("Transaction.from")}
+                      label={t("from")}
                       inputFormat="DD MMMM YYYY"
                       value={range.from}
                       onChange={handleDateChange('from')}
@@ -428,7 +431,7 @@ export default function OutletIndex({meta}: IPages) {
                   <Grid item xs={12}>
                     <DatePicker
                       disableFuture
-                      label={t("Transaction.to")}
+                      label={t("to")}
                       inputFormat="DD MMMM YYYY"
                       value={range.to}
                       onChange={handleDateChange('to')}
@@ -436,7 +439,7 @@ export default function OutletIndex({meta}: IPages) {
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <Button onClick={handleChange('custom')}>{t("General.save")}</Button>
+                    <Button onClick={handleChange('custom')}>{tCom("save")}</Button>
                   </Grid>
                 </Grid>
               </MenuPopover>
@@ -450,10 +453,10 @@ export default function OutletIndex({meta}: IPages) {
             ) : (
               <>
                 <Box mb={8}>
-                  <Grid container spacing={4} justifyContent="center">
+                  <Grid container spacing={4} justifyContent="center" flexGrow={1}>
                     {cardData.map((dt,i)=>(
                       <Grid item key={dt} xs={6} lg={3}>
-                        <Card sx={cardSx[i]}>
+                        <Card sx={{...cardSx[i],height:'100%',display:'flex',flexGrow:1,justifyContent:'center',alignItems:'center'}}>
                           <CardContent>
                             <Div sx={{textAlign:'center'}}>
                               <Typography variant='h4' component='h4'>{iData?.[dt] != 0 ? (['income','income_today'].includes(dt) ? `${`IDR ${numberFormat(`${iData?.[dt]}`)}`}` : iData[dt]) : (['income','income_today'].includes(dt) ? 'IDR 0' : '0')}</Typography>
@@ -471,13 +474,13 @@ export default function OutletIndex({meta}: IPages) {
                       <Card>
                         <CardContent>
                           <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
-                            <Typography variant='h4' component='h4'>{`${t("Menu.products")} ${t("Dashboard.best_seller")} ${title}`}</Typography>
+                            <Typography variant='h4' component='h4'>{`${tMenu("products")} ${t("best_seller")} ${title}`}</Typography>
                             <Tooltip title="Download"><IconButton onClick={handleDownload('item')}><Download /></IconButton></Tooltip>
                           </Stack>
                           <Div sx={{mt:2}} id='items-chart'>
                             {trChart === null ? (
                               <Div sx={{display:'flex',justifyContent:'center',my:3}}>
-                                <Typography variant='h6' component='h6'>{t("General.no",{what:"Data"})}</Typography>
+                                <Typography variant='h6' component='h6'>{tCom("no_what",{what:"Data"})}</Typography>
                               </Div>
                             ) : <HighchartsReact ref={itHighchart} highcharts={Highcharts} options={itChart} />}
                           </Div>
@@ -488,13 +491,13 @@ export default function OutletIndex({meta}: IPages) {
                       <Card>
                         <CardContent>
                           <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
-                            <Typography variant='h4' component='h4'>{`${t("Dashboard.chart",{what:t("Dashboard.income")})} ${title}`}</Typography>
+                            <Typography variant='h4' component='h4'>{`${t("chart",{what:t("income")})} ${title}`}</Typography>
                             <Tooltip title="Download"><IconButton onClick={handleDownload('transaction')}><Download /></IconButton></Tooltip>
                           </Stack>
                           <Div sx={{mt:2}} id='transactions-chart'>
                             {trChart === null ? (
                               <Div sx={{display:'flex',justifyContent:'center',my:3}}>
-                                <Typography variant='h6' component='h6'>{t("General.no",{what:"Data"})}</Typography>
+                                <Typography variant='h6' component='h6'>{tCom("no_what",{what:"Data"})}</Typography>
                               </Div>
                             ) : <HighchartsReact ref={trHighchart} highcharts={Highcharts} options={trChart} />}
                           </Div>

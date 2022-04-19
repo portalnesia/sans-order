@@ -14,5 +14,12 @@
   "custom":"Kustom",
   "from":"Dari",
   "to":"Sampai",
-  "date":"Tanggal"
+  "date":"Tanggal",
+  "fees":"Biaya Platform",
+  "total":"Total {{what}}",
+  "withdraw":"Tarik Saldo",
+  "not_enough_balance":"Saldo tidak mencukupi untuk ditarik!",
+  "amount":"Jumlah",
+  "error_min":"Jumlah minimal penarikan, IDR 50.000",
+  "error_max":"Jumlah maksimal penarikan setelah ditambah biaya platform, {{amount}}"
 }
