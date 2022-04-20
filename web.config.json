@@ -1,4 +1,11 @@
 {
   "title":"SansOrder",
-  "description":"Smart Order System"
+  "description":"Smart Order System",
+  "logo":"/icon/android-icon-48x48.png",
+  "contact":{
+    "whatsapp":"+6281246400074",
+    "email":"support@portalnesia.com",
+    "instagram":"@portalnesia.id",
+    "twitter":"@Portalnesia1"
+  }
 }

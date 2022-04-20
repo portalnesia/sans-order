@@ -28,7 +28,7 @@ export default function MerchantIndex({meta}: IPages) {
 
 	return (
 		<Header title={meta?.title} desc={meta?.description} image={meta?.image}>
-			<Dashboard withDashboard={false}>
+			<Dashboard withDashboard={false} withNavbar={false} logoProps={{href:!toko ? false : `merchant/${toko?.slug}`}}>
 				<Container maxWidth='lg' sx={{mt:2}}>
 					{!toko && !errToko ? (
 						<Box display='flex' position='absolute' top='40%' left='50%' alignItems={'center'} justifyContent='center'><Circular /></Box>

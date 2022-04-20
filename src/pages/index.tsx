@@ -9,7 +9,7 @@ import Image from '@comp/Image'
 import {staticProps} from '@redux/store'
 import {useTranslation} from 'next-i18next';
 import Lottie from '@comp/Lottie';
-import Button from '@comp/Button';
+import config from '@root/web.config.json'
 
 export const getStaticProps = staticProps({translation:'landing'});
 
@@ -66,7 +66,7 @@ export default function DashboardApp() {
         <Section color='primary.lighter' isFirst sx={{color:'#000',backgroundImage:'url("/static/illustrations/cashier.webp")',backgroundRepeat:'no-repeat',backgroundPositionY:{xs:'top',md:'center'},backgroundPositionX:'right',backgroundBlendMode:'multiply',backgroundSize:{xs:'contain',md:'auto'}}}>
           <Box>
             <Typography variant="h2" component='h2'>{t("section1.start")}</Typography>
-            <Typography variant='h2' component='h2'> {t("section1.with")} <Typography component='span' variant='h2' sx={{color:'primary.main'}}>SansOrder</Typography></Typography>
+            <Typography variant='h2' component='h2'> {t("section1.with")} <Typography component='span' variant='h2' sx={{color:'primary.main'}}>{config.title}</Typography></Typography>
           </Box>
           <Box mt={5}>
             <Typography>{t("section1.desc")}</Typography>
@@ -106,7 +106,7 @@ export default function DashboardApp() {
         </Section>
         <Section sx={{alignItems:'flex-start'}}>
           <Box mb={10} textAlign='center'>
-            <Typography variant='h2' component='h2'>{t("section3.start",{name:"SansOrder"})}</Typography>
+            <Typography variant='h2' component='h2'>{t("section3.start",{name:config.title})}</Typography>
           </Box>
           <Grid container spacing={4} justifyContent='center'>
             <Grid item xs={12} lg={10}>
@@ -157,7 +157,7 @@ export default function DashboardApp() {
         </Section>
         <Section>
           <Box mb={4} textAlign='center'>
-            <Typography variant='h2' component='h2'>{t("features",{what:"SansOrder"})}</Typography>
+            <Typography variant='h2' component='h2'>{t("features",{what:config.title})}</Typography>
           </Box>
           <Grid container spacing={4} justifyContent='center'>
             <Grid item xs={12} sm={6}>
@@ -198,25 +198,25 @@ export default function DashboardApp() {
             <Grid item xs={12} sm={6} md={3}>
               <Stack direction='row' spacing={2} alignItems='center' justifyContent={{xs:'flex-start',md:'center'}}>
                 <Email />
-                <Typography>support@portalnesia.com</Typography>
+                <Typography>{config.contact.email}</Typography>
               </Stack>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <Stack direction='row' spacing={2} alignItems='center' justifyContent={{xs:'flex-start',md:'center'}}>
                 <WhatsApp />
-                <Typography>+6281246400074</Typography>
+                <Typography>{config.contact.whatsapp}</Typography>
               </Stack>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <Stack direction='row' spacing={2} alignItems='center' justifyContent={{xs:'flex-start',md:'center'}}>
                 <Instagram />
-                <Typography>@portalnesia.id</Typography>
+                <Typography>{config.contact.instagram}</Typography>
               </Stack>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <Stack direction='row' spacing={2} alignItems='center' justifyContent={{xs:'flex-start',md:'center'}}>
                 <Twitter />
-                <Typography>@Portalnesia1</Typography>
+                <Typography>{config.contact.twitter}</Typography>
               </Stack>
             </Grid>
           </Grid>

@@ -762,7 +762,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
               <Button type='submit' disabled={loading!==null} loading={loading==='submit'} icon='submit'>{t("pay")}</Button>
             </DialogActions>
           )}
-          {(menu !== null && process.env.NEXT_PUBLIC_PN_EN==='test') && (
+          {(menu !== null && process.env.NEXT_PUBLIC_PN_ENV==='test') && (
             <DialogActions>
               <Button onClick={handleSimulation} disabled={loading!==null} loading={loading==='simulation'} icon='submit'>Simulate</Button>
             </DialogActions>

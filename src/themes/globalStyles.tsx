@@ -150,6 +150,9 @@ export default function GlobalStyles() {
         '.underline-heading':{
           paddingBottom:'.1rem',
           borderBottom:`1px solid ${theme.palette.divider}`
+        },
+        '.grecaptcha-badge':{
+          visibility:'hidden'
         }
       }}
     />

@@ -6,6 +6,7 @@ import Footer from './Footer'
 import loadingImage from '@comp/loading-image-base64'
 import useInitData from '@utils/init-data'
 import { useSelector } from '@redux/store';
+import { LogoProps } from '@comp/Logo';
 
 
 
@@ -39,9 +40,10 @@ export interface HomeProps {
   withPadding?:boolean
   withNavbar?:boolean,
   withDashboard?: boolean
+  logoProps?: LogoProps
 }
 
-export default function HomeLayout({children,withPadding=true,withNavbar=true,withDashboard=true}: HomeProps) {
+export default function HomeLayout({children,withPadding=true,withNavbar=true,withDashboard=true,logoProps}: HomeProps) {
   const loaded = useSelector<boolean>(s=>s.ready);
   const {adBlock} = useInitData();
   
@@ -52,7 +54,7 @@ export default function HomeLayout({children,withPadding=true,withNavbar=true,wi
           <img style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)'}} onContextMenu={(e)=>e.preventDefault()} className='load-child no-drag' alt='Portalnesia' src={loadingImage} />
         </div>
       )}
-      <HomeNavbar withNavbar={withNavbar} withDashboard={withDashboard} />
+      <HomeNavbar logoProps={logoProps} withNavbar={withNavbar} withDashboard={withDashboard} />
       <MainStyle withPadding={withPadding}>
         {children}
       </MainStyle>

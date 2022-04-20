@@ -133,7 +133,7 @@ export default function MerchantOutlet({meta}: IPages) {
     <Header title={meta?.title} desc={meta?.description} image={meta?.image}>
       <Socket />
       <CartContext>
-        <Dashboard withDashboard={false}>
+        <Dashboard withDashboard={false} withNavbar={false} logoProps={{href:!outlet ? false : `merchant/${outlet.toko.slug}/${outlet.id}`}}>
           <Container maxWidth='lg' sx={{mt:2}}>
             {!outlet && !errOutlet ? (
               <Box display='flex' position='absolute' top='40%' left='50%' alignItems={'center'} justifyContent='center'><Circular /></Box>

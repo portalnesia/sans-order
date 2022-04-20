@@ -3,6 +3,7 @@ import Logo from '@comp/Logo'
 import {MenuItem,FooterRoot,FooterMenu,FooterChild} from '../dashboard/DashboardSidebar'
 import footerMenu from '@layout/FooterConfig'
 import { useTranslation } from 'next-i18next'
+import Link from 'next/link'
 
 const BoxStyle = styled(Box)(({theme})=>({
   backgroundColor:theme.palette.background.default,
@@ -48,7 +49,7 @@ export default function Footer() {
             <FooterMenu>
               <FooterChild sx={{textAlign:'center'}}>
                 <span {...({"xmlns:cc":"http://creativecommons.org/ns#","xmlns:dct":"http://purl.org/dc/terms/"})}>
-                  <a property="dct:title" rel="cc:attributionURL" href={process.env.NEXT_PUBLIC_URL}>SansOrder</a> © {(new Date().getFullYear())}
+                  <Link href='/' passHref><a property="dct:title" rel="cc:attributionURL">SansOrder</a></Link> © {(new Date().getFullYear())}
                 </span>
               </FooterChild>
               <FooterChild sx={{textAlign:'center'}}><span>Powered by <a target='_blank' href={process.env.PORTAL_URL}>Portalnesia</a></span></FooterChild>

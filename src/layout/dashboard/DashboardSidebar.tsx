@@ -185,7 +185,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title,
           <FooterMenu>
             <FooterChild>
               <span {...({"xmlns:cc":"http://creativecommons.org/ns#","xmlns:dct":"http://purl.org/dc/terms/"})}>
-                <a property="dct:title" rel="cc:attributionURL" href={process.env.NEXT_PUBLIC_URL}>SansOrder</a> © {(new Date().getFullYear())}
+                <Link href='/' passHref><a property="dct:title" rel="cc:attributionURL">SansOrder</a></Link> © {(new Date().getFullYear())}
               </span>
             </FooterChild>
             <FooterChild><span>Powered by <a target='_blank' href={process.env.PORTAL_URL}>Portalnesia</a></span></FooterChild>

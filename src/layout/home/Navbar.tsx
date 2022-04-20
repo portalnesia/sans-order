@@ -6,7 +6,7 @@ import Button from '@comp/Button'
 // components
 import Link from 'next/link'
 import Iconify from '../../components/Iconify';
-import Logo from '@comp/Logo'
+import Logo, { LogoProps } from '@comp/Logo'
 import navbarConfig from './NavbarConfig'
 import MenuPopover from '@comp/MenuPopover';
 import {useRouter} from 'next/router'
@@ -16,6 +16,7 @@ import useResponsive from '@comp/useResponsive'
 import {useSelector,State} from '@redux/index'
 import AccountPopover from '../dashboard/AccountPopover';
 import ThemePopover from '../ThemePopover'
+import config from '@root/web.config.json'
 
 const APPBAR_MOBILE = 64;
 const APPBAR_DESKTOP = 92;
@@ -199,10 +200,11 @@ function MobileNavItem({items}: MobileNavItemProps) {
 
 export interface HomeNavbarProps {
   withNavbar?: boolean,
-  withDashboard?: boolean
+  withDashboard?: boolean,
+  logoProps?: LogoProps
 }
 
-export default function HomeNavbar({withNavbar=true,withDashboard=true} : HomeNavbarProps) {
+export default function HomeNavbar({withNavbar=true,withDashboard=true,logoProps} : HomeNavbarProps) {
   const router = useRouter();
   const {t} = useTranslation('menu');
   const user = useSelector<State['user']>(s=>s.user);
@@ -217,12 +219,16 @@ export default function HomeNavbar({withNavbar=true,withDashboard=true} : HomeNa
     <RootStyle>
       <ToolbarStyle>
         <Box sx={{ pr:1,display: 'inline-flex' }}>
-          <Logo />
+          <Logo {...logoProps} />
         </Box>
         <Box sx={{display:textHidden1||textHidden2 ? 'none':'block'}}>
-          <Link href='/' passHref><a style={{textDecoration:'none'}}>
-            <Typography variant='h4' sx={{color: 'text.primary'}}>SansOrder</Typography>
-          </a></Link>
+          {typeof logoProps?.href === 'boolean' ? (
+            <Typography variant='h4' sx={{color: 'text.primary'}}>{config.title}</Typography>
+          ) : (
+            <Link href={`/${logoProps?.href||''}`} passHref><a style={{textDecoration:'none'}}>
+              <Typography variant='h4' sx={{color: 'text.primary'}}>{config.title}</Typography>
+            </a></Link>
+          )}
         </Box>
         <Box sx={{ flexGrow: 1 }} />
         {withNavbar ? (
