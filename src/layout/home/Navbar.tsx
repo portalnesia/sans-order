@@ -209,7 +209,7 @@ export default function HomeNavbar({withNavbar=true,withDashboard=true} : HomeNa
   const menuDesktop = useResponsive('up',722)
   const menuMobile = useResponsive('down',722);
   const textHidden1 = useResponsive('between',722,765);
-  const textHidden2 = useResponsive('down',370);
+  const textHidden2 = useResponsive('down',455);
 
   const navbar = useMemo(()=>navbarConfig(t),[t]);
 
