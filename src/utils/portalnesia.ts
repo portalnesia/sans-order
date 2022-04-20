@@ -12,13 +12,13 @@ const portalnesia = new Portalnesia({
   client_id:process.env.NEXT_PUBLIC_CLIENT_ID as string,
   redirect_uri:`${process.env.NEXT_PUBLIC_URL}/apps`,
   scope,
-  ...(process.env.NODE_ENV === 'production' ? {} : {
+  ...(process.env.NODE_ENV !== 'production' ? {
     axios:{
       headers:{
         'X-Debug':process.env.NEXT_PUBLIC_X_DEBUG as string,
       }
     }
-  })
+  } : {})
 })
 
 export async function getAxiosCache() {
