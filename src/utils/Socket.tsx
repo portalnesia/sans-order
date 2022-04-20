@@ -44,7 +44,7 @@ export function Socket({dashboard=false,onRef}: {dashboard?:boolean,onRef?:(ref:
 
   useEffect(()=>{
     if(typeof toko_id==='string' && typeof outlet_id==='string' && socket) {
-      socket.emit('toko outlet',{toko_id,outlet_id:Number(outlet_id),dashboard,debug:process.env.NODE_ENV!=='production'})
+      socket.emit('toko outlet',{toko_id,outlet_id:Number(outlet_id),dashboard,debug:process.env.NEXT_PUBLIC_PN_ENV==='test'})
     }
   },[toko_id,outlet_id,socket,dashboard])
 
