@@ -42,7 +42,7 @@ function TransactionsPage({meta,socket}: IPages & {socket?: ISocket}) {
     }
     
     if(data?.toko) {
-      socket?.emit('toko outlet',{toko_id:data.toko.toko.slug,outlet_id:data.toko.id,debug:process.env.NODE_ENV!=='production'})
+      socket?.emit('toko outlet',{toko_id:data.toko.toko.slug,outlet_id:data.toko.id,debug:process.env.NEXT_PUBLIC_PN_ENV==='test'})
     }
     socket?.on('toko transactions',handleTransactionChange)
     socket?.on('toko transactions orderstatus',handleTransactionChange)

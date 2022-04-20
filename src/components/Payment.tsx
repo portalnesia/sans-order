@@ -370,7 +370,7 @@ function Method({payment,onChange}: {payment:IForm['input']['payment'],onChange(
     if(!data) return undefined;
     const filter = data.filter(d=>{
 
-      return d.is_enabled && ((process.env.NODE_ENV !== 'production' && d.channel_category !== 'EWALLET') || process.env.NODE_ENV==='production')
+      return d.is_enabled && ((process.env.NEXT_PUBLIC_PN_ENV === 'test' && d.channel_category !== 'EWALLET') || process.env.NEXT_PUBLIC_PN_ENV!=='test')
     });
     console.log(filter)
     const dt = filter.reduce((p,n)=>{
@@ -630,7 +630,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
   },[post,toko_id,outlet_id,removeCart,input,cart,total,user,setNotif,tCom])
 
   const handleSimulation = useCallback(async()=>{
-    if(process.env.NODE_ENV === 'production') return;
+    if(process.env.NEXT_PUBLIC_PN_ENV !== 'test') return;
     if(!menu) return;
 
     setLoading('simulation')
@@ -762,7 +762,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
               <Button type='submit' disabled={loading!==null} loading={loading==='submit'} icon='submit'>{t("pay")}</Button>
             </DialogActions>
           )}
-          {(menu !== null && process.env.NODE_ENV!=='production') && (
+          {(menu !== null && process.env.NEXT_PUBLIC_PN_EN==='test') && (
             <DialogActions>
               <Button onClick={handleSimulation} disabled={loading!==null} loading={loading==='simulation'} icon='submit'>Simulate</Button>
             </DialogActions>

@@ -12,7 +12,7 @@ const portalnesia = new Portalnesia({
   client_id:process.env.NEXT_PUBLIC_CLIENT_ID as string,
   redirect_uri:`${process.env.NEXT_PUBLIC_URL}/apps`,
   scope,
-  ...(process.env.NODE_ENV !== 'production' ? {
+  ...(process.env.NEXT_PUBLIC_PN_ENV === 'test' ? {
     axios:{
       headers:{
         'X-Debug':process.env.NEXT_PUBLIC_X_DEBUG as string,
