@@ -166,7 +166,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
 },[input])
 
   useEffect(()=>{
-    if(option.length === 0) {
+    if(option.length === 0 && !user) {
       get<Record<ITelephone['label'],ITelephone['code']>>(`/internal/list_telephone`)
       .then((res)=>{
         setLoadingList(false)
@@ -181,7 +181,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
         setLoadingList(false)
       })
     }
-  },[openList,option])
+  },[openList,option,user])
 
   return (
     <Box sx={{p:2}}>
@@ -224,7 +224,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
             </Grid>
             <Grid item xs={12}>
               <Grid container spacing={2}>
-                <Grid item xs={4}>
+                <Grid item xs={5}>
                   <Autocomplete
                     open={openList}
                     disableClearable
@@ -246,6 +246,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
                     onClose={() => {
                       setOpenList(false);
                     }}
+                    fullWidth
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -264,7 +265,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
                     )}
                   />
                 </Grid>
-                <Grid item xs={8}>
+                <Grid item xs={7}>
                   <TextField
                     fullWidth
                     label={t("telephone")}
