@@ -49,14 +49,14 @@ export function useAPI(useCache=true) {
   const adapter = useRef<AxiosAdapter>();
   const dispatch = useDispatch();
 
-  useEffect(()=>{
+  /*useEffect(()=>{
     if(useCache) {
       (async function(){
         const cache = await getAxiosCache();
         adapter.current = cache.adapter;
       })()
     }
-  },[useCache])
+  },[useCache])*/
 
   const catchError=useCallback((url: string,err: any)=>{
     if(err?.response?.status) {
