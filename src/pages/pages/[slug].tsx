@@ -5,17 +5,10 @@ import wrapper from '@redux/store'
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'
-import {numberFormat,truncate,clean} from '@portalnesia/utils'
+import {truncate,clean} from '@portalnesia/utils'
 import React from 'react'
-import Image from '@comp/Image'
-import {staticProps} from '@redux/store'
 import {useTranslation} from 'next-i18next';
 import Button from '@comp/Button'
-import useSWR from '@utils/swr'
-import {Circular} from '@comp/Loading'
-import Label from '@comp/Label'
-import Iconify from '@comp/Iconify'
-import nodePath from 'path'
 import fs from 'fs'
 import axios from 'axios'
 import splitMarkdown from '@utils/split-markdown';
@@ -34,7 +27,8 @@ async function getData(slug: string) {
       const github = await fs.promises.readFile(`./data/pages/${slug}.md`);
       return github.toString();
     } else {
-      const github = `https://raw.githubusercontent.com/portalnesia/sans-order/main/data/pages/${slug}.md`
+      const branch = process.env.NEXT_PUBLIC_PN_ENV === 'production' ? 'main' : 'dev';
+      const github = `https://raw.githubusercontent.com/portalnesia/sans-order/${branch}/data/pages/${slug}.md`
       const r = await axios.get<string>(github);
       return r?.data||undefined;
     }
@@ -57,7 +51,7 @@ type IPages = {
 }
 
 export const getServerSideProps = wrapper(async({params,locale,redirect,getTranslation})=>{
-  const slug = params?.slug
+  const slug = params?.slug as string|string[]|undefined
   const bhs = locale||'id';
   if(typeof slug !== 'string') return redirect();
   try {

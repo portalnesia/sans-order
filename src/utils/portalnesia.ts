@@ -3,6 +3,7 @@ import {useSelector,State,useDispatch} from '@redux/index'
 import { useCallback, useRef,useEffect } from 'react';
 import type {AxiosAdapter,AxiosError} from 'axios'
 import {setupCache} from 'axios-cache-adapter'
+import axios,{AxiosRequestConfig} from 'axios';
 
 export const scope = ['toko','toko-write','payment','payment-write','basic','email','openid','files','files-write'] as IScopes[];
 
@@ -67,13 +68,18 @@ export function useAPI(useCache=true) {
     }
   },[dispatch])
 
-  const get=useCallback(<D=any,B=any>(url: string,opt?: any)=>{
-    return portalnesia.request<D,B>('get',url,undefined,{...opt,...(useCache ? {adapter:adapter.current} : {}),headers:{"X-App-Token":appToken||""}},{force:true,autoRefreshToken:true})
+  const fetcher = useCallback(async(url: string)=>{
+    const d = await axios.get(url);
+    return d.data;
+  },[])
+
+  const get=useCallback(<D=any>(url: string,opt?: AxiosRequestConfig)=>{
+    return portalnesia.request<D>('get',url,undefined,{...opt,...(useCache ? {adapter:adapter.current} : {}),headers:{"X-App-Token":appToken||""}},{force:true,autoRefreshToken:true})
   },[appToken])
 
-  const del=useCallback(<D=any,B=any>(url: string,opt?: any)=>{
+  const del=useCallback(<D=any>(url: string,opt?: AxiosRequestConfig)=>{
     try {
-      const response = portalnesia.request<D,B>('delete',url,undefined,{...opt,headers:{"X-App-Token":appToken||""}},{force:true,autoRefreshToken:true})
+      const response = portalnesia.request<D>('delete',url,undefined,{...opt,headers:{"X-App-Token":appToken||""}},{force:true,autoRefreshToken:true})
       return response;
     } catch(e) {
       catchError(url,e)
@@ -81,7 +87,7 @@ export function useAPI(useCache=true) {
     }
   },[appToken,catchError])
 
-  const post=useCallback(<D=any,B=any>(url: string,body?:B,opt?: any)=>{
+  const post=useCallback(<D=any,B=any>(url: string,body?:B,opt?: AxiosRequestConfig)=>{
     try {
       const response = portalnesia.request<D,B>('post',url,body,{...opt,headers:{"X-App-Token":appToken||""}},{force:true,autoRefreshToken:true})
       return response;
@@ -91,7 +97,7 @@ export function useAPI(useCache=true) {
     }
   },[appToken,catchError])
 
-  const put=useCallback(<D=any,B=any>(url: string,body?:B,opt?: any)=>{
+  const put=useCallback(<D=any,B=any>(url: string,body?:B,opt?: AxiosRequestConfig)=>{
     try {
       const response = portalnesia.request<D,B>('put',url,body,{...opt,headers:{"X-App-Token":appToken||""}},{force:true,autoRefreshToken:true})
       return response;
@@ -101,7 +107,7 @@ export function useAPI(useCache=true) {
     }
   },[appToken,catchError])
 
-  const upload = useCallback(<D=any>(url: string,body?:FormData,opt?: any)=>{
+  const upload = useCallback(<D=any>(url: string,body?:FormData,opt?: AxiosRequestConfig)=>{
     try {
       const response = portalnesia.upload<D>(url,body,{...opt,headers:{"X-App-Token":appToken||""}})
       return response;
@@ -111,7 +117,7 @@ export function useAPI(useCache=true) {
     }
   },[appToken,catchError])
 
-  return {get,post,put,del,upload}
+  return {get,post,put,del,upload,fetcher}
 }
 
 export default portalnesia;

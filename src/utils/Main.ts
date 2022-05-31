@@ -57,11 +57,11 @@ export function getDayList(t: TFunction) {
   return days;
 }
 
-export function isOutletOpen(outlet?: Pick<IOutlet,'business_hour'|'self_order'|'busy'>) {
+export function isOutletOpen(outlet?: Pick<IOutlet,'business_hour'|'self_order'|'busy'>,socketOpen?:boolean) {
   let status = {
     enabled:false,
     opened:false,
-    busy:!!outlet?.busy
+    busy:!!outlet?.busy && !!socketOpen
   }
   if(!outlet) return status;
   if(outlet.business_hour) {
@@ -74,7 +74,7 @@ export function isOutletOpen(outlet?: Pick<IOutlet,'business_hour'|'self_order'|
       if(isBetweenHour(h1,h2)) status.opened = true;
     }
   }
-  status.enabled = (!outlet.busy && outlet.self_order && status.opened)
+  status.enabled = (!outlet.busy && !!socketOpen && outlet.self_order && status.opened)
   return status;
 }
 

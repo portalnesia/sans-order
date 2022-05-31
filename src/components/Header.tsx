@@ -10,6 +10,8 @@ import { useAPI } from '@utils/portalnesia';
 import { useTranslation } from 'next-i18next';
 import useNotification from '@utils/notification';
 import {Portal} from '@mui/material'
+import { AxiosRequestConfig } from 'axios';
+import { uuid } from '@portalnesia/utils';
 // material
 // ----------------------------------------------------------------------
 
@@ -32,17 +34,38 @@ export default function Header({ children, title,desc }: HeaderProps) {
   const {post} = useAPI();
   const setNotif = useNotification();
 
-  const feedbackSubmit=React.useCallback((type:string,addi?:Record<string,any>)=>async(dt: IData)=>{
+  const feedbackSubmit=React.useCallback((type:string,addi:Record<string,any>={})=>async(dt: IData)=>{
     setLoading('feedback')
     try {
-      const {text,sysInfo,screenshot} = dt
+      const {text,sysInfo: sysInfoObj,screenshot} = dt
       const recaptcha = await captchaRef.current?.execute();
-      const data = {
-        text,
-        ...(screenshot ? {image:screenshot} : {}),
-        sysInfo: JSON.stringify(sysInfo),
-        ...addi,
-        recaptcha
+      let data: Record<string,any> | FormData,opt: AxiosRequestConfig|undefined=undefined;
+      const sysInfo = JSON.stringify(sysInfoObj)
+      if(screenshot) {
+        opt = {
+          headers:{
+            'Content-Type':'multipart/form-data'
+          }
+        }
+        const res = await fetch(screenshot);
+        data = new FormData();
+        const blob = await res.blob();
+        const file = new File([blob],`${uuid('report')}.png`);
+        data.append('image',file);
+        data.append('recaptcha',recaptcha);
+        data.append('text',text);
+        data.append('sysInfo',sysInfo);
+        Object.keys(addi).map(k=>{
+          data.append(k,addi[k])
+        })
+      } else {
+        data = {
+          text,
+          ...(screenshot ? {image:screenshot} : {}),
+          sysInfo,
+          ...addi,
+          recaptcha
+        }
       }
       await post(`/internal/report`,data);
       dispatch({type:"CUSTOM",payload:{report:null}});

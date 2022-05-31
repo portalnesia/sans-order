@@ -1,0 +1,36 @@
+faq:
+  - q: Apa itu SansOrder?
+    a: |
+      SansOrder merupakan...
+  - q: Bagaimana cara memesan di SansOrder?
+    a: |
+      - Buka website merchant dengan memindai kode QR yang tersedia
+      - Pilih menu yang ingin dipesan.
+      - Buka keranjang belanja (pojok kanan bawah) untuk melakukan pembayaran
+      - Konfirmasi pesanan Anda, kemudian klik `BAYAR`
+      - Isi biodata dan pilih metode pembayaran yang tersedia
+      - Lakukan pembayaran sesuai instruksi yang tertera pada layar
+      - Setelah pembayaran selesai, pesanan Anda akan kami teruskan kepada merchant
+      - Pemesanan selesai, Anda hanya perlu menunggu pesanan Anda diantarkan 
+  - q: Metode pembayaran apa saja yang didukung oleh SansOrder?
+    a: |
+      Kami terus berupaya untuk mendukung berbagai metode pembayaran yang tersedia.
+
+      Hingga saat ini, Kami mendukung metode pembayaran berikut*:
+
+      - Bank
+        - Bank Mandiri
+        - Bank BRI
+        - Bank BNI
+        - Bank Permata
+      - E-Wallet
+        - DANA
+        - LinkAja
+        - ShopeePay
+      - QRIS
+      - COD (Pembayaran langsung via kasir)*
+
+      \* Metode pembayaran pada tiap merchant bisa berbeda-beda, tergantung apakah merchant mengaktifkan metode pembayaran tersebut
+  - q: Bagaimana cara melakukan pembayaran menggunakan SansOrder?
+    a: |
+      Untuk cara pembayaran dapat Anda lihat lebih detail pada metode pembayaran masing-masing [disini](http://localhost:3001/help/payment).

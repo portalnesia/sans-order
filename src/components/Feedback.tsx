@@ -332,10 +332,10 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
     if (el && hightLightEl.indexOf(el.nodeName.toLocaleLowerCase()) > -1 || el && el?.classList.contains("MuiInputBase-root") || el && el?.classList.contains("MuiSelect-root") || el && el?.classList.contains("pn-sort")) {
         let rect = el.getBoundingClientRect();
         let rectInfo = {
-            sx: rect.left + (document.documentElement.scrollLeft + document.body.scrollLeft),
-            sy: rect.top + (document.documentElement.scrollTop + document.body.scrollTop),
-            width: rect.width,
-            height: rect.height
+          sx: rect.left + (document.documentElement.scrollLeft + document.body.scrollLeft),
+          sy: rect.top + (document.documentElement.scrollTop + document.body.scrollTop),
+          width: rect.width,
+          height: rect.height
         };
         return rectInfo;
     } else {
@@ -347,14 +347,14 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
     let rectInfo = this.inElement(e);
     if (rectInfo) {
       this.canvas.current.style.cursor = 'pointer';
-      //this.drawElementHelper(rectInfo);
+      this.drawElementHelper(rectInfo);
       this.hasHelper = true;
     } else {
       if (this.hasHelper) {
         this.hasHelper = false;
-        //this.initCanvas();
-        //this.drawHightlightBorder();
-        //this.drawHightlightArea()
+        this.initCanvas();
+        this.drawHightlightBorder();
+        this.drawHightlightArea()
       }
     }
   }
@@ -383,20 +383,20 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
   }
 
   drawElementHelper(info: any) {
-    //this.initCanvas();
+    this.initCanvas();
     let toolBarType = this.state.toolBarType;
     if (toolBarType == 'hightlight') {
       this.ctx.lineWidth = '5';
       this.ctx.strokeStyle = '#FEEA4E';
       this.ctx.rect(info.sx, info.sy, info.width, info.height);
       this.ctx.stroke();
-      //this.drawHightlightBorder();
-      //this.drawHightlightArea();
+      this.drawHightlightBorder();
+      this.drawHightlightArea();
       this.ctx.clearRect(info.sx, info.sy, info.width, info.height);
-      //this.sctx.clearRect(info.sx, info.sy, info.width, info.height);
+      this.sctx.clearRect(info.sx, info.sy, info.width, info.height);
     } else if (toolBarType == 'black') {
-      //this.drawHightlightBorder();
-      //this.drawHightlightArea();
+      this.drawHightlightBorder();
+      this.drawHightlightArea();
       this.ctx.fillStyle = 'rgba(0,0,0,.4)';
       this.ctx.fillRect(info.sx, info.sy, info.width, info.height);
     }
@@ -412,18 +412,18 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
             clientY = e.clientY + (document.documentElement.scrollTop + document.body.scrollTop),
             width = this.startX - clientX,
             height = this.startY - clientY;
-        //this.initCanvas();
-        //this.drawHightlightBorder();
+        this.initCanvas();
+        this.drawHightlightBorder();
         if (toolBarType == 'hightlight') {
             this.ctx.lineWidth = '5';
             this.ctx.strokeStyle = '#FEEA4E';
             this.ctx.rect(clientX, clientY, width, height);
             this.ctx.stroke();
-            //this.drawHightlightArea();
+            this.drawHightlightArea();
             this.ctx.clearRect(clientX, clientY, width, height);
             this.sctx.clearRect(clientX, clientY, width, height);
         } else if (toolBarType == 'black') {
-            //this.drawHightlightArea();
+            this.drawHightlightArea();
             this.ctx.fillStyle = 'rgba(0,0,0,.4)';
             this.ctx.fillRect(clientX, clientY, width, height);
         }
@@ -433,7 +433,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
   }
 
   windowResize() {
-    //this.calcHeight();
+    this.calcHeight();
   }
 
   addEventListener() {
@@ -448,14 +448,14 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
   }
   componentDidMount() {
       this.getSysInfo();
-      //this.calcHeight();
+      this.initCanvas(true);
       this.addEventListener();
       if (this.state.shotOpen) {
-          //this.shotScreen()
+        this.shotScreen()
       }
   }
 
-  calcHeight() {
+  calcHeight(initCanvas=true) {
     let docWidth = document.body.clientWidth,
         docHeight = document.body.clientHeight;
     let windowHeight = window.innerHeight;
@@ -467,9 +467,11 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
         docHeight: docHeight,
         winHeight: windowHeight,
     });
-    setTimeout(() => {
+    if(initCanvas) {
+      setTimeout(() => {
         this.initCanvas(true);
-    });
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -480,6 +482,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
   }
 
   initCanvas(init?: boolean) {
+    this.calcHeight(false);
     let canvas = this.canvas.current;
     let shadowCanvas = this.shadowCanvas.current;
     let docWidth = this.state.docWidth,
