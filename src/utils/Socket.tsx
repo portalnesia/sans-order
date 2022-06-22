@@ -57,9 +57,23 @@ export function Socket({dashboard=false,onRef}: {dashboard?:boolean,onRef?:(ref:
   return null;
 }
 //: React.FC<P & ({socket:ISocket})>
-export function withSocket<P extends object>(Component: React.ComponentType<P>): React.FC<P & ({socket:ISocket})> {
+
+/**
+ * Socket HOC Component
+ */
+export function withSocket<P extends object>(Component: React.ComponentType<P>,data?: {dashboard?:boolean}): React.FC<P & ({socket:ISocket|null})> {
   return (props: P)=>{
     const socket = useSocket();
+    const router = useRouter();
+    const {toko_id,outlet_id} = router.query;
+    const dashboard = !!data?.dashboard;
+
+    useEffect(()=>{
+      if(typeof toko_id==='string' && typeof outlet_id==='string' && socket) {
+        socket.emit('toko outlet',{toko_id,outlet_id:Number(outlet_id),dashboard,debug:process.env.NEXT_PUBLIC_PN_ENV==='test'})
+      }
+    },[toko_id,outlet_id,socket,dashboard])
+
     return <Component {...props as P} socket={socket} />
   }
 }

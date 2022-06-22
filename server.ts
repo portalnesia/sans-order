@@ -7,7 +7,7 @@ import {createProxyMiddleware} from 'http-proxy-middleware'
 const canvasProxy = require('html2canvas-proxy');
 
 const dev = process.env.NODE_ENV === 'development'
-const port = process.env.NODE_ENV === 'production' ? 3001 : 3333;
+const port = process.env.NODE_ENV === 'production' ? 3001 : 3503;
 const hostn = "localhost";
 
 const app = next({ dev })
@@ -32,6 +32,15 @@ app.prepare().then(()=>{
     policy: "strict-origin-when-cross-origin"
   }));
   server.use(helmet.xssFilter());
+
+  if(process.env.NODE_ENV !== 'production') {
+    server.get("/stagging/data/*",(req,res,next)=>{
+      const path = req.path.replace("/stagging/","");
+      res.sendFile(`./${path}`,()=>{
+        next();
+      });
+    })
+  }
 
   server.use(express.json());
   server.use(express.urlencoded({extended:true}));

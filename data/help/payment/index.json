@@ -1,0 +1,37 @@
+[
+  {
+    "key":"MANDIRI",
+    "title":"Bank Mandiri",
+    "link":"/bank-transfer/mandiri"
+  },
+  {
+    "key":"BNI",
+    "title":"Bank BNI",
+    "link":"/bank-transfer/bni"
+  },
+  {
+    "key":"BRI",
+    "title":"Bank BRI",
+    "link":"/bank-transfer/bri"
+  },
+  {
+    "key":"PERMATA",
+    "title":"Bank Permata",
+    "link":"/bank-transfer/permata"
+  },
+  {
+    "key":"EWALLET",
+    "title":"E-Wallet",
+    "link":"/ewallet"
+  },
+  {
+    "key":"QRIS",
+    "title":"QRIS",
+    "link":"/qris"
+  },
+  {
+    "key":"COD",
+    "title":"Cash on Delivery",
+    "link":"/cod"
+  }
+]
