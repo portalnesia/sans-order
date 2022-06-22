@@ -10,10 +10,11 @@ import {GetServerSidePropsContext,GetServerSidePropsResult,GetStaticPropsContext
 import { ParsedUrlQuery } from 'querystring'
 import {useDispatch as originalUseDispatch,useSelector as originalUseSelector} from 'react-redux'
 import {convertToPlaintext} from '@utils/marked'
-import { photoUrl } from '@utils/Main';
+import { getUserAccess, photoUrl } from '@utils/Main';
 import {serverSideTranslations} from 'next-i18next/serverSideTranslations'
 import nextI18nextConfig from '@rootnext-i18next.config';
 import { SSRConfig } from 'next-i18next';
+import { IUserAccess } from '@type/toko';
 
 export const useDispatch = ()=>originalUseDispatch<Dispatch<ActionType>>()
 export const useSelector = <D=State>(selector: (state: State)=>D)=>originalUseSelector<State,D>(selector)
@@ -33,10 +34,10 @@ export const makeStore = () => {
 export const wrapperRoot = createWrapper(makeStore);
 
 type IOutlet = {
-  onlyAdmin?: boolean,
   onlyOwner?: boolean,
   onlyMyToko?: boolean,
-  notfound?:boolean
+  notfound?:boolean,
+  onlyAccess?: IUserAccess[]
 }
 
 type IQuery = {
@@ -81,11 +82,14 @@ export default function wrapper<P=IPages>(callback?: Callback<P>|IQuery) {
 
             if(dt.onlyOwner) {
               if(!isOwner) return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
-            } else if(dt.onlyMyToko && !isOwner) {
+            } else if((dt.onlyMyToko || dt.onlyAccess) && !isOwner) {
               const users = await db.get('toko_users',{userid,toko_id:toko[0].toko_id,outlet_id:toko[0].id,pending:0},{limit:1});
               if(!users) return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
-
-              if(dt.onlyAdmin && !users.admin) return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
+              
+              if(dt.onlyAccess) {
+                const access = users?.access as IUserAccess[];
+                if(!getUserAccess(access,dt.onlyAccess)) return db.redirect<P>(!dt.notfound ? "/apps" : undefined);
+              }
             }
             
             return {

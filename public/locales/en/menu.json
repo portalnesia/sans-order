@@ -14,6 +14,7 @@
   "products":"Products",
   "cashier":"Cashier",
   "transactions":"Transactions",
+  "stock": "Stock",
   "order":"Order",
   "customer":"Customer",
   "terms_of_services":"Terms of Services",

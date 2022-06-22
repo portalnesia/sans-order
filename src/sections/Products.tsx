@@ -45,8 +45,8 @@ export default function Products({ items,maxWidth }: ProductsProps) {
       disscount: items.disscount,
       metadata: items.metadata
     }
-    if(type === 'add') addQty(item);
-    else if(type === 'remove') removeQty(item)
+    if(type === 'add') addQty({...item,disscount:0});
+    else if(type === 'remove') removeQty({...item,disscount:0})
   },[items,addQty,removeQty])
 
   const qty = useMemo(()=>{

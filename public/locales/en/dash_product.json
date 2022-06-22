@@ -1,5 +1,6 @@
 {
   "price":"Price",
+  "price_ctx": "{{what}} Price",
   "disscount":"Disscount",
   "stock":"Stock",
   "show_in_menu":"Show in Catalog",
@@ -8,5 +9,6 @@
   "active":"Active",
   "active_not":"Not Active",
   "selected_zero":"No selected",
-  "selected_other":"{{count}} selected"
+  "selected_other":"{{count}} selected",
+  "remaining_stock": "Remaining Stocks"
 }

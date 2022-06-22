@@ -27,6 +27,10 @@ const sidebarConfig = (t: TFunction)=>([
     path: `/transactions`,
     icon: getIcon('icon-park-outline:transaction')
   },{
+    title: t("stock"),
+    path: `/stocks`,
+    icon: getIcon('icon-park-outline:ad-product')
+  },{
     title: t("products"),
     path: `/products`,
     icon: getIcon('eva:shopping-bag-fill')

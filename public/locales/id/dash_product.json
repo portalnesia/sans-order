@@ -1,5 +1,6 @@
 {
   "price":"Harga",
+  "price_ctx": "Harga {{what}}",
   "disscount":"Diskon",
   "stock":"Stok",
   "show_in_menu":"Ditampilkan pada Katalog",
@@ -8,5 +9,6 @@
   "active":"Aktif",
   "active_not":"Tidak Aktif",
   "selected_zero":"Tidak ada yang dipilih",
-  "selected_other":"{{count}} dipilih"
+  "selected_other":"{{count}} dipilih",
+  "remaining_stock": "Sisa Stok"
 }

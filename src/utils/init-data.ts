@@ -1,5 +1,5 @@
 import {useState,useEffect} from 'react'
-import SessionStorage from "./local-storage";
+import LocalStorage from "./local-storage";
 import portalnesia from './portalnesia'
 import {TokenResponse} from '@portalnesia/portalnesia-js'
 import {useDispatch,State, useSelector} from '@redux/index'
@@ -12,20 +12,20 @@ import useDarkTheme from '@utils/useDarkTheme'
 
 async function initData() {
   try {
-    const savedToken = SessionStorage.get<TokenResponse>('sans_token');
+    const savedToken = LocalStorage.get<TokenResponse>('sans_token');
     if(savedToken) {
       let tokens = portalnesia.oauth.setToken(savedToken);
       if(tokens.isExpired()) {
         tokens = await portalnesia.oauth.refreshToken();
       }
-      SessionStorage.set('sans_token',tokens.token);
+      LocalStorage.set('sans_token',tokens.token);
       return tokens
     }
     return undefined;
   } catch(e) {
     console.log(e);
 
-    //SessionStorage.remove('sans_token');
+    //LocalStorage.remove('sans_token');
     return undefined;
   }
 }
@@ -108,7 +108,7 @@ export default function useIniData() {
           dispatch({type:"CUSTOM",payload:{user}});
         }
       } catch {}
-      SessionStorage.set('sans_token',token);
+      LocalStorage.set('sans_token',token);
     }
     portalnesia.on('token-refresh',PNtokenRefresh)
     init();

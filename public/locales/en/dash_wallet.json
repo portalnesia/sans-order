@@ -21,5 +21,8 @@
   "not_enough_balance":"Insufficient balance to withdraw!",
   "amount":"Amount",
   "error_min":"Minimum withdrawal amount, IDR 50.000",
-  "error_max":"Maximum withdrawal amount after adding platform fee, {{amount}}"
+  "error_max":"Maximum withdrawal amount after adding platform fee, {{amount}}",
+  "type": "Type",
+  "cash_in":"Cash In",
+  "cash_out":"Cash Out"
 }

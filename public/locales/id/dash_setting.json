@@ -27,5 +27,14 @@
   "wednesday":"Rabu",
   "thursday":"Kamis",
   "friday":"Jumat",
-  "saturday":"Sabtu"
+  "saturday":"Sabtu",
+  "access_help":{
+    "items": "Bila diaktifkan, Pengguna ini dapat menambah, mengedit dan/atau menghapus produk",
+    "stocks": "Bila diaktifkan, Pengguna ini dapat menambah, mengedit dan/atau menghapus stok",
+    "outlet":"Bila diaktifkan, Pengguna ini dapat menambah, mengedit outlet tetapi tidak dapat menghapus outlet. Hanya pemilik merchant yang dapat menghapus outlet.",
+    "promo": "Bila diaktifkan, Pengguna ini dapat menambah, mengedit dan/atau menghapus promosi",
+    "transactions": "Bila diaktifkan, Pengguna ini dapat menambah transaksi",
+    "users": "Bila diaktifkan, Pengguna ini dapat menambah, mengedit dan/atau menghapus user",
+    "superusers": "Bila diaktifkan, pengguna ini akan mendapatkan hak akses sebagai admin. Pengguna ini dapat menambah, mengedit dan/atau menghapus produk, tim, pengaturan outlet, tetapi tidak dapat menghapus outlet. Hanya pemilik merchant yang dapat menghapus outlet."
+  }
 }

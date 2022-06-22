@@ -13,9 +13,9 @@ import Button from '@comp/Button'
 import Backdrop from '@comp/Backdrop'
 import Image from '@comp/Image'
 import Popover from '@comp/Popover'
-import {IDay, IOutlet,IPages,ResponsePagination,TokoUsers} from '@type/index'
+import {IDay, IOutlet,IPages,IUserAccess,ResponsePagination,TokoUsers, userAccess} from '@type/index'
 import wrapper from '@redux/store'
-import {useTranslation} from 'next-i18next';
+import {TFunction, useTranslation} from 'next-i18next';
 import useSWR from '@utils/swr';
 import { useRouter } from 'next/router';
 import Iconify from '@comp/Iconify';
@@ -29,7 +29,7 @@ import dynamic from 'next/dynamic'
 import { isEmptyObj, ucwords } from '@portalnesia/utils';
 import { useMousetrap } from '@utils/useKeys';
 import { Dayjs } from 'dayjs';
-import { getDayJs, getDayList } from '@utils/Main';
+import { getOutletAccess, getDayJs, getDayList, getUserAccess } from '@utils/Main';
 import { Circular } from '@comp/Loading';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
@@ -43,7 +43,11 @@ export const getServerSideProps = wrapper(async({checkOutlet,params,redirect})=>
   if(typeof slug?.[0] === 'string' && !['outlet','team'].includes(slug?.[0])) {
     return redirect();
   }
-  return await checkOutlet({onlyAdmin:true},'dash_setting');
+  if(slug?.[0] === 'outlet') {
+    return await checkOutlet({onlyAccess:['outlet']},'dash_setting');
+  } else {
+    return await checkOutlet({onlyAccess:['outlet','users']},'dash_setting');
+  }
 })
 
 type DayTimeProps = {
@@ -201,7 +205,7 @@ export function GeneralSetting() {
 
   React.useEffect(()=>{
     if(input.name.length === 0 && outlet) {
-      const {owner:_,toko:_1,id:_2,isAdmin:_3,isOwner:_4,isMyToko:_5,token_download_qr:_6,busy,business_hour,...rest} = outlet;
+      const {owner:_,toko:_1,id:_2,access:_3,isOwner:_4,isMyToko:_5,token_download_qr:_6,busy,business_hour,...rest} = outlet;
       setInput({...rest,busy,business_hour});
     }
   },[outlet])
@@ -334,7 +338,7 @@ export function GeneralSetting() {
               <SimpleMDE disabled={loading!==null} value={input.description||''} onChange={handleChange('description')} label={tCom("description")} />
             </Grid>
             <Grid item xs={12}>
-              <Button disabled={loading!==null||!outlet?.isAdmin} loading={loading==='submit'} type='submit' icon='submit'>{tCom("save")}</Button>
+              <Button disabled={loading!==null||!getOutletAccess(outlet,['outlet'])} loading={loading==='submit'} type='submit' icon='submit'>{tCom("save")}</Button>
             </Grid>
           </Grid>
         </form>
@@ -398,6 +402,11 @@ function UserMenu({onEdit,onDelete,editDisabled,allDisabled}: UserMenu) {
   )
 }
 
+const userOptions = (t: TFunction) => userAccess.map(u=>({
+  name:u,
+  help: t(`access_help.${u}`)
+}))
+
 export function TeamSetting() {
   const {t} = useTranslation('dash_setting');
   const {t:tMenu} = useTranslation('menu');
@@ -408,8 +417,8 @@ export function TeamSetting() {
   const {toko_id,outlet_id} = router.query;
   const {outlet} = useOutlet(toko_id,outlet_id);
   const {page,rowsPerPage,...pagination} = usePagination(true);
-  const [iCreate,setICreate] = React.useState<{email: string,admin: boolean}>({email:'',admin:false})
-  const [iEdit,setIEdit] = React.useState<boolean>(false)
+  const [iCreate,setICreate] = React.useState<{email: string,access: IUserAccess[]}>({email:'',access:[]})
+  const [iEdit,setIEdit] = React.useState<IUserAccess[]>([])
   const [dCreate,setDCreate] = React.useState(false);
   const [dEdit,setDEdit] = React.useState<TokoUsers|null>(null);
   const [dDelete,setDDelete] = React.useState<TokoUsers|null>(null);
@@ -418,12 +427,23 @@ export function TeamSetting() {
   const captchaRef = React.useRef<Recaptcha>(null);
 
   const buttonCreate=React.useCallback(()=>{
-    setICreate({email:'',admin:false});
+    setICreate({email:'',access:[]});
     setDCreate(true)
   },[])
 
+  const handleUserAccessEdit = React.useCallback((type: IUserAccess)=>(e: React.ChangeEvent<HTMLInputElement>)=>{
+    const access = [...iEdit];
+    if(access.includes(type)) {
+      const index = access.findIndex(a=>a===type);
+      access.splice(index,1);
+    } else {
+      access.push(type);
+    }
+    setIEdit(access)
+  },[iEdit])
+
   const buttonEdit=React.useCallback((dt: TokoUsers)=>()=>{
-    setIEdit(dt.admin);
+    setIEdit(dt.access);
     setDEdit(dt);
   },[])
 
@@ -443,12 +463,23 @@ export function TeamSetting() {
     }
   },[iCreate,setNotif,post,toko_id,outlet_id,mutate,tCom])
 
+  const handleUserAccessCreate = React.useCallback((type: IUserAccess)=>(e: React.ChangeEvent<HTMLInputElement>)=>{
+    const access = [...iCreate.access];
+    if(access.includes(type)) {
+      const index = access.findIndex(a=>a===type);
+      access.splice(index,1);
+    } else {
+      access.push(type);
+    }
+    setICreate({...iCreate,access})
+  },[iCreate])
+
   const handleEdit=React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
     setLoading(true);
     try {
       const recaptcha = await captchaRef.current?.execute();
-      await put(`/toko/${toko_id}/${outlet_id}/users/${dEdit?.id}`,{admin:iEdit,recaptcha});
+      await put(`/toko/${toko_id}/${outlet_id}/users/${dEdit?.id}`,{access:iEdit,recaptcha});
       mutate();
       setNotif(tCom("saved"),false)
       setDEdit(null)
@@ -478,7 +509,7 @@ export function TeamSetting() {
       <Box pb={2} mb={5}>
         <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
           <Typography variant="h3" component='h3'>{tMenu("team")}</Typography>
-          <Button disabled={!outlet?.isAdmin} onClick={buttonCreate}>{tCom("add_ctx",{what:tMenu("team")})}</Button>
+          <Button disabled={!outlet || !getOutletAccess(outlet,'users')} onClick={buttonCreate}>{tCom("add_ctx",{what:tMenu("team")})}</Button>
         </Stack>
       </Box>
       <Card sx={{p:2}}>
@@ -518,12 +549,12 @@ export function TeamSetting() {
                   </TableCell>
                   <TableCell align="center">
                     <Stack direction="row" alignItems="center" justifyContent='center' spacing={2}>
-                      {d?.admin && <Label variant='filled' color='info'>Admin</Label>}
+                      {d?.access?.length > 0 && d?.access?.map(a=><Label variant='filled' color='info'>{ucwords(a)}</Label>)}
                       <Label variant='filled' color={d?.pending ? 'error':'success'}>{d?.pending ? t("pending"):t("active")}</Label>
                     </Stack>
                   </TableCell>
                   <TableCell align="center">
-                    <UserMenu onEdit={buttonEdit(d)} onDelete={()=>setDDelete(d)} editDisabled={!!d?.pending} allDisabled={!outlet?.isAdmin} />
+                    <UserMenu onEdit={buttonEdit(d)} onDelete={()=>setDDelete(d)} editDisabled={!!d?.pending} allDisabled={!getUserAccess(d?.access,'users')} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -556,15 +587,22 @@ export function TeamSetting() {
                 />
               </Grid>
               <Grid item xs={12}>
-                <FormGroup sx={{flexDirection:'row'}}>
-                  <FormControlLabel
-                    control={
-                      <Switch disabled={loading} checked={iCreate.admin||false} color="primary" onChange={(e)=>setICreate({...iCreate,admin:e.target.checked})} />
-                    }
-                    label={"Admin"}
-                  />
-                  <Popover icon='clarity:help-outline-badged' >{t("admin_help")}</Popover>
-                </FormGroup>
+                <FormLabel>Access</FormLabel>
+                <Grid container spacing={2}>
+                  {userOptions(t).map((o,i)=>(
+                    <Grid item xs={12} sm={6} key={`user-access-create-${i}`}>
+                      <FormGroup sx={{flexDirection:'row'}}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox disabled={loading} checked={iCreate.access.includes(o.name)} color='primary' onChange={handleUserAccessCreate(o.name)} />
+                          }
+                          label={ucwords(o.name)}
+                        />
+                        <Popover icon='clarity:help-outline-badged' >{o.help}</Popover>
+                      </FormGroup>
+                    </Grid>
+                  ))}
+                </Grid>
               </Grid>
             </Grid>
           </DialogContent>
@@ -584,15 +622,22 @@ export function TeamSetting() {
                 <Typography>{`@${dEdit?.username}`}</Typography>
               </Grid>
               <Grid item xs={12}>
-                <FormGroup sx={{flexDirection:'row'}}>
-                  <FormControlLabel
-                    control={
-                      <Switch disabled={loading} checked={iEdit} color="primary" onChange={(e)=>setIEdit(e.target.checked)} />
-                    }
-                    label={"Admin"}
-                  />
-                  <Popover icon='clarity:help-outline-badged' >{t("admin_help")}</Popover>
-                </FormGroup>
+                <FormLabel>Access</FormLabel>
+                <Grid container spacing={2}>
+                  {userOptions(t).map((o,i)=>(
+                    <Grid item xs={12} sm={6} key={`user-access-create-${i}`}>
+                      <FormGroup sx={{flexDirection:'row'}}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox disabled={loading} checked={iEdit.includes(o.name)} color='primary' onChange={handleUserAccessEdit(o.name)} />
+                          }
+                          label={ucwords(o.name)}
+                        />
+                        <Popover icon='clarity:help-outline-badged' >{o.help}</Popover>
+                      </FormGroup>
+                    </Grid>
+                  ))}
+                </Grid>
               </Grid>
             </Grid>
           </DialogContent>

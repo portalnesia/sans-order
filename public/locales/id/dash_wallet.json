@@ -21,5 +21,8 @@
   "not_enough_balance":"Saldo tidak mencukupi untuk ditarik!",
   "amount":"Jumlah",
   "error_min":"Jumlah minimal penarikan, IDR 50.000",
-  "error_max":"Jumlah maksimal penarikan setelah ditambah biaya platform, {{amount}}"
+  "error_max":"Jumlah maksimal penarikan setelah ditambah biaya platform, {{amount}}",
+  "type": "Tipe",
+  "cash_in":"Uang Masuk",
+  "cash_out":"Uang Keluar"
 }

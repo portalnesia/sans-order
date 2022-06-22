@@ -219,9 +219,10 @@ export default function WalletPage({meta}: IPages) {
       if(data.balance - 6500 < wd) throw new Error(t('not_enough_balance'));
 
       //const recaptcha = await captchaRef.current?.execute();
-      //await post(`/toko/${toko_id}/wallet/withdraw`,{amount:wd,recaptcha});
+      //await post(`/toko/${toko_id}/wallet/withdraw`,{...data.account,amount:wd,recaptcha});
 
-      setWD(50000)
+      setDWd(false)
+      setTimeout(()=>setWD(50000),500);
     } catch(e: any) {
       setNotif(e?.message||tCom("error_500"),true);
     } finally {
@@ -366,6 +367,7 @@ export default function WalletPage({meta}: IPages) {
                       <Table>
                         <TableHead>
                           <TableRow>
+                            <TableCell align='left'>{t("type")}</TableCell>
                             <TableCell align='left'>ID</TableCell>
                             <TableCell align='left'>Outlet</TableCell>
                             <TableCell align='left'>{t("date")}</TableCell>
@@ -376,18 +378,19 @@ export default function WalletPage({meta}: IPages) {
                         <TableBody>
                           {errHistory ? (
                             <TableRow>
-                              <TableCell align="center" colSpan={4} sx={{ py: 3 }}><Typography>{errHistory?.message}</Typography></TableCell>
+                              <TableCell align="center" colSpan={5} sx={{ py: 3 }}><Typography>{errHistory?.message}</Typography></TableCell>
                             </TableRow>
                           ) : !historyOri && !errHistory || !history ? (
                             <TableRow>
-                              <TableCell align="center" colSpan={4} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
+                              <TableCell align="center" colSpan={5} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
                             </TableRow>
                           ) : history?.length === 0 ? (
                             <TableRow>
-                              <TableCell align="center" colSpan={4} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:tMenu("transactions")})}</Typography></TableCell>
+                              <TableCell align="center" colSpan={5} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:tMenu("transactions")})}</Typography></TableCell>
                             </TableRow>
                           ) : history?.map((d)=>(
                             <TableRow hover>
+                              <TableCell align='left'>{d.type === 'withdraw' ? t('cash_out') : t('cash_in')}</TableCell>
                               <TableCell align='left'>{d.id}</TableCell>
                               <TableCell align='left'>{'toko' in d.toko ? d.toko.name : `-`}</TableCell>
                               <TableCell align='left'>{getDayJs(d.timestamp).pn_format('full')}</TableCell>

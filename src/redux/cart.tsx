@@ -3,7 +3,7 @@ import {IItems, Without} from '@type/index'
 import { useRouter } from 'next/router'
 import LocalStorage from '@utils/local-storage'
 
-type Items = Without<IItems,'qty'|'hpp'|'remaining_stock'>
+type Items = Without<IItems,'qty'|'hpp'>
 
 export type ContextType = {
   cart: IItems[],

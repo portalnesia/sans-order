@@ -44,7 +44,7 @@ export const getServerSideProps = wrapper(async({checkOutlet,params,redirect})=>
   if(typeof slug?.[0] === 'string' && !['cashier','self-order'].includes(slug?.[0])) {
     return redirect();
   }
-  return await checkOutlet({onlyMyToko:true},'dash_order');
+  return await checkOutlet({onlyMyToko:true,onlyAccess:['transactions']},'dash_order');
 })
 
 type IIProduct = IProduct & ({qty: number});
@@ -230,7 +230,7 @@ function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
   const {total,subtotal,disscount} = React.useMemo(()=>{
     const {price,disscount} = selected.reduce((p,n)=>{
       const price = n.price * n.qty;
-      const disscount = n.disscount * n.qty;
+      const disscount = (n?.disscount||0) * n.qty;
       p.price = p.price + price;
       p.disscount = p.disscount + disscount;
       return p;
@@ -358,7 +358,7 @@ function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
                       </TableCell>
                       <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
                       <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.disscount}`)}`}</TableCell>
-                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${(d.price*d.qty) - (d.disscount*d.qty)}`)}`}</TableCell>
+                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${(d.price*d.qty) - ((d?.disscount||0)*d.qty)}`)}`}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

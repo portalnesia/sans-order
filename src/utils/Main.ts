@@ -4,7 +4,7 @@ import relativeDayjs from 'dayjs/plugin/relativeTime'
 import pndayjs from '@portalnesia/dayjs-plugins'
 import 'dayjs/locale/id'
 import { TFunction } from 'next-i18next'
-import { daysArray, IDay, IOutlet } from '@type/toko'
+import { daysArray, IDay, IOutlet, IUserAccess } from '@type/toko'
 
 dayjs.extend(utcDayjs)
 dayjs.extend(relativeDayjs)
@@ -100,4 +100,42 @@ export function isBetweenHour(d1: dayjs.Dayjs,d2:dayjs.Dayjs) {
   }
 
   return false;
+}
+
+/**
+ * 
+ * @param checkedAccess Akses yang di cek
+ * @param access Akses yang harus dipenuhi
+ * @return {boolean} boolean
+ * 
+*/ 
+export function getUserAccess(checkedAccess: IUserAccess[],access: IUserAccess|IUserAccess[]) {
+  if(checkedAccess.includes('superusers')) return true;
+  let result=true;
+  if(Array.isArray(access)) {
+    for (let a of access) {
+      if(!checkedAccess.includes(a)) result = false;
+      continue;
+    }
+  } else {
+    result = checkedAccess.includes(access);
+  }
+  return result;
+}
+
+export function getOutletAccess(outlet?: IOutlet,access?: IOutlet['access'][number]|IOutlet['access']) {
+  if(!outlet) return false;
+  if(!access) return false;
+  if(outlet.isOwner) return true;
+  if(outlet.access.includes('superusers')) return true;
+  let result=true;
+  if(Array.isArray(access)) {
+    for (let a of access) {
+      if(!outlet.access.includes(a)) result = false;
+      continue;
+    }
+  } else {
+    result = outlet.access.includes(access);
+  }
+  return result;
 }

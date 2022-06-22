@@ -7,7 +7,7 @@ import {createProxyMiddleware} from 'http-proxy-middleware'
 const canvasProxy = require('html2canvas-proxy');
 
 const dev = process.env.NODE_ENV === 'development'
-const port = 3001;
+const port = process.env.NODE_ENV === 'production' ? 3001 : 3333;
 const hostn = "localhost";
 
 const app = next({ dev })

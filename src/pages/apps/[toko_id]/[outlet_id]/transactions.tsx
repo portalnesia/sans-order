@@ -28,7 +28,7 @@ import { numberFormat } from '@portalnesia/utils';
 import { getDayJs } from '@utils/Main';
 import handlePrint from '@utils/print';
 
-export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true},translation:'dash_tr'})
+export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true,onlyAccess:['transactions']},translation:'dash_tr'})
 
 interface IMenu {
   data: TransactionsDetail
