@@ -57,6 +57,7 @@ export default function AccountPopover() {
       LocalStorage.remove('sans_token');
       dispatch({type:"CUSTOM",payload:{user:false}});
       setLoading(false);
+      window.location.reload();
     }
   },[])
 

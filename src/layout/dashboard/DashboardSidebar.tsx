@@ -16,6 +16,7 @@ import NavSection from '../../components/NavSection';
 import sidebarConfig from './SidebarConfig';
 import MenuQr from '@comp/MenuQr';
 import footerMenu from '@layout/FooterConfig';
+import config from '@root/web.config.json'
 // ----------------------------------------------------------------------
 
 const DRAWER_WIDTH = 280;
@@ -149,6 +150,9 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title,
     >
       <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
         <Logo href='/apps' />
+        <Link href={`/apps`} passHref><a style={{textDecoration:'none',marginLeft:8,marginTop:6}}>
+          <Typography variant='h5' sx={{color: 'text.primary'}}>{config.title}</Typography>
+        </a></Link>
       </Box>
 
       {title && subtitle && (

@@ -44,3 +44,4 @@ version.js
 db.ts
 src/version.ts
 server.js
+*.exp

@@ -12,6 +12,7 @@ import useNotification from '@utils/notification';
 import {Portal} from '@mui/material'
 import { AxiosRequestConfig } from 'axios';
 import { uuid } from '@portalnesia/utils';
+import { useTheme } from '@mui/material';
 // material
 // ----------------------------------------------------------------------
 
@@ -32,6 +33,7 @@ export default function Header({ children, title,desc }: HeaderProps) {
   const report = useSelector<State['report']>(s=>s.report)
   const captchaRef = React.useRef<Recaptcha>(null)
   const {post} = useAPI();
+  const theme = useTheme();
   const setNotif = useNotification();
 
   const feedbackSubmit=React.useCallback((type:string,addi:Record<string,any>={})=>async(dt: IData)=>{
@@ -81,6 +83,7 @@ export default function Header({ children, title,desc }: HeaderProps) {
       <Head>
         <title>{titles}</title>
         <meta name='description' content={description} />
+        <meta name="theme-color" content={theme.palette.background.default} />
       </Head>
       {children}
       <Recaptcha ref={captchaRef} />

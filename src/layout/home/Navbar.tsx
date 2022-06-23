@@ -21,11 +21,12 @@ import config from '@root/web.config.json'
 const APPBAR_MOBILE = 64;
 const APPBAR_DESKTOP = 92;
 
-const RootStyle = styled(AppBar)(({ theme }) => ({
+const RootStyle = styled(AppBar)<{scrolled?: boolean}>(({ theme,scrolled }) => ({
   boxShadow: 'none',
   backdropFilter: 'blur(6px)',
   WebkitBackdropFilter: 'blur(6px)', // Fix on Mobile
-  backgroundColor: alpha(theme.palette.background.default, 0.72)
+  backgroundColor: alpha(theme.palette.background.default, 0.72),
+  ...(scrolled ? {borderBottom:`solid .5px ${theme.palette.divider}`} : {})
 }));
 
 const ToolbarStyle = styled(Toolbar)(({ theme }) => ({
@@ -212,11 +213,26 @@ export default function HomeNavbar({withNavbar=true,withDashboard=true,logoProps
   const menuMobile = useResponsive('down',722);
   const textHidden1 = useResponsive('between',722,765);
   const textHidden2 = useResponsive('down',455);
+  const [scrolled,setScrolled] = useState(false);
 
   const navbar = useMemo(()=>navbarConfig(t),[t]);
 
+  useEffect(()=>{
+    function onScroll() {
+      const scroll = document?.documentElement?.scrollTop || document.body.scrollTop;
+      if(scroll > 60) {
+        setScrolled(true)
+      } else {
+        setScrolled(false)
+      }
+    }
+    window.addEventListener('scroll',onScroll);
+
+    return ()=>window.removeEventListener('scroll',onScroll);
+  },[])
+
   return (
-    <RootStyle>
+    <RootStyle scrolled={scrolled}>
       <ToolbarStyle>
         <Box sx={{ pr:1,display: 'inline-flex' }}>
           <Logo {...logoProps} />

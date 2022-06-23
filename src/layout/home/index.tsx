@@ -1,12 +1,14 @@
-import { useState,ReactNode,useEffect } from 'react';
+import { useState,ReactNode,useEffect, useMemo } from 'react';
 // material
 import { styled } from '@mui/material/styles';
+import {Portal} from '@mui/material'
 import HomeNavbar from './Navbar';
 import Footer from './Footer'
 import loadingImage from '@comp/loading-image-base64'
 import useInitData from '@utils/init-data'
 import { useSelector } from '@redux/store';
 import { LogoProps } from '@comp/Logo';
+import BackToTop, { BackToTopProps } from '@comp/BackToTop';
 
 
 
@@ -40,13 +42,22 @@ export interface HomeProps {
   withPadding?:boolean
   withNavbar?:boolean,
   withDashboard?: boolean
-  logoProps?: LogoProps
+  logoProps?: LogoProps,
+  backToTop?: BackToTopProps
 }
 
-export default function HomeLayout({children,withPadding=true,withNavbar=true,withDashboard=true,logoProps}: HomeProps) {
+export default function HomeLayout({children,withPadding=true,withNavbar=true,withDashboard=true,logoProps,backToTop}: HomeProps) {
   const loaded = useSelector<boolean>(s=>s.ready);
   const {adBlock} = useInitData();
-  
+
+  const bt = useMemo(()=>{
+    const bbt: BackToTopProps = {
+      enabled: true,
+      ...backToTop
+    }
+    return bbt;
+  },[backToTop])
+
   return (
     <RootStyle>
       {loaded===false && (
@@ -59,6 +70,7 @@ export default function HomeLayout({children,withPadding=true,withNavbar=true,wi
         {children}
       </MainStyle>
       <Footer />
+      <Portal><BackToTop {...bt} /></Portal>
     </RootStyle>
   );
 }

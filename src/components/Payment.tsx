@@ -293,6 +293,10 @@ type IPaymentMethod = {
 function MethodItems({dt,payment,onChange,category}: {payment:IForm['input']['payment'],dt:IPaymentMethod[],onChange(payment: IForm['input']['payment']): void,category: IPayment}) {
   const [expand,setExpand] = useState(false);
 
+  useEffect(()=>{
+    console.log("DT",dt)
+  },[dt])
+
   const handleChange=useCallback((d: IPaymentMethod)=>()=>{
     let dt: IForm['input']['payment']|undefined;
     if(['COD','QRIS'].includes(d.channel_category)) {

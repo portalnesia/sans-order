@@ -13,18 +13,20 @@ export default function useSocket() {
   const {get} = useAPI();
 
   useEffect(()=>{
+    const reconnect=(soc: ISocket)=>()=>{
+      soc.emit("konek");
+    }
     async function getSocket() {
       if(!socket && typeof window !== 'undefined' && !loading && appToken) {
         loading=true;
         try {
           const token = await get<string>("/internal/socket");
-          const socket = io(`${process.env.API_URL}/v1?token=${token}`,{transports: ['websocket']});
-          const reconnect=(soc: ISocket)=>()=>{
-            soc.emit("konek");
-          }
+          const socket = io(`${process.env.API_URL}/v1`,{transports: ['websocket'],auth:{token}});
+          
           socket.emit("konek");
           socket.on('reconnect',reconnect(socket));
           dispatch({type:"CUSTOM",payload:{socket}});
+
           loading=false;
         } catch {
             
@@ -33,6 +35,24 @@ export default function useSocket() {
     }
     getSocket();
   },[get,appToken,dispatch])
+
+  React.useEffect(()=>{
+    async function onConnectError(err: Error) {
+      if (err.message === "invalid credentials" && socket) {
+        const token = await get<string>("/internal/socket");
+        // @ts-ignore
+        socket.auth.token = token;
+        socket.connect();
+        socket.emit("konek");
+      }
+    }
+
+    if(socket) socket.on('connect_error',onConnectError);
+
+    return ()=>{
+      if(socket) socket.off('connect_error',onConnectError);
+    }
+  },[socket,get])
 
   return socket;
 }

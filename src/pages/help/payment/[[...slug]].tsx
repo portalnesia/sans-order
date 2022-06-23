@@ -1,14 +1,13 @@
 // material
 import { Box, Grid, Container, Typography,Hidden,Stack } from '@mui/material';
 import {Edit,ArrowBack,ArrowForward } from '@mui/icons-material'
-import wrapper from '@redux/store'
+import wrapper,{staticProps} from '@redux/store'
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'
 import {numberFormat,truncate,clean} from '@portalnesia/utils'
 import React from 'react'
 import Image from '@comp/Image'
-import {staticProps} from '@redux/store'
 import {useTranslation} from 'next-i18next';
 import Button from '@comp/Button'
 import {useDefaultSWR} from '@utils/swr'
@@ -21,7 +20,7 @@ import axios from 'axios'
 import splitMarkdown from '@utils/split-markdown';
 import { marked } from 'marked';
 import htmlEncode from '@utils/html-encode'
-import { getDayJs } from '@utils/Main';
+import { getDayJs,getDir } from '@utils/Main';
 import { convertToPlaintext } from '@utils/marked';
 import { Parser,usePageContent } from '@comp/Parser';
 import { useRouter } from 'next/router';
@@ -33,7 +32,10 @@ import {QrisIcon,BankIcon,DanaIcon,ShopeePayIcon,LinkAjaIcon} from '@comp/paymen
 
 async function getData(slug: string) {
   try {
-    if(process.env.NODE_ENV === 'development') {
+    const github = await fs.promises.readFile(`./data/help/${slug}.md`);
+    return github.toString();
+    /*if(process.env.NODE_ENV === 'development') {
+      console.log(slug)
       const github = await fs.promises.readFile(`./data/help/${slug}.md`);
       return github.toString();
     } else {
@@ -41,7 +43,7 @@ async function getData(slug: string) {
       const github = `https://raw.githubusercontent.com/portalnesia/sans-order/${branch}/data/help/${slug}.md`
       const r = await axios.get<string>(github);
       return r?.data||undefined;
-    }
+    }*/
   } catch {
     return undefined;
   }
@@ -50,10 +52,11 @@ async function getData(slug: string) {
 type PaymentCode = BankCode | 'EWALLET' | 'QRIS' | 'COD'
 type IIndex = {title: string,link: string,key: PaymentCode}
 
-function useIndex() {
-  const branch = process.env.NEXT_PUBLIC_PN_ENV === 'production' ? 'main' : 'dev';
-  const url = process.env.NODE_ENV === 'development' ? 'http://localhost:3001/stagging/data/help/payment/index.json' : `https://raw.githubusercontent.com/portalnesia/sans-order/${branch}/data/help/payment/index.json`
-  return useDefaultSWR<IIndex[]>(url);
+async function getIndex() {
+  const file = await fs.promises.readFile('./data/help/payment/index.json');
+  const index = Buffer.from(file).toString();
+  const json = JSON.parse(index) as IIndex[];
+  return json;
 }
 
 type IPages = {
@@ -65,62 +68,80 @@ type IPages = {
     description?: string,
     html: string,
     keywords?: string[],
-    callbackLang: boolean
+    callbackLang: boolean,
+    index: IIndex[]
   }
 }
 
-export const getServerSideProps = wrapper(async({params,locale,redirect,getTranslation})=>{
+type StaticPathsResult = {
+  locale: string;
+  params: {
+    slug?: string[];
+  }
+}
+
+export async function getStaticPaths() {
+  const dir = await getDir('./data/help/payment/**/*.md');
+  const id = dir.map(s=>({locale:'id',params:{slug:s.replace('.md','').replace('./data/help/payment/','').split("/")}})) as StaticPathsResult[];
+  const en = dir.map(s=>({locale:'en',params:{slug:s.replace('.md','').replace('./data/help/payment/','').split("/")}})) as StaticPathsResult[];
+  const paths = id.concat(en);
+  paths.push({locale:'id',params:{slug:undefined}},{locale:'en',params:{slug:undefined}})
+
+  return {
+    paths,
+    fallback:true
+  }
+}
+
+export const getStaticProps = staticProps(async({getTranslation,locale,params})=>{
   let slugs = params?.slug as string|string[]|undefined;
   const bhs = (locale||'id') as string;
-
-  if(typeof slugs?.[0] === 'undefined') {
+  if(typeof slugs === 'undefined') {
     return {props:{meta:{
       html:'',
       callbackLang:false
     },...(await getTranslation('pages',bhs))}}
-  } else {
-    if(!Array.isArray(slugs)) return redirect();
-
-    try {
-      slugs.splice(0,1);
-      let slug = `payment/${slugs.join("/")}`;
-      let callbackLang = false;
-      const path = bhs === 'id' ? `${slug}` : `en/${slug}`
-      let github: string|undefined = await getData(path);
-      if(!github) {
-        callbackLang = true;
-        github = await getData(`${slug}`);
-      }
-      if(!github) return redirect();
-
-      const split = splitMarkdown(github);
-      const meta = split.meta||{};
-      meta.callbackLang = callbackLang;
-      if(meta?.description) {
-        meta.description = truncate(clean(meta.description),200)
-      } else {
-        meta.description = convertToPlaintext(split.html);
-      }
-      const markHtml = marked(split.html);
-      const html = htmlEncode(markHtml,true);
-      
-      meta.published = getDayJs().utcOffset(7).format("YYYY-MM-DDTHH:mm:ssZ");
-      meta.modified = getDayJs((meta?.modified ? meta?.modified : undefined)).utcOffset(7).format("YYYY-MM-DDTHH:mm:ssZ");
-
-      meta.html = html;
-      meta.slug = slug
-
-      const defaultKeywords = ['Payment','Order System','Help','Docs','Documentation'];
-      meta.keywords = defaultKeywords.concat((meta?.keywords||[]));
-
-      return {props:{meta,...(await getTranslation('pages',bhs))}}
-    } catch {
-      return redirect();
+  }
+  try {
+    if(!Array.isArray(slugs)) return {notFound:true}
+    let slug = `payment/${slugs.join("/")}`;
+    let callbackLang = false;
+    const path = bhs === 'id' ? `${slug}` : `en/${slug}`
+    let github: string|undefined = await getData(path);
+    if(!github) {
+      callbackLang = true;
+      github = await getData(`${slug}`);
     }
+    if(!github) return {notFound:true}
+
+    const split = splitMarkdown(github);
+    const meta = split.meta||{};
+    meta.callbackLang = callbackLang;
+    if(meta?.description) {
+      meta.description = truncate(clean(meta.description),200)
+    } else {
+      meta.description = convertToPlaintext(split.html);
+    }
+    const markHtml = marked(split.html);
+    const html = htmlEncode(markHtml,true);
+    
+    meta.published = getDayJs().utcOffset(7).format("YYYY-MM-DDTHH:mm:ssZ");
+    meta.modified = getDayJs((meta?.modified ? meta?.modified : undefined)).utcOffset(7).format("YYYY-MM-DDTHH:mm:ssZ");
+
+    meta.html = html;
+    meta.slug = slug
+
+    const defaultKeywords = ['Payment','Order System','Help','Docs','Documentation'];
+    meta.keywords = defaultKeywords.concat((meta?.keywords||[]));
+    meta.index = await getIndex();
+
+    return {props:{meta,...(await getTranslation('pages',bhs))}}
+  } catch {
+    return {notFound:true}
   }
 })
 
-function PaymentHelpDetail({meta,paymentIndex}: IPages & ({paymentIndex?: IIndex[]})) {
+function PaymentHelpDetail({meta}: IPages) {
   const {t} = useTranslation('pages');
   usePageContent(true);
   const router = useRouter();
@@ -129,6 +150,7 @@ function PaymentHelpDetail({meta,paymentIndex}: IPages & ({paymentIndex?: IIndex
 
   const [prev,next] = React.useMemo(()=>{
     const slg = meta?.slug;
+    const paymentIndex = meta?.index;
     if(paymentIndex && paymentIndex?.length > 0 && slg) {
       const current = paymentIndex.findIndex(s=>slg && slg.match(s.link));
       if(current > -1) {
@@ -150,14 +172,14 @@ function PaymentHelpDetail({meta,paymentIndex}: IPages & ({paymentIndex?: IIndex
       }
     }
     return [null,null]
-  },[paymentIndex,meta?.slug])
+  },[meta])
 
   const editUrl = React.useMemo(()=>{
     return meta?.slug ? `https://github.com/portalnesia/sans-order/edit/main/data/help/${locale!=='id' ? `${locale}/` : ''}${meta?.slug}.md` : ''
-  },[locale])
+  },[locale,meta])
 
   return (
-    <Container>
+    <Container maxWidth={content.length > 0 ? 'xl' : 'lg'}>
       <Box textAlign='center' mb={8}>
         <Typography variant='h1' component='h1'>{meta?.title}</Typography>
       </Box>
@@ -191,7 +213,7 @@ function PaymentHelpDetail({meta,paymentIndex}: IPages & ({paymentIndex?: IIndex
           <Grid container spacing={1} alignItems='center' justifyContent='space-between'>
             {prev !== null && (
               <Grid item xs={12} sm={6}>
-                <Link href={`/help/payment/${prev?.link}`} passHref><Button className='no-format not_blank' component='a' startIcon={<ArrowBack />} outlined size='large' sx={{textAlign:'unset',textTransform:'unset'}}>
+                <Link href={`/help/payment${prev?.link}`} passHref><Button className='no-format not_blank' component='a' startIcon={<ArrowBack />} outlined size='large' sx={{textAlign:'unset',textTransform:'unset'}}>
                   <div>
                     <Typography color='text.secondary' sx={{fontSize:13}}>{t('previous')}</Typography>
                     <Typography>{prev?.title}</Typography>
@@ -202,7 +224,7 @@ function PaymentHelpDetail({meta,paymentIndex}: IPages & ({paymentIndex?: IIndex
 
             {next !== null && (
               <Grid item xs={12} sm={!prev ? 12 : 6} sx={{textAlign:'right'}}>
-                <Link href={`/help/payment/${next?.link}`} passHref><Button className='no-format not_blank' component='a' endIcon={<ArrowForward />} outlined size='large' sx={{textAlign:'unset',textTransform:'unset'}}>
+                <Link href={`/help/payment${next?.link}`} passHref><Button className='no-format not_blank' component='a' endIcon={<ArrowForward />} outlined size='large' sx={{textAlign:'unset',textTransform:'unset'}}>
                   <div>
                     <Typography color='text.secondary' sx={{fontSize:13}}>{t('next')}</Typography>
                     <Typography>{next?.title}</Typography>
@@ -225,7 +247,7 @@ function PaymentHelpDetail({meta,paymentIndex}: IPages & ({paymentIndex?: IIndex
 export default function PaymentHelp({meta}: IPages) {
   const router = useRouter();
   const {slug} = router.query;
-  const {data:paymentIndex,error} = useIndex();
+  //const {data:paymentIndex,error} = useIndex();
 
   const icon = React.useCallback((data: PaymentCode)=>{
     if(data === 'QRIS') return <QrisIcon />;
@@ -255,10 +277,10 @@ export default function PaymentHelp({meta}: IPages) {
   },[])
 
   return (
-    <Header title={meta.title} desc={meta.description}>
+    <Header title={meta?.title} desc={meta?.description}>
       <Dashboard>
         {typeof slug?.[0] !== 'undefined' ? (
-          <PaymentHelpDetail meta={meta} paymentIndex={paymentIndex} />
+          <PaymentHelpDetail meta={meta} />
         ) : (
           <Container>
             <Grid container spacing={2}>

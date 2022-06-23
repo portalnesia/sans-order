@@ -5,6 +5,7 @@ import pndayjs from '@portalnesia/dayjs-plugins'
 import 'dayjs/locale/id'
 import { TFunction } from 'next-i18next'
 import { daysArray, IDay, IOutlet, IUserAccess } from '@type/toko'
+import { glob } from 'glob'
 
 dayjs.extend(utcDayjs)
 dayjs.extend(relativeDayjs)
@@ -138,4 +139,13 @@ export function getOutletAccess(outlet?: IOutlet,access?: IOutlet['access'][numb
     result = outlet.access.includes(access);
   }
   return result;
+}
+
+export function getDir(dir: string) {
+  return new Promise<string[]>((res,rej)=>{
+    glob(dir,(err,result)=>{
+      if(err) rej(err);
+      res(result)
+    })
+  })
 }

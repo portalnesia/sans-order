@@ -510,14 +510,14 @@ export default function OutletProducts({meta}: IPages) {
   React.useEffect(()=>{
     if(stocksOption.length === 0) {
       setStocksLoading(true)
-      get<ResponsePagination<IStocks>>(`/toko/${toko_id}/${outlet_id}/stocks?per_page=100`,{error_notif:false,success_notif:false})
+      get<ResponsePagination<IStocks>>(`/toko/${toko_id}/${outlet_id}/stocks?per_page=100`)
       .then((res)=>{
         setStocksOption(res.data);
       }).catch((err)=>{
           
       }).finally(()=>setStocksLoading(false))
     }
-  },[toko_id,outlet_id,get])
+  },[toko_id,outlet_id,get,stocksOption])
 
   return (
     <Header title={`${tMenu("products")} - ${meta?.title}`} desc={meta?.description}>
@@ -603,7 +603,7 @@ export default function OutletProducts({meta}: IPages) {
                         <TableCell sx={{whiteSpace:'nowrap'}}>{`IDR ${numberFormat(`${hpp}`)}`}</TableCell>
                         <TableCell>
                           {d?.stocks?.map(s=>(
-                            <Typography variant='body2' sx={{fontSize:13}} >{`${s?.name}: ${s?.consume} ${s?.unit}`}</Typography>
+                            <Typography variant='body2' sx={{fontSize:13}} >{`${s?.name||''}: ${s?.consume||''} ${s?.unit||''}`}</Typography>
                           ))}
                         </TableCell>
                         <TableCell align="center">

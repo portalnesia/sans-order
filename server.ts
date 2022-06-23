@@ -3,6 +3,7 @@ import next from 'next'
 import cors from 'cors'
 import helmet from 'helmet'
 import {createProxyMiddleware} from 'http-proxy-middleware'
+import nodePath from 'path'
 
 const canvasProxy = require('html2canvas-proxy');
 
@@ -36,7 +37,7 @@ app.prepare().then(()=>{
   if(process.env.NODE_ENV !== 'production') {
     server.get("/stagging/data/*",(req,res,next)=>{
       const path = req.path.replace("/stagging/","");
-      res.sendFile(`./${path}`,()=>{
+      res.sendFile(nodePath.resolve(`./${path}`),()=>{
         next();
       });
     })

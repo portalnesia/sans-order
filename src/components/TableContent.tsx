@@ -96,7 +96,7 @@ export default function useTableContent(opt: Args) {
       let konten: Content[]=[];
       document.querySelectorAll('a > h2[id], a > h3[id], .table-content[id]').forEach(e=>{
           const id = e.getAttribute('id')||'';
-          const name = ucwords(e.textContent||'')
+          const name = (e.textContent||'')
           konten = konten.concat({id:id,name:name})
       })
       setContent(konten);
@@ -115,7 +115,7 @@ export default function useTableContent(opt: Args) {
                 const id = document.querySelector<Element>(a.hash);
                 const x = window.matchMedia("(min-width: 1200px)")
                 const padding = x.matches ? 92+24 : 64+24;
-                if(getOffset(id).top - padding <= o) {
+                if(getOffset(id).top - padding <= o+5) {
                   if(a.parentNode) {
                     for(let siblings of a.parentNode?.children) {
                       siblings.classList.remove('active');

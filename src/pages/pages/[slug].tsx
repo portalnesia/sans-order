@@ -1,7 +1,7 @@
 // material
 import { Box, Grid, Container, Typography,Hidden } from '@mui/material';
 import {Edit} from '@mui/icons-material'
-import wrapper from '@redux/store'
+import {staticProps} from '@redux/store'
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'
@@ -10,11 +10,10 @@ import React from 'react'
 import {useTranslation} from 'next-i18next';
 import Button from '@comp/Button'
 import fs from 'fs'
-import axios from 'axios'
 import splitMarkdown from '@utils/split-markdown';
 import { marked } from 'marked';
 import htmlEncode from '@utils/html-encode'
-import { getDayJs } from '@utils/Main';
+import { getDayJs, getDir } from '@utils/Main';
 import { convertToPlaintext } from '@utils/marked';
 import { Parser,usePageContent } from '@comp/Parser';
 import { useRouter } from 'next/router';
@@ -23,7 +22,9 @@ import Sidebar from '@comp/Sidebar'
 
 async function getData(slug: string) {
   try {
-    if(process.env.NODE_ENV === 'development') {
+    const github = await fs.promises.readFile(`./data/pages/${slug}.md`);
+    return github.toString();
+    /*if(process.env.NODE_ENV === 'development') {
       const github = await fs.promises.readFile(`./data/pages/${slug}.md`);
       return github.toString();
     } else {
@@ -31,7 +32,7 @@ async function getData(slug: string) {
       const github = `https://raw.githubusercontent.com/portalnesia/sans-order/${branch}/data/pages/${slug}.md`
       const r = await axios.get<string>(github);
       return r?.data||undefined;
-    }
+    }*/
   } catch {
     return undefined;
   }
@@ -50,43 +51,53 @@ type IPages = {
   }
 }
 
-export const getServerSideProps = wrapper(async({params,locale,redirect,getTranslation})=>{
-  const slug = params?.slug as string|string[]|undefined
-  const bhs = locale||'id';
-  if(typeof slug !== 'string') return redirect();
+export async function getStaticPaths() {
+  const dir = await getDir('./data/pages/*.md');
+  const id = dir.map(s=>({locale:'id',params:{slug:s.replace('.md','').replace('./data/pages/','')}}));
+  const en = dir.map(s=>({locale:'en',params:{slug:s.replace('.md','').replace('./data/pages/','')}}));
+  const paths = id.concat(en);
+  return {
+    paths,
+    fallback:false
+  }
+}
+
+export const getStaticProps = staticProps(async({getTranslation,locale,params})=>{
   try {
+    const slug = params?.slug as string|string[]|undefined
+    const bhs = locale||'id';
+    if(typeof slug !== 'string') return {notFound:true}
     let callbackLang = false;
-    const path = bhs === 'id' ? `${slug}` : `en/${slug}`
-    let github: string|undefined = await getData(path);
-    if(!github) {
-      callbackLang = true;
-      github = await getData(`${slug}`);
-    }
-    if(!github) return redirect();
+      const path = bhs === 'id' ? `${slug}` : `en/${slug}`
+      let github: string|undefined = await getData(path);
+      if(!github) {
+        callbackLang = true;
+        github = await getData(`${slug}`);
+      }
+      if(!github) return {notFound:true}
+      const split = splitMarkdown(github);
+      const meta = split.meta||{};
+      meta.callbackLang = callbackLang;
+      if(meta?.description) {
+        meta.description = truncate(clean(meta.description),200)
+      } else {
+        meta.description = convertToPlaintext(split.html);
+      }
+      const markHtml = marked(split.html);
+      const html = htmlEncode(markHtml,true);
+      
+      meta.published = getDayJs().utcOffset(7).format("YYYY-MM-DDTHH:mm:ssZ");
+      meta.modified = getDayJs((meta?.modified ? meta?.modified : undefined)).utcOffset(7).format("YYYY-MM-DDTHH:mm:ssZ");
 
-    const split = splitMarkdown(github);
-    const meta = split.meta||{};
-    meta.callbackLang = callbackLang;
-    if(meta?.description) {
-      meta.description = truncate(clean(meta.description),200)
-    } else {
-      meta.description = convertToPlaintext(split.html);
-    }
-    const markHtml = marked(split.html);
-    const html = htmlEncode(markHtml,true);
-    
-    meta.published = getDayJs().utcOffset(7).format("YYYY-MM-DDTHH:mm:ssZ");
-    meta.modified = getDayJs((meta?.modified ? meta?.modified : undefined)).utcOffset(7).format("YYYY-MM-DDTHH:mm:ssZ");
+      meta.html = html;
+      meta.slug = slug
 
-    meta.html = html;
-    meta.slug = slug
-
-    const defaultKeywords = ['Pages','Order System','Developer','Docs','Documentation'];
-    meta.keywords = defaultKeywords.concat((meta?.keywords||[]));
-
-    return {props:{meta,...(await getTranslation('pages',bhs))}}
-  } catch {
-    return redirect();
+      const defaultKeywords = ['Pages','Order System','Developer','Docs','Documentation'];
+      meta.keywords = defaultKeywords.concat((meta?.keywords||[]));
+      
+      return {props:{meta,...(await getTranslation('pages',bhs))}}
+  } catch(e) {
+    return {notFound:true}
   }
 })
 
@@ -99,16 +110,16 @@ export default function Pages({meta}: IPages) {
 
   const editUrl = React.useMemo(()=>{
     return `https://github.com/portalnesia/sans-order/edit/main/data/pages/${locale!=='id' ? `${locale}/` : ''}${meta?.slug}.md`
-  },[locale])
+  },[locale,meta])
 
   return (
-    <Header title={meta.title} desc={meta.description}>
+    <Header title={meta?.title} desc={meta?.description}>
       <Dashboard>
-        <Container>
+        <Container maxWidth={content.length > 0 ? 'xl' : 'lg'}>
           <Box textAlign='center' mb={8}>
             <Typography variant='h1' component='h1'>{meta?.title}</Typography>
           </Box>
-          {meta.callbackLang && (
+          {meta?.callbackLang && (
             <Box mb={8}>
               <blockquote><Typography variant='h5'>{t("lang")}</Typography></blockquote>
             </Box>
@@ -116,7 +127,7 @@ export default function Pages({meta}: IPages) {
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12} lg={content.length > 0 ? 8 : 12}>
               <Box id='cardContent'>
-                <Parser html={meta.html} />
+                <Parser html={meta?.html||""} />
               </Box>
             </Grid>
             <Hidden lgDown>

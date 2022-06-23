@@ -6,7 +6,7 @@ import Image from '@comp/Image'
 import Label from '@comp/Label'
 import { numberFormat } from '@portalnesia/utils';
 import { daysArray, IMenu } from '@type/index';
-import { getDayJs, isBetweenHour, isOutletOpen, photoUrl } from '@utils/Main';
+import { getDayJs, isBetweenHour, photoUrl } from '@utils/Main';
 import Iconify from '@comp/Iconify';
 import Button from '@comp/Button';
 import {Context} from '@redux/cart'
@@ -24,10 +24,11 @@ const ProductImgStyle = styled(Image)({
 
 interface ProductsProps {
   items: IMenu['data'][number],
-  maxWidth?: boolean
+  maxWidth?: boolean,
+  enabled?: boolean
 }
 
-export default function Products({ items,maxWidth }: ProductsProps) {
+export default function Products({ items,maxWidth,enabled }: ProductsProps) {
   const { name, image, price, disscount:priceSale } = items;
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
@@ -57,10 +58,6 @@ export default function Products({ items,maxWidth }: ProductsProps) {
   const clickProduct = useCallback(()=>{
     console.log(items.name)
   },[items])
-
-  const enabled = useMemo(()=>{
-    return isOutletOpen(outlet).enabled;
-  },[outlet])
 
   return (
     <Card {...(maxWidth ? {sx:{width:{xs:200,md:250,lg:300}}} : {})}>

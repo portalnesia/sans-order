@@ -232,7 +232,7 @@ function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
       const price = n.price * n.qty;
       const disscount = (n?.disscount||0) * n.qty;
       p.price = p.price + price;
-      p.disscount = p.disscount + disscount;
+      p.disscount = (p.disscount||0) + disscount;
       return p;
     },{price:0,disscount:0})
 
@@ -357,7 +357,7 @@ function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
                         </Box>
                       </TableCell>
                       <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
-                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.disscount}`)}`}</TableCell>
+                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${(d.disscount||0)}`)}`}</TableCell>
                       <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${(d.price*d.qty) - ((d?.disscount||0)*d.qty)}`)}`}</TableCell>
                     </TableRow>
                   ))}
@@ -426,7 +426,7 @@ function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
                       </Box>
                     </TableCell>
                     <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
-                    <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.disscount}`)}`}</TableCell>
+                    <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${(d.disscount||0)}`)}`}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -639,13 +639,13 @@ function TableTr({data,captchaRef,mutate}: {data: ITransactaion,captchaRef: PayP
                 <TableBody>
                   {data.items.map((d)=>{
                     const subtotal = d.price*d.qty;
-                    const disscount = d.disscount*d.qty;
+                    const disscount = (d.disscount||0)*d.qty;
                     const total = subtotal-disscount;
                     return (
                       <TableRow hover key={`items-${data.id}-${d.id}`}>
                         <TableCell>{`${d.name}`}</TableCell>
                         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.disscount}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${(d.disscount||0)}`)}`}</TableCell>
                         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.qty}</TableCell>
                         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.hpp ? `IDR ${numberFormat(`${d.hpp}`)}` : '-'}</TableCell>
                         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${subtotal}`)}`}</TableCell>

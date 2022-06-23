@@ -95,7 +95,7 @@ function LoginSection() {
             <Typography variant="h4" gutterBottom>
               {t("signin")}
             </Typography>
-            <Button onClick={login} sx={{mt:3,backgroundColor:'#2f6f4e !important'}} size="large" startIcon={<Image src="/icon/android-icon-48x48.png" width={25} />}>{tMenu("signin")}</Button>
+            <Button onClick={login} sx={{mt:3,backgroundColor:'#2f6f4e !important'}} size="large" startIcon={<Image src="/portalnesia-icon/android-icon-48x48.png" width={25} />}>{tMenu("signin")}</Button>
             {typeof err === 'string' && (
               <Alert variant='outlined' sx={{mt:2,minWidth:{xs:'90%',md:400,justifyContent:'center'}}} severity='error'>{decodeURIComponent(err.replace(/\+/gim,' '))}</Alert>
             )}

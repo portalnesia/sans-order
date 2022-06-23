@@ -34,10 +34,11 @@ export const getServerSideProps = wrapper(async({checkOutlet,params,redirect})=>
 });
 
 interface CarouselProps {
-  data: IMenu
+  data: IMenu,
+  enabled: boolean
 }
 
-function Carousel({data}: CarouselProps) {
+function Carousel({data,enabled}: CarouselProps) {
   const {t} = useTranslation('catalogue');
   const router = useRouter();
   const {toko_id,outlet_id,slug} = router.query;
@@ -46,14 +47,14 @@ function Carousel({data}: CarouselProps) {
       <Stack mb={4} direction='row' justifyContent={'space-between'} alignItems='center' spacing={2} sx={{pb:1,mb:4,borderBottom:(theme)=>`1px solid ${theme.palette.divider}`}}>
         <Typography variant='h3' component='h3'>{data.category}</Typography>
         {!slug && data.data.length >= 5 && (
-          <Button size='small' onClick={()=>router.replace(`/merchant/[toko_id]/[outlet_id]/[[...slug]]`,`/merchant/${toko_id}/${outlet_id}/${data.category.toLowerCase()}`,{shallow:true})}>{t("view_more")}</Button>
+          <Button size='small' onClick={()=>router.push(`/merchant/[toko_id]/[outlet_id]/[[...slug]]`,`/merchant/${toko_id}/${outlet_id}/${data.category.toLowerCase()}`,{shallow:true})}>{t("view_more")}</Button>
         )}
       </Stack>
       <Box>
         <Scrollbar>
           <Box display='flex' flexDirection="row" alignItems="center">
             {data.data.map((d,i)=>(
-              <Box px={1}><Products maxWidth items={d} /></Box>
+              <Box px={1}><Products enabled={enabled} maxWidth items={d} /></Box>
             ))}
           </Box>
         </Scrollbar>
@@ -67,9 +68,10 @@ interface GridDataProps {
   page: number,
   setPage(_e:any,p:number): void
   count: number,
-  onBack(): void
+  onBack(): void,
+  enabled: boolean
 }
-function GridData({data,page,setPage,count,onBack}: GridDataProps) {
+function GridData({data,page,setPage,count,onBack,enabled}: GridDataProps) {
   const {t} = useTranslation('common');
   const router = useRouter();
   const {toko_id,outlet_id,slug} = router.query;
@@ -86,7 +88,7 @@ function GridData({data,page,setPage,count,onBack}: GridDataProps) {
         <Grid container spacing={4}>
           {data.data.map((d,i)=>(
             <Grid item xs={12} sm={6} md={4} lg={3} key={`product-${d.id}`}>
-              <Products items={d} />
+              <Products enabled={enabled} items={d} />
             </Grid>
           ))}
           <Grid item xs={12}>
@@ -141,11 +143,8 @@ function MerchantOutlet({meta,socket}: IPages  & ({socket:ISocket|null})) {
   },[table_number,router,table])
 
   React.useEffect(()=>{
-    sudah.current = false;
-  },[toko_id,outlet_id])
-
-  React.useEffect(()=>{
     if(typeof slug?.[0] === 'undefined') sudah.current = true;
+    else sudah.current = false;
   },[slug])
 
   React.useEffect(()=>{
@@ -173,7 +172,8 @@ function MerchantOutlet({meta,socket}: IPages  & ({socket:ISocket|null})) {
   return (
     <Header title={meta?.title} desc={meta?.description} image={meta?.image}>
       <CartContext>
-        <Dashboard withDashboard={false} withNavbar={false} logoProps={{href:!outlet ? false : `merchant/${outlet.toko.slug}/${outlet.id}`}}>
+        <Dashboard withDashboard={false} withNavbar={false} logoProps={{href:!outlet ? false : `merchant/${outlet.toko.slug}/${outlet.id}`}}
+        backToTop={{sx:{bottom:{xs:88,md:104},right:{xs:32,md:48}},color:'secondary'}} >
           <Container maxWidth='lg' sx={{mt:2}}>
             {!outlet && !errOutlet ? (
               <Box display='flex' position='absolute' top='40%' left='50%' alignItems={'center'} justifyContent='center'><Circular /></Box>
@@ -221,16 +221,16 @@ function MerchantOutlet({meta,socket}: IPages  & ({socket:ISocket|null})) {
                       <Typography variant='h3' component='h3'>{error?.message}</Typography>
                     </Box>
                   ) : Array.isArray(data) ? data.map((d,i)=>(
-                    <Carousel key={d.category} data={d} />
+                    <Carousel enabled={isEnabled.enabled} key={d.category} data={d} />
                   )) : data && 'total' in data ? (
-                    <GridData data={data} page={page} setPage={setPage} count={data?.total_page||0} onBack={onBack} />
+                    <GridData enabled={isEnabled.enabled} data={data} page={page} setPage={setPage} count={data?.total_page||0} onBack={onBack} />
                   ) : null}
                 </Box>
               </>
             ) : null}
           </Container>
         </Dashboard>
-        {isEnabled.enabled && <Cart table_number={table} /> }
+        { isEnabled.enabled && <Cart table_number={table} /> }
       </CartContext>
     </Header>
   )
