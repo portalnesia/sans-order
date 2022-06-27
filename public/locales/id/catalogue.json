@@ -43,5 +43,7 @@
   "saturday":"Sabtu",
   "busy":"Tutup Sementara",
   "close":"Tutup",
-  "open":"Buka"
+  "open":"Buka",
+  "example_notes":"Maks 100 karakter. Contoh: Dikitin gulanya",
+  "notes":"Catatan"
 }

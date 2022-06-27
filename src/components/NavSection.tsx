@@ -11,7 +11,7 @@ import Iconify from './Iconify';
 
 // ----------------------------------------------------------------------
 
-const ListItemStyle = styled(ListItemButton)(
+export const ListItemStyle = styled(ListItemButton)<{target?: string,href?:string}>(
   ({ theme }) => ({
     ...theme.typography.body2,
     height: 48,
@@ -35,7 +35,7 @@ const ListItemStyle = styled(ListItemButton)(
   })
 );
 
-const ListItemIconStyle = styled(ListItemIcon)({
+export const ListItemIconStyle = styled(ListItemIcon)({
   width: 22,
   height: 22,
   display: 'flex',
@@ -45,14 +45,15 @@ const ListItemIconStyle = styled(ListItemIcon)({
 
 // ----------------------------------------------------------------------
 
-type IRootNavItems = {
+export type IRootNavItems = {
   title: string,
   path: string,
   icon?: string|JSX.Element,
   info?: string,
+  new_tab?: boolean
 }
 
-type INavItems = IRootNavItems & ({
+export type INavItems = IRootNavItems & ({
   children?: IRootNavItems[]
 })
 
@@ -65,7 +66,7 @@ function NavItem({ item, active }: NavItemProps) {
   const router = useRouter();
   const theme = useTheme();
   const isActiveRoot = active(item.path);
-  const { title, path, icon, info, children } = item;
+  const { title, path, icon, info, children,new_tab } = item;
   const [open, setOpen] = useState(isActiveRoot);
 
   const handleOpen = useCallback(() => {
@@ -106,7 +107,7 @@ function NavItem({ item, active }: NavItemProps) {
         <Collapse in={open} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
             {children.map((item) => {
-              const { title, path } = item;
+              const { title, path,new_tab } = item;
               const isActiveSub = active(path);
 
               return (
@@ -118,6 +119,7 @@ function NavItem({ item, active }: NavItemProps) {
                     sx={{
                       ...(isActiveSub && activeSubStyle)
                     }}
+                    {...(new_tab ? {target:'_blank'} : {})}
                   >
                     <ListItemIconStyle>
                       <Box
@@ -157,6 +159,7 @@ function NavItem({ item, active }: NavItemProps) {
         sx={{
           ...(isActiveRoot && activeRootStyle)
         }}
+        {...(new_tab ? {target:'_blank'} : {})}
       >
         <ListItemIconStyle>{icon && icon}</ListItemIconStyle>
         <ListItemText disableTypography primary={title} />

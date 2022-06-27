@@ -1,5 +1,5 @@
 // material
-import { Box, Grid, Container, Typography,Tooltip,IconButton,TextField, Card, FormControlLabel, Switch,Checkbox,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText, FormLabel, Portal, Autocomplete, AutocompleteChangeReason } from '@mui/material';
+import { Box, Grid, Container, Typography,Tooltip,IconButton,TextField, Card, FormControlLabel, Switch,Checkbox,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText, FormLabel, Portal, Autocomplete, AutocompleteChangeReason, AutocompleteInputChangeReason, FormControl, InputAdornment, InputLabel, OutlinedInput } from '@mui/material';
 import {AddAPhoto,Create,Delete} from '@mui/icons-material'
 // components
 import Header from '@comp/Header';
@@ -12,7 +12,7 @@ import Button from '@comp/Button'
 import Backdrop from '@comp/Backdrop'
 import Image from '@comp/Image'
 import Popover from '@comp/Popover'
-import {IOutlet,IPages,ResponsePagination,IProduct, Without, IStocks} from '@type/index'
+import {IOutlet,IPages,ResponsePagination,IProduct, Without, IIngredients} from '@type/index'
 import wrapper from '@redux/store'
 import {useTranslation} from 'next-i18next';
 import useSWR from '@utils/swr';
@@ -38,7 +38,7 @@ const Browser = dynamic(()=>import('@comp/Browser'),{ssr:false})
 
 export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true,onlyAccess:['items']},translation:'dash_product'})
 
-type IInputProduct = Without<IProduct,'id'|'outlet_id'|'toko_id'|'metadata'|'disscount'|'stocks'> & ({stocks: {id: number,consume: number}[] | null})
+type IInputProduct = Without<IProduct,'id'|'outlet_id'|'toko_id'|'metadata'|'disscount'|'recipes'> & ({recipes: {id: number,consume: number}[] | null})
 
 interface FormProps {
   input: IInputProduct,
@@ -46,11 +46,12 @@ interface FormProps {
   loading?: boolean
   openBrowser(): void
   autoFocus?:boolean,
-  stocksOption: IStocks[],
-  stocksLoading: boolean
+  ingOptions: IIngredients[],
+  ingLoading: boolean,
+  handleAutocompleteInputChange(e: React.SyntheticEvent<Element, Event>, value: string,reason: AutocompleteInputChangeReason): void
 }
 
-function Form({input,setInput,loading,openBrowser,autoFocus,stocksOption,stocksLoading}: FormProps) {
+function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoading,handleAutocompleteInputChange}: FormProps) {
   const {t} = useTranslation('dash_product');
   const {t:tMenu} = useTranslation('menu');
   const {t:tCom} = useTranslation('common');
@@ -70,11 +71,20 @@ function Form({input,setInput,loading,openBrowser,autoFocus,stocksOption,stocksL
     setInput({...input,[name]:val||null})
   },[input])
 
+  const handleInputChange=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: string,reason: AutocompleteInputChangeReason)=>{
+    if(reason==='input') return handleAutocompleteInputChange(e,value,reason);
+    else if(reason==='clear') {
+      if(edit) {
+        setEdit({...edit,id:0})
+      }
+    }
+  },[handleAutocompleteInputChange,edit])
+
   const handleChecked = React.useCallback((name: keyof IInputProduct)=>(e?: React.ChangeEvent<HTMLInputElement>)=>{
     setInput({...input,[name]:e?.target?.checked||false})
   },[input])
 
-  const handleAutocomplete=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: IStocks | null,reason: AutocompleteChangeReason)=>{
+  const handleAutocomplete=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: IIngredients | null,reason: AutocompleteChangeReason)=>{
     if(value) {
       setEdit({consume:(edit?.consume||0),id:value.id})
     }
@@ -87,66 +97,50 @@ function Form({input,setInput,loading,openBrowser,autoFocus,stocksOption,stocksL
     if(edit.id === 0) return setNotif("Invalid stock",true);
     if(edit.consume === 0) return setNotif("Invalid stock consume",true);
 
-    const stocks = input.stocks||[];
-    const i = stocks.findIndex(s=>s.id === edit.id);
+    const recipes = input.recipes||[];
+    const i = recipes.findIndex(s=>s.id === edit.id);
     if(i >= 0) {
-      stocks[i] = edit;
+      recipes[i] = edit;
     } else {
-      stocks.push(edit)
+      recipes.push(edit)
     }
-    setInput({...input,stocks})
+    setInput({...input,recipes})
     setEdit(null);
   },[edit,input])
 
-  const handleDeleteStocks = React.useCallback((item: IStocks)=>()=>{
-    const stocks = input.stocks||[];
-    const i = stocks.findIndex(s=>s.id === item.id);
+  const handleDeleteStocks = React.useCallback((item: IIngredients)=>()=>{
+    const recipes = input.recipes||[];
+    const i = recipes.findIndex(s=>s.id === item.id);
     if(i >= 0) {
-      stocks.splice(i,1);
-      setInput({...input,stocks})
+      recipes.splice(i,1);
+      setInput({...input,recipes})
     }
   },[input])
 
-  const handleEditStock = React.useCallback((item: IStocks & ({consume: number}))=>()=>{
+  const handleEditStock = React.useCallback((item: IIngredients & ({consume: number}))=>()=>{
     setEdit({id: item.id,consume: item.consume})
   },[])
 
   const valueAutoComplete = React.useMemo(()=>{
     let val = null;
     if(edit) {
-      const a = stocksOption.find(s=>s.id === edit.id)
+      const a = ingOptions.find(s=>s.id === edit.id)
       if(a) val = a;
     }
     return val;
-  },[stocksOption,edit])
+  },[ingOptions,edit])
 
-  const stocks_arr = React.useMemo(()=>{
-    if(input.stocks) {
-      let arr: (IStocks & {consume: number})[]=[];
-      for(const stock of input.stocks) {
-        const s = stocksOption.find(s=>s.id === stock.id);
+  const ing_arr = React.useMemo(()=>{
+    if(input.recipes) {
+      let arr: (IIngredients & {consume: number})[]=[];
+      for(const stock of input.recipes) {
+        const s = ingOptions.find(s=>s.id === stock.id);
         if(s) arr.push({...s,consume:stock.consume});
       }
       return arr;
     }
     return null;
-  },[input,stocksOption])
-
-  const hpp = React.useMemo(()=>{
-    const {price: hpp} = (stocks_arr||[]).reduce((prev,item)=>({
-      ...item,
-      price: prev.price + (item.price * item.consume)
-    }),{
-      id: 0,
-      name:'',
-      price:0,
-      description:null,
-      unit:'',
-      stock:0,
-      consume:0
-    })
-    return hpp;
-  },[stocks_arr])
+  },[input,ingOptions])
 
   return (
     <>
@@ -177,6 +171,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,stocksOption,stocksL
           fullWidth
           autoFocus={autoFocus}
           placeholder='Cappucino'
+          disabled={loading}
         />
       </Grid>
       <Grid item xs={12} md={6}>
@@ -186,6 +181,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,stocksOption,stocksL
           onChange={handleChange('category')}
           fullWidth
           placeholder='Coffee'
+          disabled={loading}
         />
       </Grid>
 
@@ -199,43 +195,53 @@ function Form({input,setInput,loading,openBrowser,autoFocus,stocksOption,stocksL
           helperText={`IDR ${numberFormat(`${input.price||0}`)}`}
           type='number'
           inputProps={{min:0}}
+          disabled={loading}
         />
       </Grid>
 
       <Grid item xs={12} sm={6}>
-        <FormLabel>HPP</FormLabel>
-        <Typography>{`IDR ${numberFormat(`${hpp}`)}`}</Typography>
+        <TextField
+          label={"HPP"}
+          value={input.hpp||0}
+          onChange={handleChange('hpp')}
+          required
+          fullWidth
+          helperText={`IDR ${numberFormat(`${input.hpp||0}`)}`}
+          type='number'
+          inputProps={{min:0}}
+          disabled={loading}
+        />
       </Grid>
 
       <Grid item xs={12}>
         <div className='flex-header'>
-          <FormLabel>{tMenu('stock')}</FormLabel>
-          <Button size='small' color='inherit' onClick={()=>setEdit({id:0,consume:0})}>{tCom("add_ctx",{what:tMenu("stock")})}</Button>
+          <FormLabel>{tMenu('recipes')}</FormLabel>
+          <Button disabled={loading} size='small' color='inherit' onClick={()=>setEdit({id:0,consume:0})}>{tCom("add_ctx",{what:tMenu("ingredient")})}</Button>
         </div>
         
         <Scrollbar>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell align="left">{tCom("name_ctx",{what:tMenu("stock")})}</TableCell>
+                <TableCell align="left">{tCom("name_ctx",{what:tMenu("ingredient")})}</TableCell>
                 <TableCell>Consume</TableCell>
                 <TableCell width='20%'></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {stocks_arr && stocks_arr.length > 0 ? stocks_arr.map(s=>(
+              {ing_arr && ing_arr.length > 0 ? ing_arr.map(s=>(
                 <TableRow key={`table-stock-${s.id}`}>
                   <TableCell align="left">{s.name}</TableCell>
                   <TableCell>{`${s.consume} ${s.unit}`}</TableCell>
                   <TableCell align='right'>
-                    <Box sx={{flexDirection:'row'}}>
+                    <Stack direction='row' spacing={2}>
                       <IconButton sx={{mr:1}} onClick={handleEditStock(s)}>
                         <Create />
                       </IconButton>
                       <IconButton onClick={handleDeleteStocks(s)}>
                         <Delete />
                       </IconButton>
-                    </Box>
+                    </Stack>
                   </TableCell>
                 </TableRow>
               )) : (
@@ -262,7 +268,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,stocksOption,stocksL
           </Box>
         )}
         <Box className='flex-header' pl={{sm:2,md:3,lg:5}} pr={{sm:2,md:3,lg:5}}>
-          <Tooltip title={tCom("remove_ctx",{what:tCom("Geral.image")})}><IconButton disabled={(!(!!input.image))} sx={{color:'error.main'}} onClick={()=>setInput({...input,image:null})}><Delete /></IconButton></Tooltip>
+          <Tooltip title={tCom("remove_ctx",{what:tCom("Geral.image")})}><IconButton disabled={(!(!!input.image) || loading)} sx={{color:'error.main'}} onClick={()=>setInput({...input,image:null})}><Delete /></IconButton></Tooltip>
           <Tooltip title={input.image ? tCom("change_ctx",{what:tCom("image")}) : tCom("add_ctx",{what:tCom("image")})}><IconButton disabled={loading} sx={{color:'primary.main'}} onClick={openBrowser}><AddAPhoto /></IconButton></Tooltip>
         </Box>
       </Grid>
@@ -280,16 +286,17 @@ function Form({input,setInput,loading,openBrowser,autoFocus,stocksOption,stocksL
                   clearOnBlur
                   clearOnEscape
                   onChange={handleAutocomplete}
-                  options={stocksOption}
+                  onInputChange={handleInputChange}
+                  options={ingOptions}
                   getOptionLabel={o=>o.name}
-                  loading={stocksLoading}
+                  loading={ingLoading}
                   open={openAutocomplete}
                   onOpen={()=>setOpenAutocomplete(true)}
                   onClose={()=>setOpenAutocomplete(false)}
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label={tMenu('stock')}
+                      label={tMenu('ingredient')}
                       variant="outlined"
                       fullWidth
                       required
@@ -298,16 +305,24 @@ function Form({input,setInput,loading,openBrowser,autoFocus,stocksOption,stocksL
                 />
               </Grid>
               <Grid item xs={12} md={6}>
-              <TextField
-                label={"Consume"}
-                value={edit?.consume||0}
-                onChange={(e)=>setEdit({id:edit?.id||0,consume:Number.parseFloat(e.target.value)})}
-                required
-                helperText={valueAutoComplete ? valueAutoComplete.unit : ''}
-                fullWidth
-                type='number'
-                inputProps={{min:0,step:'any'}}
-              />
+                <FormControl variant='outlined' disabled={loading} fullWidth>
+                  <InputLabel htmlFor='ingredient-consume'>{"Consume"}</InputLabel>
+                  <OutlinedInput
+                    label={"Consume"}
+                    id='ingredient-consume'
+                    type='number'
+                    value={edit?.consume||0}
+                    onChange={(e)=>setEdit({id:edit?.id||0,consume:Number.parseFloat(e.target.value)})}
+                    placeholder='5'
+                    inputProps={{min:0,step:'any'}}
+                    endAdornment={ valueAutoComplete ?
+                      <InputAdornment position='end'>
+                        <Typography>{valueAutoComplete?.unit}</Typography>
+                      </InputAdornment>
+                      : undefined
+                    }
+                  />
+                </FormControl>
               </Grid>
             </Grid>
           </DialogContent>
@@ -369,9 +384,10 @@ const DEFAULT_INPUT: IInputProduct = {
   active:false,
   show_in_menu:false,
   price:0,
+  hpp:0,
   image: null,
   category:null,
-  stocks: []
+  recipes: []
 }
 
 export default function OutletProducts({meta}: IPages) {
@@ -390,13 +406,17 @@ export default function OutletProducts({meta}: IPages) {
   const [dDelete,setDDelete] = React.useState<IProduct|null|boolean>(null);
   const [loading,setLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<IProduct[]>([]);
-  const {data,error,mutate} = useSWR<ResponsePagination<IProduct>>(`/toko/${toko_id}/${outlet_id}/items?page=${page}&per_page=${rowsPerPage}`);
+  const {data,error,mutate} = useSWR<ResponsePagination<IProduct>>(`/sansorder/toko/${toko_id}/${outlet_id}/items?page=${page}&per_page=${rowsPerPage}`);
   const [browser,setBrowser] = React.useState(false);
-  const [stocksOption,setStocksOption]=React.useState<IStocks[]>([]);
-  const [stocksLoading,setStocksLoading] = React.useState(false);
+  const [ingOptions,setIngOption]=React.useState<IIngredients[]>([]);
+  const [ingLoading,setIngLoading] = React.useState(false);
 
   const captchaRef = React.useRef<Recaptcha>(null);
 
+  const handleSelectedImage=React.useCallback((image: string|null)=>{
+    setInput(p=>({...p,image}))
+  },[setInput])
+  
   const handleSelectAllClick = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelecteds = data?.data||[]
@@ -425,10 +445,6 @@ export default function OutletProducts({meta}: IPages) {
     setSelected(newSelected);
   },[selected]);
 
-  const handleSelectedImage=React.useCallback((image: string|null)=>{
-    setInput(p=>({...p,image}))
-  },[setInput])
-
   const buttonCreate=React.useCallback(()=>{
     setInput(DEFAULT_INPUT);
     setDCreate(true)
@@ -445,7 +461,7 @@ export default function OutletProducts({meta}: IPages) {
     setLoading(true);
     try {
       const recaptcha = await captchaRef.current?.execute();
-      await post(`/toko/${toko_id}/${outlet_id}/items`,{...input,recaptcha});
+      await post(`/sansorder/toko/${toko_id}/${outlet_id}/items`,{...input,recaptcha});
       mutate();
       setNotif(tCom("saved"),false)
       setDCreate(false)
@@ -461,7 +477,7 @@ export default function OutletProducts({meta}: IPages) {
     setLoading(true);
     try {
       const recaptcha = await captchaRef.current?.execute();
-      await put(`/toko/${toko_id}/${outlet_id}/items/${dEdit?.id}`,{...input,recaptcha});
+      await put(`/sansorder/toko/${toko_id}/${outlet_id}/items/${dEdit?.id}`,{...input,recaptcha});
       mutate();
       setNotif(tCom("saved"),false)
       setDEdit(null)
@@ -476,7 +492,7 @@ export default function OutletProducts({meta}: IPages) {
     if(typeof dDelete !== 'boolean' && dDelete && 'id' in dDelete) {
       setLoading(true);
       try {
-        await del(`/toko/${toko_id}/${outlet_id}/items/${dDelete?.id}`);
+        await del(`/sansorder/toko/${toko_id}/${outlet_id}/items/${dDelete?.id}`);
         mutate();
         setNotif(tCom("deleted"),false)
         setDDelete(null)
@@ -493,7 +509,7 @@ export default function OutletProducts({meta}: IPages) {
       setLoading(true);
       try {
         const ids = selected.map(s=>s.id);
-        await post(`/toko/${toko_id}/${outlet_id}/bulk/delete`,{type:'item',ids});
+        await post(`/sansorder/toko/${toko_id}/${outlet_id}/bulk/delete`,{type:'item',ids});
         mutate();
         setNotif(tCom("General.deleted"),false)
         setDDelete(null)
@@ -505,19 +521,39 @@ export default function OutletProducts({meta}: IPages) {
     }
   },[selected,post,setNotif,toko_id,outlet_id,mutate,tCom])
 
+  const handleAutocompleteInputChange=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: string,reason: AutocompleteInputChangeReason)=>{
+    if(reason==='input') {
+      const filter=ingOptions.filter(item=>`${item.name}`.toLowerCase().indexOf(`${value}`.toLowerCase()) > -1);
+      if(filter?.length === 0){
+        setIngLoading(true)
+        get<ResponsePagination<IIngredients>>(`/sansorder/toko/${toko_id}/${outlet_id}/ingredients?per_page=15&q=${encodeURIComponent(`${value}`)}`)
+        .then((res)=>{
+          let b=ingOptions;
+          const prevOption = Object.values(ingOptions).map(o=>o.id);
+          res?.data?.forEach((rs)=>{
+            if(prevOption.indexOf(rs.id)===-1) b=b.concat(rs)
+          })
+          setIngOption(res.data);
+        }).catch((err)=>{
+            
+        }).finally(()=>setIngLoading(false))
+      }
+    }
+  },[ingOptions])
+
   useMousetrap(['+','shift+='],buttonCreate);
 
   React.useEffect(()=>{
-    if(stocksOption.length === 0) {
-      setStocksLoading(true)
-      get<ResponsePagination<IStocks>>(`/toko/${toko_id}/${outlet_id}/stocks?per_page=100`)
+    if(ingOptions.length === 0) {
+      setIngLoading(true)
+      get<ResponsePagination<IIngredients>>(`/sansorder/toko/${toko_id}/${outlet_id}/ingredients?per_page=100`)
       .then((res)=>{
-        setStocksOption(res.data);
+        setIngOption(res.data);
       }).catch((err)=>{
           
-      }).finally(()=>setStocksLoading(false))
+      }).finally(()=>setIngLoading(false))
     }
-  },[toko_id,outlet_id,get,stocksOption])
+  },[toko_id,outlet_id,get,ingOptions])
 
   return (
     <Header title={`${tMenu("products")} - ${meta?.title}`} desc={meta?.description}>
@@ -570,18 +606,6 @@ export default function OutletProducts({meta}: IPages) {
                     </TableRow>
                   ) : data?.data?.map((d)=>{
                     const isSelected = selected.findIndex(it=>it.id === d.id) !== -1;
-                    const {price: hpp} =( d.stocks||[]).reduce((prev,item)=>({
-                      ...item,
-                      price: prev.price + (item.price * item.consume)
-                    }),{
-                      id: 0,
-                      name:'',
-                      price:0,
-                      description:null,
-                      unit:'',
-                      stock:0,
-                      consume:0
-                    })
 
                     return (
                       <TableRow
@@ -600,9 +624,9 @@ export default function OutletProducts({meta}: IPages) {
                         </TableCell>
                         <TableCell>{d?.name}</TableCell>
                         <TableCell sx={{whiteSpace:'nowrap'}}>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}}>{`IDR ${numberFormat(`${hpp}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}}>{`IDR ${numberFormat(`${d.hpp}`)}`}</TableCell>
                         <TableCell>
-                          {d?.stocks?.map(s=>(
+                          {d?.recipes?.map(s=>(
                             <Typography variant='body2' sx={{fontSize:13}} >{`${s?.name||''}: ${s?.consume||''} ${s?.unit||''}`}</Typography>
                           ))}
                         </TableCell>
@@ -634,7 +658,7 @@ export default function OutletProducts({meta}: IPages) {
         <form onSubmit={handleCreate}>
           <DialogTitle>{tCom("add_ctx",{what:tMenu("products")})}</DialogTitle>
           <DialogContent dividers>
-            <Form input={input} setInput={setInput} loading={loading} openBrowser={()=>setBrowser(true)} stocksOption={stocksOption} stocksLoading={stocksLoading} />
+            <Form input={input} setInput={setInput} loading={loading} openBrowser={()=>setBrowser(true)} ingOptions={ingOptions} ingLoading={ingLoading} handleAutocompleteInputChange={handleAutocompleteInputChange} />
           </DialogContent>
           <DialogActions>
             <Button text color='inherit' disabled={loading} onClick={()=>setDCreate(false)}>{tCom("cancel")}</Button>
@@ -647,7 +671,7 @@ export default function OutletProducts({meta}: IPages) {
         <form onSubmit={handleEdit}>
           <DialogTitle>{`Edit ${tMenu("products")}`}</DialogTitle>
           <DialogContent dividers>
-            <Form autoFocus input={input} setInput={setInput} loading={loading} openBrowser={()=>setBrowser(true)} stocksOption={stocksOption} stocksLoading={stocksLoading} />
+            <Form autoFocus input={input} setInput={setInput} loading={loading} openBrowser={()=>setBrowser(true)} ingOptions={ingOptions} ingLoading={ingLoading} handleAutocompleteInputChange={handleAutocompleteInputChange} />
           </DialogContent>
           <DialogActions>
             <Button text color='inherit' disabled={loading} onClick={()=>setDEdit(null)}>{tCom("cancel")}</Button>

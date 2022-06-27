@@ -13,9 +13,13 @@ const navbarConfig = (t: TFunction)=>([
     path: '/pricing'
   },
   {
+    title:t("help"),
+    path:"/help"
+  }
+  /*{
     title: t("contact"),
     path: '/contact'
-  }
+  }*/
 ]);
 
 export default navbarConfig;

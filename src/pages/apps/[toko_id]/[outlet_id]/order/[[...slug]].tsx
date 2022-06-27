@@ -1,6 +1,6 @@
 // material
-import { Box, Grid, Container, Typography, IconButton,TextField,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,TableFooter,Card, MenuItem, ListItemIcon, ListItemText, Collapse} from '@mui/material';
-import {Close,Add,Remove,ExpandMore as ExpandMoreIcon} from '@mui/icons-material'
+import { Box, Grid, Container, Typography, IconButton,TextField,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,TableFooter,Card, MenuItem, ListItemIcon, ListItemText, Collapse,Portal} from '@mui/material';
+import {Close,Add,Remove,ExpandMore as ExpandMoreIcon, CheckBox, CheckBoxOutlineBlank} from '@mui/icons-material'
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/dashboard/index'
@@ -118,7 +118,7 @@ function DialogPay({items,total,open,onClose,captchaRef,id,onSuccess,table_numbe
     if(e?.preventDefault) e.preventDefault();
     if(cash < total) return setNotif(tCom("error_500"),true);
     setLoading(true)
-    const url = id ? `/toko/${toko_id}/${outlet_id}/transactions/${id}/pay` : `/toko/${toko_id}/${outlet_id}/transactions`;
+    const url = id ? `/sansorder/toko/${toko_id}/${outlet_id}/transactions/${id}/pay` : `/sansorder/toko/${toko_id}/${outlet_id}/transactions`;
     try {
       const recaptcha = await captchaRef.current?.execute();
       const input = {
@@ -211,7 +211,7 @@ function OutletCashier({captchaRef}: {captchaRef: React.RefObject<Recaptcha>}) {
   const [dPay,setDPay] = React.useState(false);
   const [dialog,setDialog] = React.useState(false)
   const {toko_id,outlet_id} = router.query;
-  const {data,error} = useSWR<IIProduct[]>(`/toko/${toko_id}/${outlet_id}/items/cashier?page=1&per_page=100`);
+  const {data,error} = useSWR<IIProduct[]>(`/sansorder/toko/${toko_id}/${outlet_id}/items/cashier?page=1&per_page=100`);
   const [items,setItems] = React.useState<IIProduct[]>([]);
   const [search,setSearch] = React.useState<IIProduct[]|null>(null);
   const [searchVal,setSearchVal] = React.useState("");
@@ -446,9 +446,10 @@ interface IMenu {
   disabled?: boolean,
   captchaRef: PayProps['captchaRef'],
   mutate: KeyedMutator<ResponsePagination<ITransactaion>>
+  onDetail: Function
 }
 
-function Menu({data,disabled,captchaRef,mutate}: IMenu) {
+function Menu({data,disabled,captchaRef,mutate,onDetail}: IMenu) {
   const {t} = useTranslation('dash_order');
   const {t:tMenu} = useTranslation('menu');
   const {t:tCom} = useTranslation('common');
@@ -463,7 +464,8 @@ function Menu({data,disabled,captchaRef,mutate}: IMenu) {
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
 
-  const onPrint=React.useCallback((token?: string)=>()=>{
+  const onPrint=React.useCallback((token?: string)=>(e: React.MouseEvent)=>{
+    e.stopPropagation();
     if(token) {
       handlePrint(toko_id as string,outlet_id as string,token);
     }
@@ -479,7 +481,7 @@ function Menu({data,disabled,captchaRef,mutate}: IMenu) {
     setLoading('update')
     try {
       const recaptcha = await captchaRef.current?.execute();
-      await put(`/toko/${toko_id}/${outlet_id}/transactions/${data.id}`,{status:"FINISHED",recaptcha});
+      await put(`/sansorder/toko/${toko_id}/${outlet_id}/transactions/${data.id}`,{status:"FINISHED",recaptcha});
       mutate();
       setNotif(tCom("saved"),false);
       setEdit(false);
@@ -490,15 +492,26 @@ function Menu({data,disabled,captchaRef,mutate}: IMenu) {
     }
   },[mutate,put,setNotif,data.id,toko_id,outlet_id,tCom]);
 
+  const handleDetail = React.useCallback(()=>{
+    setOpen(false)
+    onDetail()
+  },[onDetail])
+
   return (
     <>
-      <IconButton disabled={loading!==null||!!disabled} ref={ref} onClick={() => setOpen(true)}>
+      <IconButton disabled={loading!==null||!!disabled} ref={ref} onClick={(e) => {e.stopPropagation(),setOpen(true)}}>
         <Iconify icon="eva:more-vertical-fill" width={20} height={20} />
       </IconButton>
 
-      <MenuPopover open={open} onClose={()=>setOpen(false)} anchorEl={ref.current} paperSx={{py:1}}>
+      <MenuPopover open={open} onClose={()=>setOpen(false)} anchorEl={ref.current} paperSx={{py:1}} onBackdropClick={(e)=>{e.stopPropagation(),setOpen(false)}}>
+        <MenuItem disabled={loading!==null||!!disabled} sx={{ color: 'text.secondary',py:1 }} onClick={handleDetail}>
+          <ListItemIcon>
+            <Iconify icon="ep:warning" width={24} height={24} />
+          </ListItemIcon>
+          <ListItemText primary="Detail" primaryTypographyProps={{ variant: 'body2' }} />
+        </MenuItem>
         {(data.type==='self_order' && data.payment==='COD' && data.status==='PENDING') && (
-          <MenuItem key='menu-1' disabled={loading!==null||!!disabled} sx={{ color: 'text.secondary',py:1 }} onClick={()=>{setPay(true),setOpen(false)}}>
+          <MenuItem key='menu-1' disabled={loading!==null||!!disabled} sx={{ color: 'text.secondary',py:1 }} onClick={(e)=>{e.stopPropagation(),setPay(true),setOpen(false)}}>
             <ListItemIcon>
               <Iconify icon="fluent:payment-20-filled" width={24} height={24} />
             </ListItemIcon>
@@ -506,7 +519,7 @@ function Menu({data,disabled,captchaRef,mutate}: IMenu) {
           </MenuItem>
         )}
         {(!['FINISHED','CANCELED'].includes(data.order_status)) && (
-          <MenuItem key='menu-1' disabled={loading!==null||!!disabled||data.status!=='PAID'} sx={{ color: 'text.secondary',py:1 }} onClick={()=>{setEdit(true),setOpen(false)}}>
+          <MenuItem key='menu-1' disabled={loading!==null||!!disabled||data.status!=='PAID'} sx={{ color: 'text.secondary',py:1 }} onClick={(e)=>{e.stopPropagation(),setEdit(true),setOpen(false)}}>
             <ListItemIcon>
               <Iconify icon="icon-park-outline:transaction-order" width={24} height={24} />
             </ListItemIcon>
@@ -557,18 +570,24 @@ function TableTr({data,captchaRef,mutate}: {data: ITransactaion,captchaRef: PayP
     return getDayJs(data.timestamp).locale(locale||'en').pn_format('full')
   },[data.timestamp,locale])
 
+  const onDetail = React.useCallback((e?: React.MouseEvent<HTMLTableRowElement>)=>{
+    const target = e?.target as unknown as EventTarget & HTMLTableRowElement;
+    if(target) {
+      if(target?.nodeName?.toLowerCase() === 'td') setExpand(true)
+    } else {
+      setExpand(true)
+    }
+  },[])
+
   return (
     <>
       <TableRow
         key={`transactions-${data.id}`}
         tabIndex={-1}
         hover
+        onClick={onDetail}
+        sx={{cursor:'pointer'}}
       >
-        <TableCell align='center'>
-          <ExpandMore expand={expand} onClick={()=>setExpand(!expand)}>
-            <ExpandMoreIcon />
-          </ExpandMore>
-        </TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}}>{data.id}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}}>{`${data.metadata?.table_number||'-'}`}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}}>{date}</TableCell>
@@ -576,43 +595,56 @@ function TableTr({data,captchaRef,mutate}: {data: ITransactaion,captchaRef: PayP
         <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Label variant='filled' color={colorOrderStatus[data.order_status]}>{data.order_status}</Label></TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Label variant='filled' color={colorStatus[data.status]}>{data.status}</Label></TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.total}`)}`}</TableCell>
-        <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Menu data={data} captchaRef={captchaRef} mutate={mutate} /></TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Menu data={data} captchaRef={captchaRef} mutate={mutate} onDetail={onDetail} /></TableCell>
       </TableRow>
-
-      <TableRow key={`transactions-details-${data.id}`}>
-        <TableCell sx={{borderBottom:'unset',py:0}} colSpan={7}>
-          <Collapse in={expand} timeout='auto' unmountOnExit>
+      <Portal>
+        <Dialog open={expand} handleClose={()=>setExpand(false)} maxWidth='lg'>
+          <DialogTitle>
+            <Stack direction='row' justifyContent={'space-between'} alignItems='center' spacing={2}>
+              <Typography variant='h6'>{`#${data.id}`}</Typography>
+              <IconButton onClick={()=>setExpand(false)}><Close /></IconButton>
+            </Stack>
+          </DialogTitle>
+          <DialogContent>
             <Box sx={{m:1,mb:8}}>
               <Box sx={{mb:4}}>
                 <Typography paragraph variant='h6' component='h6'>Detail</Typography>
                 <Table>
                   <TableBody>
-                  <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{tMenu("cashier")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset'}}>{data.cashier}</TableCell>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{tMenu("cashier")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{data.cashier}</TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("type")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color='default'>{data.type.toUpperCase()}</Label></TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{t("type")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}><Label variant='filled' color='default'>{data.type.toUpperCase()}</Label></TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("payment_method")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color='info'>{data.payment}</Label></TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{t("payment_method")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}><Label variant='filled' color='info'>{data.payment}</Label></TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("payment_status")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color={colorStatus[data.status]}>{data.status}</Label></TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{t("payment_status")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}><Label variant='filled' color={colorStatus[data.status]}>{data.status}</Label></TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{t("order_status")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset'}}><Label variant='filled' color={colorOrderStatus[data.order_status]}>{data.order_status}</Label></TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{t("order_status")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}><Label variant='filled' color={colorOrderStatus[data.order_status]}>{data.order_status}</Label></TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell colSpan={2}><Typography>{tMenu("customer").toUpperCase()}</Typography></TableCell>
+                      <TableCell colSpan={2} sx={{pt:4,pl:0,borderBottom:'unset'}}><Typography>{tMenu("customer").toUpperCase()}</Typography></TableCell>
                     </TableRow>
                     <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset'}}>{tCom("name")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset'}}>{data.user ? data.user.name : '-'}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{tCom("name")}</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{data.user ? data.user.name : '-'}</TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>Email</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{data?.user?.email ? data.user.email : '-'}</TableCell>
+                    </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>Telephone</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{data?.user?.telephone ? data.user.telephone : '-'}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -620,46 +652,51 @@ function TableTr({data,captchaRef,mutate}: {data: ITransactaion,captchaRef: PayP
               <Box>
                 <Typography variant='h6' component='h6'>{t("detail",{what:tMenu("order")})}</Typography>
               </Box>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell align='center' colSpan={5}>{tMenu("products")}</TableCell>
-                    <TableCell rowSpan={2} align='right'>Subtotal</TableCell>
-                    <TableCell rowSpan={2} align='right'>{t("disscount")}</TableCell>
-                    <TableCell rowSpan={2} align='right'>Total</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>{tCom("name")}</TableCell>
-                    <TableCell align='right'>{t("price")}</TableCell>
-                    <TableCell align='right'>{t("disscount")}</TableCell>
-                    <TableCell align='right'>Qty</TableCell>
-                    <TableCell align='right'>HPP</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {data.items.map((d)=>{
-                    const subtotal = d.price*d.qty;
-                    const disscount = (d.disscount||0)*d.qty;
-                    const total = subtotal-disscount;
-                    return (
-                      <TableRow hover key={`items-${data.id}-${d.id}`}>
-                        <TableCell>{`${d.name}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${(d.disscount||0)}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.qty}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.hpp ? `IDR ${numberFormat(`${d.hpp}`)}` : '-'}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${subtotal}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${disscount}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${total}`)}`}</TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
+              <Scrollbar>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell rowSpan={2} align='center'>Status</TableCell>
+                      <TableCell align='center' colSpan={4}>{tMenu("products")}</TableCell>
+                      <TableCell rowSpan={2} align='right'>Subtotal</TableCell>
+                      <TableCell rowSpan={2} align='right'>{t("disscount")}</TableCell>
+                      <TableCell rowSpan={2} align='right'>Total</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>{tCom("name")}</TableCell>
+                      <TableCell align='right'>{t("price")}</TableCell>
+                      <TableCell align='right'>{t("disscount")}</TableCell>
+                      <TableCell align='right'>Qty</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {data.items.map((d)=>{
+                      const subtotal = d.price*d.qty;
+                      const disscount = (d.disscount||0)*d.qty;
+                      const total = subtotal-disscount;
+                      return (
+                        <TableRow hover key={`items-${data.id}-${d.id}`}>
+                          <TableCell align='center' sx={{whiteSpace:'nowrap'}}>{d.done ? <CheckBox color='primary' /> : <CheckBoxOutlineBlank />}</TableCell>
+                          <TableCell>
+                            <Typography>{`${d.name}`}</Typography>
+                            {d?.notes && <Typography variant='caption'>{d?.notes}</Typography>}
+                          </TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${(d.disscount||0)}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.qty}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${subtotal}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${disscount}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${total}`)}`}</TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </Scrollbar>
             </Box>
-          </Collapse>
-        </TableCell>
-      </TableRow>
+          </DialogContent>
+        </Dialog>
+      </Portal>
     </>
   )
 }
@@ -673,7 +710,7 @@ function OutletSelfOrder({captchaRef}: {captchaRef: PayProps['captchaRef']}) {
   const socket = useSocket();
   const {toko_id,outlet_id} = router.query;
   const {page,rowsPerPage,...pagination} = usePagination(true);
-  const {data,error,mutate} = useSWR<ResponsePagination<ITransactaion>>(`/toko/${toko_id}/${outlet_id}/transactions/pending?page=${page}&per_page=${rowsPerPage}`);
+  const {data,error,mutate} = useSWR<ResponsePagination<ITransactaion>>(`/sansorder/toko/${toko_id}/${outlet_id}/transactions/pending?page=${page}&per_page=${rowsPerPage}`);
   const [searchVal,setSearchVal] = React.useState('');
   const [search,setSearch] = React.useState<ITransactaion[]|undefined>(undefined);
   const is543 = useMediaQuery('(min-width:543px)')
@@ -731,14 +768,13 @@ function OutletSelfOrder({captchaRef}: {captchaRef: PayProps['captchaRef']}) {
           <Card>
             <Box sx={{p:2}}>
               <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
-              <Search autosize remove value={searchVal} onchange={handleSearch} onremove={handleSearchRemove} />
+              <Search autosize={is543} remove value={searchVal} onchange={handleSearch} onremove={handleSearchRemove} />
               </Stack>
             </Box>
             <Scrollbar>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell align='center'></TableCell>
                     <TableCell align='left'>ID</TableCell>
                     <TableCell align='left'>{ucwords(tCom("table_number"))}</TableCell>
                     <TableCell align='left'>{t("date")}</TableCell>
@@ -752,15 +788,15 @@ function OutletSelfOrder({captchaRef}: {captchaRef: PayProps['captchaRef']}) {
                 <TableBody>
                   {error ? (
                     <TableRow>
-                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{error?.message}</Typography></TableCell>
+                      <TableCell align="center" colSpan={8} sx={{ py: 3 }}><Typography>{error?.message}</Typography></TableCell>
                     </TableRow>
                   ) : !data && !error || !items ? (
                     <TableRow>
-                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
+                      <TableCell align="center" colSpan={8} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
                     </TableRow>
                   ) : items?.length === 0 ? (
                     <TableRow>
-                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:tMenu("transactions")})}</Typography></TableCell>
+                      <TableCell align="center" colSpan={8} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:tMenu("transactions")})}</Typography></TableCell>
                     </TableRow>
                   ) : items?.map((d)=>(
                     <TableTr key={`transaction-${d.id}`} data={d} captchaRef={captchaRef} mutate={mutate} />
@@ -795,7 +831,7 @@ export default function OutletCashierGeneral({meta}: IPages) {
 
   return (
     <Header title={`${meta?.title}`} desc={meta?.description}>
-      <Dashboard title={meta?.title} subtitle={meta?.toko_name}>
+      <Dashboard title={meta?.title} subtitle={meta?.toko_name} {...(typeof slug?.[0] === 'string' ? {view:`dashboard order ${slug?.[0]}`} : {})}>
         <Container>
             {slug?.[0] === 'cashier' && (
               <OutletCashier captchaRef={captchaRef} />

@@ -104,9 +104,10 @@ function MerchantOutlet({meta,socket}: IPages  & ({socket:ISocket|null})) {
 	const router = useRouter();
   const {t} = useTranslation('catalogue')
 	const {toko_id,outlet_id,slug,table_number} = router.query;
+  const locale = router.locale;
   const {outlet,errOutlet} = useOutlet(toko_id,outlet_id);
   const [page,setPage] = usePagination(true);
-  const {data,error} = useSWR<IMenu[]|ResponsePagination<IProduct>>(typeof slug?.[0] === 'undefined' ? `/toko/${toko_id}/${outlet_id}/menu` : `/toko/${toko_id}/${outlet_id}/menu/${slug?.[0]?.toLowerCase()}?page=${page}&per_page=25`)
+  const {data,error} = useSWR<IMenu[]|ResponsePagination<IProduct>>(typeof slug?.[0] === 'undefined' ? `/sansorder/toko/${toko_id}/${outlet_id}/menu` : `/sansorder/toko/${toko_id}/${outlet_id}/menu/${slug?.[0]?.toLowerCase()}?page=${page}&per_page=25`)
   const [table,setTable] = React.useState<string|undefined>();
   const [openSocket,setOpenSocket] = React.useState(false);
   let sudah = React.useRef(false);
@@ -126,6 +127,7 @@ function MerchantOutlet({meta,socket}: IPages  & ({socket:ISocket|null})) {
   const status = useMemo(()=>{
     if(!isEnabled.opened) return {color:'error.main',text:t('close')}
     if(isEnabled.busy) return {color:'warning.main',text:t('busy')};
+    if(!isEnabled.enabled) return {color:'warning.main',text:t('busy')};
     return {color:'primary.main',text:t('open')}
   },[isEnabled,t])
 
@@ -160,12 +162,12 @@ function MerchantOutlet({meta,socket}: IPages  & ({socket:ISocket|null})) {
     
     socket?.on('toko registered',handleRegistered)
     socket?.on('toko open',handleOpened);
-    socket?.on('closed',handleClosed);
+    socket?.on('toko closed',handleClosed);
 
     return ()=>{
       socket?.off('toko registered',handleRegistered)
       socket?.off('toko open',handleOpened);
-      socket?.off('closed',handleClosed);
+      socket?.off('toko closed',handleClosed);
     }
   },[socket,outlet_id])
 
@@ -173,7 +175,7 @@ function MerchantOutlet({meta,socket}: IPages  & ({socket:ISocket|null})) {
     <Header title={meta?.title} desc={meta?.description} image={meta?.image}>
       <CartContext>
         <Dashboard withDashboard={false} withNavbar={false} logoProps={{href:!outlet ? false : `merchant/${outlet.toko.slug}/${outlet.id}`}}
-        backToTop={{sx:{bottom:{xs:88,md:104},right:{xs:32,md:48}},color:'secondary'}} >
+        whatsappWidget={{enabled:false}} >
           <Container maxWidth='lg' sx={{mt:2}}>
             {!outlet && !errOutlet ? (
               <Box display='flex' position='absolute' top='40%' left='50%' alignItems={'center'} justifyContent='center'><Circular /></Box>
@@ -198,7 +200,7 @@ function MerchantOutlet({meta,socket}: IPages  & ({socket:ISocket|null})) {
                         {Object.keys(outlet.business_hour).map(key=>(
                           <TableRow>
                             <TableCell sx={{borderBottom:'unset',py:0.5}}>{t(`${key}`)}</TableCell>
-                            <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${getDayJs((outlet.business_hour as Record<Partial<IDay>, [number, number]>)[key as IDay][0]).pn_format('time')} - ${getDayJs((outlet.business_hour as Record<Partial<IDay>, [number, number]>)[key as IDay][1]).pn_format('time')}`}</TableCell>
+                            <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${getDayJs((outlet.business_hour as Record<Partial<IDay>, [number, number]>)[key as IDay][0]).locale(locale||'en').pn_format('time')} - ${getDayJs((outlet.business_hour as Record<Partial<IDay>, [number, number]>)[key as IDay][1]).locale(locale||'en').pn_format('time')}`}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -230,11 +232,11 @@ function MerchantOutlet({meta,socket}: IPages  & ({socket:ISocket|null})) {
             ) : null}
           </Container>
         </Dashboard>
-        { isEnabled.enabled && <Cart table_number={table} /> }
+        <Cart table_number={table} enabled={isEnabled.enabled} />
       </CartContext>
     </Header>
   )
 }
 
-const MerchantOutletSocket = withSocket(MerchantOutlet,{dashboard:false});
+const MerchantOutletSocket = withSocket(MerchantOutlet,{dashboard:false,view:'outlet menu'});
 export default MerchantOutletSocket;

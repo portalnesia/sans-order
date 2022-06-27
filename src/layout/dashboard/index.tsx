@@ -4,7 +4,6 @@ import { styled } from '@mui/material/styles';
 //
 import DashboardNavbar from './DashboardNavbar';
 import DashboardSidebar from './DashboardSidebar';
-import loadingImage from '@comp/loading-image-base64'
 import useInitData from '@utils/init-data'
 import {useSelector,State} from '@redux/index'
 import {ISocket, Socket} from '@utils/Socket';
@@ -12,6 +11,8 @@ import ForbiddenComp from '@comp/Forbidden';
 import { ITransaction } from '@type/index';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
+import { Alert, AlertTitle } from '@mui/material';
+import { SplashScreen } from '@comp/Loader';
 // ----------------------------------------------------------------------
 
 const APP_BAR_MOBILE = 64;
@@ -41,12 +42,14 @@ const MainStyle = styled('div')(({ theme }) => ({
 export interface DashboardProps {
   children: ReactNode,
   title?: string,
-  subtitle?: string
+  subtitle?: string,
+  view?: string,
+  dashboard?: boolean
 }
 
 
 
-export default function DashboardLayout({children,title,subtitle}: DashboardProps) {
+export default function DashboardLayout({children,title,subtitle,view,dashboard=true}: DashboardProps) {
   const {t} = useTranslation('common');
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
@@ -56,6 +59,7 @@ export default function DashboardLayout({children,title,subtitle}: DashboardProp
   const {adBlock} = useInitData();
   const [forb,setForb] = useState(false);
   const [socket,setSocket]=useState<ISocket>();
+  const [socketError,setSocketError] = useState(false);
 
 
   useEffect(()=>{
@@ -64,10 +68,10 @@ export default function DashboardLayout({children,title,subtitle}: DashboardProp
     }
     socket?.on('toko errors',onError);
 
-    async function configNotification() {
+    /*async function configNotification() {
       await Notification.requestPermission();
     }
-    configNotification();
+    configNotification();*/
     return ()=>{
       socket?.off('toko errors',onError)
     }
@@ -75,25 +79,38 @@ export default function DashboardLayout({children,title,subtitle}: DashboardProp
 
   useEffect(()=>{
     function onTransactions(dt: ITransaction) {
-      const notification = new Notification(t('notification.new'),{body:t('notification.new_desc',{id:dt?.id}),lang:locale.toUpperCase()});
-      notification.onclick = ()=>{
-        window.open(`/toko/${toko_id}/${outlet_id}/order/self-order` , '_blank');
-        notification.close();
+      if(dt.status === 'PENDING') {
+        const notification = new Notification(t('notification.new'),{body:t('notification.new_desc',{id:dt?.id}),lang:locale.toUpperCase()});
+        notification.onclick = ()=>{
+          window.open(`/apps/${toko_id}/${outlet_id}/order/self-order` , '_blank');
+          notification.close();
+        }
+      } else if(dt.status === 'PAID' && dt.order_status==='PROCESSING') {
+        const notification = new Notification(t('notification.updated'),{body:t('notification.updated_desc',{id:dt?.id,method:dt?.payment}),lang:locale.toUpperCase()});
+        notification.onclick = ()=>{
+          window.open(`/apps/${toko_id}/${outlet_id}/order/self-order` , '_blank');
+          notification.close();
+        }
       }
+      
     }
-    function onCashier(dt: ITransaction) {
-      const notification = new Notification(t('notification.updated'),{body:t('notification.updated_desc',{id:dt?.id,method:dt?.payment}),lang:locale.toUpperCase()});
-      notification.onclick = ()=>{
-        window.open(`/toko/${toko_id}/${outlet_id}/order/self-order` , '_blank');
-        notification.close();
-      }
+    function onDisconnect() {
+      setSocketError(true)
     }
+    function onReconnect() {
+      setSocketError(false)
+    }
+
     socket?.on('toko transactions',onTransactions);
-    socket?.on('toko cashier',onCashier);
+    //socket?.on('toko cashier',onCashier);
+    socket?.on('disconnect',onDisconnect);
+    socket?.on('reconnect',onReconnect)
 
     return ()=>{
       socket?.off('toko transactions',onTransactions);
-      socket?.off('toko cashier',onCashier);
+      //socket?.off('toko cashier',onCashier);
+      socket?.off('disconnect',onDisconnect);
+      socket?.off('reconnect',onReconnect)
     }
   },[socket,t,locale,toko_id,outlet_id])
 
@@ -101,16 +118,20 @@ export default function DashboardLayout({children,title,subtitle}: DashboardProp
     <>
       {forb ? <ForbiddenComp /> : (
         <RootStyle>
-          <Socket dashboard onRef={setSocket} />
+          <Socket dashboard={dashboard} onRef={setSocket} view={view} />
           {(loaded===false||!user||!socket) ? (
-            <div style={{position:'fixed',top:0,left:0,height:'100%',width:'100%',background:'#2f6f4e',zIndex:5000}}>
-              <img style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)'}} onContextMenu={(e)=>e.preventDefault()} className='load-child no-drag' alt='Portalnesia' src={loadingImage} />
-            </div>
+            <SplashScreen />
           ) : user && socket ? (
             <>
               <DashboardNavbar onOpenSidebar={() => setOpen(true)} />
               <DashboardSidebar title={title} subtitle={subtitle} isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
               <MainStyle>
+                {socketError && (
+                  <Alert severity="error" sx={{mb:3}}>
+                    <AlertTitle>Disconnected</AlertTitle>
+                    The connection with the server was lost. Please restart your browser 
+                  </Alert>
+                )}
                 {loaded && children}
               </MainStyle>
             </>

@@ -73,7 +73,7 @@ export default function DashboardApp({meta}: IPages) {
   const [iEdit,setIEdit] = React.useState<Without<IToko,'id'|'slogan'|'slug'>>({name:'',description:'',logo:null});
 
   const {toko,errToko,mutateToko} = useToko(toko_id);
-  const {data:outlet,error:errorOutlet,mutate:mutateOutlet} = useSWR<ResponsePagination<IOutletPagination>>(`/toko/${toko_id}/outlet?page=${page}&per_page=12`)
+  const {data:outlet,error:errorOutlet,mutate:mutateOutlet} = useSWR<ResponsePagination<IOutletPagination>>(`/sansorder/toko/${toko_id}/outlet?page=${page}&per_page=12`)
   const captchaRef = React.useRef<Recaptcha>(null)
   const menus = React.useMemo(()=>MENU(t,tCom),[t,tCom])
 
@@ -113,7 +113,7 @@ export default function DashboardApp({meta}: IPages) {
   const handleDelete=React.useCallback(async()=>{
     setLoading('delete');
     try {
-      await del(`/toko/${toko?.slug}`)
+      await del(`/sansorder/toko/${toko?.slug}`)
       setLoading(null);
       setNotif(tCom("save"),false);
       router.push('/apps');
@@ -127,7 +127,7 @@ export default function DashboardApp({meta}: IPages) {
     setLoading('edit');
     try {
       const recaptcha = await captchaRef.current?.execute();
-      await put(`/toko/${toko?.slug}`,{...iEdit,recaptcha});
+      await put(`/sansorder/toko/${toko?.slug}`,{...iEdit,recaptcha});
       mutateToko();
       setDEdit(false);
       setNotif(tCom("saved"),false);
@@ -145,7 +145,7 @@ export default function DashboardApp({meta}: IPages) {
       console.log("OUTLET")
       const recaptcha = await captchaRef.current?.execute();
       console.log(recaptcha)
-      await post<{id: number,slug: string}>(`/toko/${toko?.slug}/outlet`,{...iOutlet,recaptcha});
+      await post<{id: number,slug: string}>(`/sansorder/toko/${toko?.slug}/outlet`,{...iOutlet,recaptcha});
       setPage({},1);
       mutateOutlet();
       setDOutlet(false);
@@ -159,7 +159,7 @@ export default function DashboardApp({meta}: IPages) {
 
   return (
     <Header title={meta?.title} desc={meta?.description}>
-      <Dashboard withNavbar={false}>
+      <Dashboard withNavbar={false} backToTop={{position:'bottom',color:'primary'}} whatsappWidget={{enabled:false}}>
         <Container maxWidth='lg' sx={{mb:6}}>
           {toko && (
             <Box>

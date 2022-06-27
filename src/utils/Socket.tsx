@@ -47,26 +47,28 @@ export default function useSocket() {
       }
     }
 
-    if(socket) socket.on('connect_error',onConnectError);
+    socket?.on('connect_error',onConnectError);
+    socket?.on('reconnect_error',onConnectError);
 
     return ()=>{
-      if(socket) socket.off('connect_error',onConnectError);
+      socket?.off('connect_error',onConnectError);
+      socket?.off('reconnect_error',onConnectError);
     }
   },[socket,get])
 
   return socket;
 }
 
-export function Socket({dashboard=false,onRef}: {dashboard?:boolean,onRef?:(ref: ISocket)=>void}) {
+export function Socket({dashboard=false,view,onRef}: {dashboard?:boolean,view?:string,onRef?:(ref: ISocket)=>void}) {
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
   const socket = useSocket();
 
   useEffect(()=>{
     if(typeof toko_id==='string' && typeof outlet_id==='string' && socket) {
-      socket.emit('toko outlet',{toko_id,outlet_id:Number(outlet_id),dashboard,debug:process.env.NEXT_PUBLIC_PN_ENV==='test'})
+      socket.emit('toko outlet',{toko_id,outlet_id:Number(outlet_id),dashboard,view,debug:process.env.NEXT_PUBLIC_PN_ENV==='test'})
     }
-  },[toko_id,outlet_id,socket,dashboard])
+  },[toko_id,outlet_id,socket,dashboard,view])
 
   useEffect(()=>{
     if(socket && onRef) {
@@ -81,7 +83,7 @@ export function Socket({dashboard=false,onRef}: {dashboard?:boolean,onRef?:(ref:
 /**
  * Socket HOC Component
  */
-export function withSocket<P extends object>(Component: React.ComponentType<P>,data?: {dashboard?:boolean}): React.FC<P & ({socket:ISocket|null})> {
+export function withSocket<P extends object>(Component: React.ComponentType<P>,data?: {dashboard?:boolean,view?:string}): React.FC<P & ({socket:ISocket|null})> {
   return (props: P)=>{
     const socket = useSocket();
     const router = useRouter();
@@ -89,10 +91,12 @@ export function withSocket<P extends object>(Component: React.ComponentType<P>,d
     const dashboard = !!data?.dashboard;
 
     useEffect(()=>{
+      
       if(typeof toko_id==='string' && typeof outlet_id==='string' && socket) {
-        socket.emit('toko outlet',{toko_id,outlet_id:Number(outlet_id),dashboard,debug:process.env.NEXT_PUBLIC_PN_ENV==='test'})
+        const input = {toko_id,outlet_id:Number(outlet_id),dashboard,view:data?.view,debug:process.env.NEXT_PUBLIC_PN_ENV==='test'};
+        socket.emit('toko outlet',input)
       }
-    },[toko_id,outlet_id,socket,dashboard])
+    },[toko_id,outlet_id,socket,dashboard,data])
 
     return <Component {...props as P} socket={socket} />
   }

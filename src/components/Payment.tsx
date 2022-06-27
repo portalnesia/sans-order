@@ -25,6 +25,7 @@ import { isMobile } from 'react-device-detect';
 import Recaptcha from './Recaptcha';
 import useSocket from '@utils/Socket';
 import Lottie from './Lottie';
+import {logEvent,getAnalytics} from '@utils/firebase'
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -57,7 +58,12 @@ function Cart({cart,total,subtotal,disscount}: {cart:IItems[],total:number,subto
         <List>
           {cart.map((c,i)=>(
             <ListItem>
-              <ListItemText primary={c.name} secondary={`${c.qty} x IDR ${numberFormat(`${c.price - c.disscount}`)}`} />
+              <ListItemText primary={c.name} secondary={
+                <>
+                  <Typography>{`${c.qty} x IDR ${numberFormat(`${c.price - c.disscount}`)}`}</Typography>
+                  {c?.notes && <Typography variant='caption'>{`${t('notes')}: ${c?.notes}`}</Typography>}
+                </>
+              } />
               <ListItemSecondaryAction>
                 <Typography variant='body2'>{`IDR ${numberFormat(`${(c.price*c.qty) -( c.disscount*c.qty)}`)}`}</Typography>
               </ListItemSecondaryAction>
@@ -369,7 +375,7 @@ function MethodItems({dt,payment,onChange,category}: {payment:IForm['input']['pa
 function Method({payment,onChange}: {payment:IForm['input']['payment'],onChange(payment: IForm['input']['payment']): void}) {
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
-  const {data,error} = useSWR<IPaymentMethod[]>(`/toko/${toko_id}/${outlet_id}/payment`);
+  const {data,error} = useSWR<IPaymentMethod[]>(`/sansorder/toko/${toko_id}/${outlet_id}/payment`);
 
   const dt = useMemo(()=>{
     if(!data) return undefined;
@@ -608,7 +614,21 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
         metadata:input.metadata
       }
       const recaptcha = await captchaRef.current?.execute();
-      const response = await post<PaymentResult>(`/toko/${toko_id}/${outlet_id}/transactions`,{...dt,recaptcha});
+      const response = await post<PaymentResult>(`/sansorder/toko/${toko_id}/${outlet_id}/transactions`,{...dt,recaptcha});
+      const analytics = getAnalytics();
+      logEvent(analytics,'purchase',{
+        currency:"IDR",
+        value:total,
+        transaction_id: response.id,
+        items: cart.map(i=>({
+          item_id: `${i.id}`,
+          item_name: i.name,
+          discount: i.disscount,
+          price: i.price,
+          quantity: i.qty
+        }))
+      })
+
       removeCart();
 
       const r = {...response,name,email} as PaymentResponse;
@@ -641,7 +661,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
     setLoading('simulation')
     try {
       const recaptcha = await captchaRef.current?.execute();
-      await post(`/toko/${toko_id}/${outlet_id}/transactions/${menu.id}/simulation`,{recaptcha});
+      await post(`/sansorder/toko/${toko_id}/${outlet_id}/transactions/${menu.id}/simulation`,{recaptcha});
 
     } catch(e: any) {
       setNotif(e?.message||tCom("error_500"),true);

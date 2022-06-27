@@ -1,7 +1,7 @@
 faq:
   - q: Apa itu SansOrder?
     a: |
-      SansOrder merupakan...
+      SansOrder merupakan sistem order dan sistem kasir berbasis online yang didesain khusus untuk membantu pelanggan dalam order maupun pembayaran melalui smartphone dengan memindai barcode yang telah disediakan di setiap meja. Untuk sistem kasir telah dilengkapi dengan manajemen stok, HPP, grafik pendapatan dan produk terlaris, dan lain-lain
   - q: Bagaimana cara memesan di SansOrder?
     a: |
       - Buka website merchant dengan memindai kode QR yang tersedia
@@ -19,18 +19,18 @@ faq:
       Hingga saat ini, Kami mendukung metode pembayaran berikut*:
 
       - Bank
-        - Bank Mandiri
-        - Bank BRI
-        - Bank BNI
-        - Bank Permata
+          - Bank Mandiri
+          - Bank BRI
+          - Bank BNI
+          - Bank Permata
       - E-Wallet
-        - DANA
-        - LinkAja
-        - ShopeePay
+          - DANA
+          - LinkAja
+          - ShopeePay
       - QRIS
       - COD (Pembayaran langsung via kasir)*
 
       \* Metode pembayaran pada tiap merchant bisa berbeda-beda, tergantung apakah merchant mengaktifkan metode pembayaran tersebut
   - q: Bagaimana cara melakukan pembayaran menggunakan SansOrder?
     a: |
-      Untuk cara pembayaran dapat Anda lihat lebih detail pada metode pembayaran masing-masing [disini](http://localhost:3001/help/payment).
+      Untuk cara pembayaran dapat Anda lihat lebih detail pada metode pembayaran masing-masing [disini](/help/payment).

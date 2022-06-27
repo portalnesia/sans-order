@@ -1,5 +1,5 @@
 // material
-import { Box, Grid, Container, Typography,styled,CardContent,CardActionArea,Card,Stack,Alert, CardMedia, Divider,CircularProgress } from '@mui/material';
+import { Box, Grid, Container, Typography,styled,CardContent,CardActionArea,Card,Stack,Alert, CardMedia, Divider,CircularProgress, List, ListItem } from '@mui/material';
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'
@@ -10,7 +10,6 @@ import Pagination,{usePagination} from '@comp/Pagination'
 import {staticProps,useSelector,State,useDispatch, IUser} from '@redux/index'
 import {useTranslation} from 'next-i18next';
 import Button from '@comp/Button'
-import loadingImage from '@comp/loading-image-base64'
 import {useRouter} from 'next/router'
 import portalnesia,{ResponsePagination,useAPI} from '@utils/portalnesia'
 import LocalStorage from "@utils/local-storage";
@@ -26,6 +25,9 @@ import useInitData from '@utils/init-data'
 import {IToko,IOutletPagination} from '@type/index'
 import Recaptcha from '@comp/Recaptcha'
 import dynamic from 'next/dynamic'
+import { getSysInfo, PSysInfo } from '@comp/Feedback';
+import { logEvent, getAnalytics } from '@utils/firebase';
+import { SplashScreen } from '@comp/Loader';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -127,8 +129,8 @@ function Loginned({user}: {user:IUser}) {
   const {post} = useAPI()
   const [oPage,setOPage] = usePagination(1);
   const [input,setInput] = React.useState({name:'',description:''});
-  const {data,error,mutate} = useSWR<ResponsePagination<IToko>>(`/toko?page=${page}&per_page=12&type=toko`);
-  const {data:outlet,error:errorOutlet} = useSWR<ResponsePagination<IOutletPagination>>(`/toko?page=${oPage}&per_page=12&type=outlet`)
+  const {data,error,mutate} = useSWR<ResponsePagination<IToko>>(`/sansorder/toko?page=${page}&per_page=12&type=toko`);
+  const {data:outlet,error:errorOutlet} = useSWR<ResponsePagination<IOutletPagination>>(`/sansorder/toko?page=${oPage}&per_page=12&type=outlet`)
   const captchaRef = React.useRef<Recaptcha>(null);
 
   const createApp=React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
@@ -137,7 +139,7 @@ function Loginned({user}: {user:IUser}) {
 
     try {
       const recaptcha = await captchaRef.current?.execute();
-      await post<{id: number,slug: string}>(`/toko`,{...input,recaptcha});
+      await post<{id: number,slug: string}>(`/sansorder/toko`,{...input,recaptcha});
       setPage({},1);
       mutate();
       setDialog(false);
@@ -150,7 +152,7 @@ function Loginned({user}: {user:IUser}) {
   },[input,post,setNotif,t])
 
   return (
-    <Dashboard withNavbar={false}>
+    <Dashboard withNavbar={false} backToTop={{position:'bottom',color:'primary'}} whatsappWidget={{enabled:false}}>
       <Container maxWidth="lg">
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
@@ -308,6 +310,7 @@ export default function DashboardApp() {
   const router = useRouter();
   const code = router.query?.code;
   let codeLoading = React.useRef(false)
+  const [features,setFeatures] = React.useState<Pick<PSysInfo,'cookieEnabled'|'support_localStorage'|'support_sessionStorage'|'support_webSocket'>|null|false>(null)
 
   React.useEffect(()=>{
     async function login() {
@@ -328,6 +331,8 @@ export default function DashboardApp() {
                 cookie.set("_so_token_",`${user?.sub}`,{
                   expires:getDayJs().add(1,'month').toDate()
                 })
+                const analytics = getAnalytics();
+                logEvent(analytics,'login',{method:"Portalnesia"})
                 dispatch({type:"CUSTOM",payload:{user}})
               }
             }
@@ -345,15 +350,45 @@ export default function DashboardApp() {
       }
     }
 
-    if(typeof code === 'string' && !codeLoading.current && router.isReady) login();
-  },[code,router.isReady])
+    if(typeof code === 'string' && !codeLoading.current && router.isReady && features === false) login();
+  },[code,router.isReady,features])
+
+  React.useEffect(()=>{
+    const system = getSysInfo();
+    const {cookieEnabled,support_localStorage,support_sessionStorage,support_webSocket} = system
+    if(
+      cookieEnabled && 
+      support_localStorage && 
+      support_sessionStorage && 
+      support_webSocket
+    ) {
+      setFeatures(false)
+    } else {
+      setFeatures({cookieEnabled,support_localStorage,support_sessionStorage,support_webSocket})
+    }
+    //setFeatures({cookieEnabled:false,support_localStorage:false,support_sessionStorage:false,support_webSocket:false})
+  },[])
 
   return (
     <Header title={ucwords(tMenu("dashboard"))}>
       {!router.isReady || (user===null||loaded===false) ? (
-        <div style={{position:'fixed',top:0,left:0,height:'100%',width:'100%',background:'#2f6f4e',zIndex:5000}}>
-          <img style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)'}} onContextMenu={(e)=>e.preventDefault()} className='load-child no-drag' alt='Portalnesia' src={loadingImage} />
-        </div>
+        <SplashScreen />
+      ) : features === null ? (
+        <RootStyle sx={{display:'flex',flexDirection:'column',minHeight:'100vh',alignItems:'center',justifyContent:'center'}}>
+          <CircularProgress size={50} />
+          {t("features").split("\n").map((t,i)=>(
+            <Typography key={`features-wait-${i}`} sx={{mt:3}} variant={i===0 ? 'h3' : 'h4'} component={i===0 ? 'h3' : 'h4'}>{t}</Typography>
+          ))}
+        </RootStyle>
+      ) : typeof features === 'object' ? (
+        <RootStyle sx={{display:'flex',flexDirection:'column',minHeight:'100vh',alignItems:'center',justifyContent:'center'}}>
+          <Typography sx={{mt:3}} variant="h3" component='h3'>{`${t("features_failed.title")}`}</Typography>
+          <List component={'ol'} sx={{listStyle:'decimal',listStylePosition:'inside'}}>
+            {Object.entries(features).filter(f=>f[1]===false).map((f)=>(
+              <ListItem key={`features-failed-${f[0]}`} disablePadding sx={{display:'list-item'}}>{t(`features_failed.${f[0]}`)}</ListItem>
+            ))}
+          </List>
+        </RootStyle>
       ) : typeof code === 'string' ? (
         <RootStyle sx={{display:'flex',flexDirection:'column',minHeight:'100vh',alignItems:'center',justifyContent:'center'}}>
           <CircularProgress size={50} />

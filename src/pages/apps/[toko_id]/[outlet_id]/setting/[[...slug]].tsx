@@ -192,7 +192,7 @@ export function GeneralSetting() {
     setLoading('submit');
     try {
       const recaptcha = await captchaRef.current?.execute();
-      await put(`/toko/${toko_id}/${outlet_id}`,{...input,recaptcha});
+      await put(`/sansorder/toko/${toko_id}/${outlet_id}`,{...input,recaptcha});
       setLoading(null);
       setNotif(tCom("saved"),false);
       mutateOutlet();
@@ -423,7 +423,7 @@ export function TeamSetting() {
   const [dEdit,setDEdit] = React.useState<TokoUsers|null>(null);
   const [dDelete,setDDelete] = React.useState<TokoUsers|null>(null);
   const [loading,setLoading] = React.useState(false);
-  const {data,error,mutate} = useSWR<ResponsePagination<TokoUsers>>(`/toko/${toko_id}/${outlet_id}/users?page=${page}&per_page=${rowsPerPage}`);
+  const {data,error,mutate} = useSWR<ResponsePagination<TokoUsers>>(`/sansorder/toko/${toko_id}/${outlet_id}/users?page=${page}&per_page=${rowsPerPage}`);
   const captchaRef = React.useRef<Recaptcha>(null);
 
   const buttonCreate=React.useCallback(()=>{
@@ -452,7 +452,7 @@ export function TeamSetting() {
     setLoading(true);
     try {
       const recaptcha = await captchaRef.current?.execute();
-      await post(`/toko/${toko_id}/${outlet_id}/users`,{...iCreate,recaptcha});
+      await post(`/sansorder/toko/${toko_id}/${outlet_id}/users`,{...iCreate,recaptcha});
       mutate();
       setNotif(tCom("saved"),false)
       setDCreate(false)
@@ -479,7 +479,7 @@ export function TeamSetting() {
     setLoading(true);
     try {
       const recaptcha = await captchaRef.current?.execute();
-      await put(`/toko/${toko_id}/${outlet_id}/users/${dEdit?.id}`,{access:iEdit,recaptcha});
+      await put(`/sansorder/toko/${toko_id}/${outlet_id}/users/${dEdit?.id}`,{access:iEdit,recaptcha});
       mutate();
       setNotif(tCom("saved"),false)
       setDEdit(null)
@@ -493,7 +493,7 @@ export function TeamSetting() {
   const handleDelete=React.useCallback(async()=>{
     setLoading(true);
     try {
-      await del(`/toko/${toko_id}/${outlet_id}/users/${dDelete?.id}`);
+      await del(`/sansorder/toko/${toko_id}/${outlet_id}/users/${dDelete?.id}`);
       mutate();
       setNotif(tCom("deleted"),false)
       setDDelete(null)
@@ -672,7 +672,7 @@ export default function OutletSetting({meta}: IPages) {
 
   return (
     <Header title={`${slug?.[0] === 'team' ? tMenu("team") : tMenu("setting")} - ${meta?.title}`} desc={meta?.description}>
-      <Dashboard title={meta?.title} subtitle={meta?.toko_name}>
+      <Dashboard title={meta?.title} subtitle={meta?.toko_name} {...(typeof slug?.[0] === 'string' ? {view:`dashboard setting ${slug?.[0]}`} : {})}>
         <Container>          
           <Box>
             {slug?.[0] === 'outlet' && (

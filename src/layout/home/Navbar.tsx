@@ -1,7 +1,7 @@
 import {useState,useMemo,useCallback,useRef,useEffect} from 'react'
 // material
 import { alpha, styled } from '@mui/material/styles';
-import { Box, Stack, AppBar, Toolbar, ListItemText,IconButton,MenuItem,useTheme,Typography } from '@mui/material';
+import { Box, Stack, AppBar, Toolbar, IconButton,MenuItem,useTheme,Typography } from '@mui/material';
 import Button from '@comp/Button'
 // components
 import Link from 'next/link'
@@ -175,7 +175,7 @@ function MobileNavItem({items}: MobileNavItemProps) {
         open={open}
         onClose={handleClose}
         anchorEl={anchorRef.current}
-        paperSx={{minWidth:'70%'}}
+        //paperSx={{minWidth:'70%'}}
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           {items.map((it)=>{
@@ -209,10 +209,12 @@ export default function HomeNavbar({withNavbar=true,withDashboard=true,logoProps
   const router = useRouter();
   const {t} = useTranslation('menu');
   const user = useSelector<State['user']>(s=>s.user);
-  const menuDesktop = useResponsive('up',722)
-  const menuMobile = useResponsive('down',722);
-  const textHidden1 = useResponsive('between',722,765);
+  const menuDesktop = useResponsive('up',884)
+  const menuMobile = useResponsive('down',884);
+  const textHidden1 = useResponsive('between',884,765);
   const textHidden2 = useResponsive('down',455);
+  const logoHidden = useResponsive('down',357);
+
   const [scrolled,setScrolled] = useState(false);
 
   const navbar = useMemo(()=>navbarConfig(t),[t]);
@@ -234,7 +236,7 @@ export default function HomeNavbar({withNavbar=true,withDashboard=true,logoProps
   return (
     <RootStyle scrolled={scrolled}>
       <ToolbarStyle>
-        <Box sx={{ pr:1,display: 'inline-flex' }}>
+        <Box sx={{ pr:1,display: logoHidden ? 'none' : 'inline-flex' }}>
           <Logo {...logoProps} />
         </Box>
         <Box sx={{display:textHidden1||textHidden2 ? 'none':'block'}}>

@@ -124,25 +124,25 @@ export const defaultSysInfo={
   screenWidth: '' as any,
   screenHeight: '' as any,
   colorDepth: '' as any,
-  onLine: '' as any,
-  support_localStorage: '' as any,
-  support_sessionStorage: '' as any,
-  support_history: '' as any,
-  support_webSocket: '' as any,
-  support_webWorker: '' as any,
-  support_canvas: '' as any,
-  support_video: '' as any,
-  support_audio: '' as any,
-  support_svg: '' as any,
-  support_css3_3d: '' as any,
-  support_geolocation: '' as any,
+  onLine: false,
+  support_localStorage: false,
+  support_sessionStorage: false,
+  support_history: false,
+  support_webSocket: false,
+  support_webWorker: false,
+  support_canvas: false,
+  support_video: false,
+  support_audio: false,
+  support_svg: false,
+  support_css3_3d: false,
+  support_geolocation: false,
   plugins: '' as any,
   version:'' as any,
   Accounts: undefined as Pick<IUser,'name'|'username'|'email'>|null|undefined
 }
 
 type ISysInfo = typeof defaultSysInfo;
-type PSysInfo = Without<ISysInfo,'version'|'Accounts'>
+export type PSysInfo = Without<ISysInfo,'version'|'Accounts'>
 
 export const getSysInfo=(string?: boolean)=>{
   const browser: any= deviceDetect(undefined);

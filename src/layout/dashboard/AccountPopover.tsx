@@ -48,10 +48,10 @@ export default function AccountPopover() {
     setOpen(false);
   };
 
-  const logout=useCallback(async()=>{
+  const logout=useCallback(()=>{
     setLoading(true)
     try {
-      await portalnesia.oauth.revokeToken();
+      portalnesia.oauth.revokeToken();
       cookie.remove("_so_token_");
     } finally {
       LocalStorage.remove('sans_token');

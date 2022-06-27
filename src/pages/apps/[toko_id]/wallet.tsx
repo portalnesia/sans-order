@@ -118,10 +118,10 @@ export default function WalletPage({meta}: IPages) {
   const [wd,setWD] = React.useState(50000);
   const [dWd,setDWd] = React.useState(false)
   const is543 = useMediaQuery('(min-width:543px)')
-  const {data,error,mutate} = useSWR<{account?: IForm,balance:number}>(`/toko/${toko_id}/wallet`,{shouldRetryOnError:(e)=>{
+  const {data,error,mutate} = useSWR<{account?: IForm,balance:number}>(`/sansorder/toko/${toko_id}/wallet`,{shouldRetryOnError:(e)=>{
     return e?.httpStatus !== 404;
   }});
-  const {data:historyOri,error:errHistory} = useSWR<ResponsePagination<WalletHistory>>(data ? `/toko/${toko_id}/wallet/history?page=${page}&per_page=${rowsPerPage}&filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}` : null);
+  const {data:historyOri,error:errHistory} = useSWR<ResponsePagination<WalletHistory>>(data ? `/sansorder/toko/${toko_id}/wallet/history?page=${page}&per_page=${rowsPerPage}&filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}` : null);
 
   const captchaRef = React.useRef<Recaptcha>(null);
   const filterRef = React.useRef(null);
@@ -201,7 +201,7 @@ export default function WalletPage({meta}: IPages) {
     setLoading('submit');
     try {
       const recaptcha = await captchaRef.current?.execute();
-      await post(`/toko/${toko_id}/wallet`,{...input,recaptcha});
+      await post(`/sansorder/toko/${toko_id}/wallet`,{...input,recaptcha});
       setNotif(tCom("saved"),false);
       mutate();
     } catch(e: any) {
@@ -219,7 +219,7 @@ export default function WalletPage({meta}: IPages) {
       if(data.balance - 6500 < wd) throw new Error(t('not_enough_balance'));
 
       //const recaptcha = await captchaRef.current?.execute();
-      //await post(`/toko/${toko_id}/wallet/withdraw`,{...data.account,amount:wd,recaptcha});
+      //await post(`/sansorder/toko/${toko_id}/wallet/withdraw`,{...data.account,amount:wd,recaptcha});
 
       setDWd(false)
       setTimeout(()=>setWD(50000),500);
@@ -239,7 +239,7 @@ export default function WalletPage({meta}: IPages) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Header title={t("wallet")}>
-        <Dashboard withNavbar={false}>
+        <Dashboard withNavbar={false} backToTop={{position:'bottom',color:'primary'}} whatsappWidget={{enabled:false}}>
           <Container maxWidth='lg' sx={{mb:6}}>
             {meta?.title && (
               <>

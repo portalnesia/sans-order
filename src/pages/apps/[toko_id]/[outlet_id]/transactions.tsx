@@ -1,6 +1,6 @@
 // material
-import { Box, Grid, Container, Typography,IconButton,TextField, Card,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText,Collapse } from '@mui/material';
-import {ExpandMore as ExpandMoreIcon} from '@mui/icons-material'
+import { Box, Grid, Container, Typography,IconButton,TextField, Card,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText,Collapse, Portal } from '@mui/material';
+import {ExpandMore as ExpandMoreIcon,Close} from '@mui/icons-material'
 import {DatePicker,LocalizationProvider} from '@mui/lab'
 import AdapterDayjs from '@mui/lab/AdapterDayjs'
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -28,33 +28,51 @@ import { numberFormat } from '@portalnesia/utils';
 import { getDayJs } from '@utils/Main';
 import handlePrint from '@utils/print';
 
+const Dialog=dynamic(()=>import('@comp/Dialog'))
+const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
+const DialogContent=dynamic(()=>import('@mui/material/DialogContent'))
+
 export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true,onlyAccess:['transactions']},translation:'dash_tr'})
 
 interface IMenu {
   data: TransactionsDetail
   disabled?: boolean
+  onDetail(): void
 }
 
-function Menu({data,disabled}: IMenu) {
+function Menu({data,disabled,onDetail}: IMenu) {
   const {t} = useTranslation('dash_tr');
   const ref=React.useRef(null);
   const [open,setOpen] = React.useState(false);
   const router = useRouter();
   const {toko_id,outlet_id} = router.query;
 
-  const onPrint=React.useCallback(()=>{
+  const onPrint=React.useCallback((e: React.MouseEvent)=>{
+    e.stopPropagation();
     if(data.token_print) {
       handlePrint(toko_id as string,outlet_id as string,data.token_print);
     }
+    setOpen(false)
   },[data.token_print,toko_id,outlet_id])
+
+  const handleDetail = React.useCallback(()=>{
+    setOpen(false)
+    onDetail()
+  },[onDetail])
 
   return (
     <>
-      <IconButton ref={ref} onClick={() => setOpen(true)}>
+      <IconButton ref={ref} onClick={(e) =>{e.stopPropagation(),setOpen(true)}}>
         <Iconify icon="eva:more-vertical-fill" width={20} height={20} />
       </IconButton>
 
-      <MenuPopover open={open} onClose={()=>setOpen(false)} anchorEl={ref.current} paperSx={{py:1}}>
+      <MenuPopover open={open} onClose={()=>setOpen(false)} anchorEl={ref.current} paperSx={{py:1}} onBackdropClick={(e)=>{e.stopPropagation(),setOpen(false)}}>
+        <MenuItem disabled={!!disabled} sx={{ color: 'text.secondary',py:1 }} onClick={handleDetail}>
+          <ListItemIcon>
+            <Iconify icon="ep:warning" width={24} height={24} />
+          </ListItemIcon>
+          <ListItemText primary="Detail" primaryTypographyProps={{ variant: 'body2' }} />
+        </MenuItem>
         <MenuItem disabled={!!disabled} sx={{ color: 'text.secondary',py:1 }} onClick={onPrint}>
           <ListItemIcon>
             <Iconify icon="fluent:print-20-filled" width={24} height={24} />
@@ -74,6 +92,15 @@ export function TableTr({data}: {data: TransactionsDetail}) {
   const locale = router.locale
   const [expand,setExpand] = React.useState(false);
 
+  const onDetail = React.useCallback((e?: React.MouseEvent<HTMLTableRowElement>)=>{
+    const target = e?.target as unknown as EventTarget & HTMLTableRowElement;
+    if(target) {
+      if(target?.nodeName?.toLowerCase() === 'td') setExpand(true)
+    } else {
+      setExpand(true)
+    }
+  },[])
+
   const date = React.useMemo(()=>{
     return getDayJs(data.timestamp).locale(locale||'en').pn_format('full')
   },[data.timestamp,locale])
@@ -84,23 +111,25 @@ export function TableTr({data}: {data: TransactionsDetail}) {
         key={`transactions-${data.id}`}
         tabIndex={-1}
         hover
+        onClick={onDetail}
+        sx={{cursor:'pointer'}}
       >
-        <TableCell align='center'>
-          <ExpandMore expand={expand} onClick={()=>setExpand(!expand)}>
-            <ExpandMoreIcon />
-          </ExpandMore>
-        </TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}}>{data.id}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}}>{date}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.subtotal}`)}`}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.disscount}`)}`}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.total}`)}`}</TableCell>
-        <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Menu data={data} /></TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Menu data={data} onDetail={onDetail} /></TableCell>
       </TableRow>
-
-      <TableRow key={`transactions-details-${data.id}`}>
-        <TableCell sx={{borderBottom:'unset',py:0}} colSpan={7}>
-          <Collapse in={expand} timeout='auto' unmountOnExit>
+      <Portal>
+        <Dialog open={expand} handleClose={()=>setExpand(false)} maxWidth='lg'>
+          <DialogTitle>
+            <Stack direction='row' justifyContent={'space-between'} alignItems='center' spacing={2}>
+              <Typography variant='h6'>{`#${data.id}`}</Typography>
+              <IconButton onClick={()=>setExpand(false)}><Close /></IconButton>
+            </Stack>
+          </DialogTitle>
+          <DialogContent>
             <Box sx={{m:1,mb:8}}>
               <Box sx={{mb:4}}>
                 <Typography paragraph variant='h6' component='h6'>Detail</Typography>
@@ -127,7 +156,7 @@ export function TableTr({data}: {data: TransactionsDetail}) {
                       <TableCell sx={{borderBottom:'unset',py:1}}><Label variant='filled' color={colorOrderStatus[data.order_status]}>{data.order_status}</Label></TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell colSpan={2} sx={{pt:4,pl:0}}><Typography variant='h6' component='h6'>{tMenu("customer")}</Typography></TableCell>
+                      <TableCell colSpan={2} sx={{pt:4,pl:0,borderBottom:'unset'}}><Typography variant='h6' component='h6'>{tMenu("customer")}</Typography></TableCell>
                     </TableRow>
                     <TableRow hover>
                       <TableCell sx={{borderBottom:'unset',py:1}}>{tCom("name")}</TableCell>
@@ -137,52 +166,59 @@ export function TableTr({data}: {data: TransactionsDetail}) {
                       <TableCell sx={{borderBottom:'unset',py:1}}>Email</TableCell>
                       <TableCell sx={{borderBottom:'unset',py:1}}>{data?.user?.email ? data.user.email : '-'}</TableCell>
                     </TableRow>
+                    <TableRow hover>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>Telephone</TableCell>
+                      <TableCell sx={{borderBottom:'unset',py:1}}>{data?.user?.telephone ? data.user.telephone : '-'}</TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </Box>
               <Box>
                 <Typography variant='h6' component='h6'>{t("detail",{what:tMenu("order")})}</Typography>
               </Box>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell align='center' colSpan={5}>{tMenu("products")}</TableCell>
-                    <TableCell rowSpan={2} align='right'>Subtotal</TableCell>
-                    <TableCell rowSpan={2} align='right'>{t("disscount")}</TableCell>
-                    <TableCell rowSpan={2} align='right'>Total</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>{tCom("name")}</TableCell>
-                    <TableCell align='right'>{t("price")}</TableCell>
-                    <TableCell align='right'>{t("disscount")}</TableCell>
-                    <TableCell align='right'>Qty</TableCell>
-                    <TableCell align='right'>HPP</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {data.items.map((d)=>{
-                    const subtotal = d.price*d.qty;
-                    const disscount = d.disscount*d.qty;
-                    const total = subtotal-disscount;
-                    return (
-                      <TableRow hover key={`items-${data.id}-${d.id}`}>
-                        <TableCell>{`${d.name}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.disscount}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.qty}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.hpp ? `IDR ${numberFormat(`${d.hpp}`)}` : '-'}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${subtotal}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${disscount}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${total}`)}`}</TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
+              <Scrollbar>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align='center' colSpan={4}>{tMenu("products")}</TableCell>
+                      <TableCell rowSpan={2} align='right'>Subtotal</TableCell>
+                      <TableCell rowSpan={2} align='right'>{t("disscount")}</TableCell>
+                      <TableCell rowSpan={2} align='right'>Total</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>{tCom("name")}</TableCell>
+                      <TableCell align='right'>{t("price")}</TableCell>
+                      <TableCell align='right'>{t("disscount")}</TableCell>
+                      <TableCell align='right'>Qty</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {data.items.map((d)=>{
+                      const subtotal = d.price*d.qty;
+                      const disscount = d.disscount*d.qty;
+                      const total = subtotal-disscount;
+                      return (
+                        <TableRow hover key={`items-${data.id}-${d.id}`}>
+                          <TableCell>
+                            <Typography>{`${d.name}`}</Typography>
+                            {d?.notes && <Typography variant='caption'>{d?.notes}</Typography>}
+                          </TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.disscount}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.qty}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${subtotal}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${disscount}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${total}`)}`}</TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </Scrollbar>
             </Box>
-          </Collapse>
-        </TableCell>
-      </TableRow>
+          </DialogContent>
+        </Dialog>
+      </Portal>
     </>
   )
 }
@@ -204,7 +240,7 @@ export default function OutletTransactions({meta}: IPages){
   const [searchVal,setSearchVal] = React.useState('');
   const [search,setSearch] = React.useState<TransactionsDetail[]|undefined>(undefined);
   const is543 = useMediaQuery('(min-width:543px)')
-  const {data,error} = useSWR<ResponsePagination<TransactionsDetail>>(`/toko/${toko_id}/${outlet_id}/transactions?page=${page}&per_page=${rowsPerPage}&filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}`)
+  const {data,error} = useSWR<ResponsePagination<TransactionsDetail>>(`/sansorder/toko/${toko_id}/${outlet_id}/transactions?page=${page}&per_page=${rowsPerPage}&filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}`)
 
   const items = React.useMemo(()=>{
     if(search) return search;
@@ -269,8 +305,9 @@ export default function OutletTransactions({meta}: IPages){
   const handleDownload=React.useCallback(async()=>{
     setLoading('download')
     try {
-      const url = await get<string>(`/toko/${toko_id}/${outlet_id}/export?filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}`);
-      window.location.href=url;
+      const url = await get<string>(`/sansorder/toko/${toko_id}/${outlet_id}/export?filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}`);
+      const urlEdit = url.replace("https://api.portalnesia.com",process.env.NEXT_PUBLIC_URL as  string);
+      window.location.href=urlEdit;
     } catch(e: any) {
       setNotif(e?.message||tCom("error_500"),true);
     } finally {
@@ -281,7 +318,7 @@ export default function OutletTransactions({meta}: IPages){
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Header title={`${tMenu("transactions")} - ${meta?.title}`} desc={meta?.description}>
-        <Dashboard title={meta?.title} subtitle={meta?.toko_name}>
+        <Dashboard title={meta?.title} subtitle={meta?.toko_name} view='dashboard transactions'>
           <Container>
             <Box pb={2} mb={5}>
               <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
@@ -341,7 +378,6 @@ export default function OutletTransactions({meta}: IPages){
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell align='center'></TableCell>
                       <TableCell align='left'>ID</TableCell>
                       <TableCell align='left'>{t("date")}</TableCell>
                       <TableCell align='right'>Subtotal</TableCell>
@@ -353,15 +389,15 @@ export default function OutletTransactions({meta}: IPages){
                   <TableBody>
                     {error ? (
                       <TableRow>
-                        <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{error?.message}</Typography></TableCell>
+                        <TableCell align="center" colSpan={6} sx={{ py: 3 }}><Typography>{error?.message}</Typography></TableCell>
                       </TableRow>
                     ) : !data && !error || !items ? (
                       <TableRow>
-                        <TableCell align="center" colSpan={7} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
+                        <TableCell align="center" colSpan={6} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
                       </TableRow>
                     ) : items?.length === 0 ? (
                       <TableRow>
-                        <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:tMenu("transactions")})}</Typography></TableCell>
+                        <TableCell align="center" colSpan={6} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:tMenu("transactions")})}</Typography></TableCell>
                       </TableRow>
                     ) : items?.map((d)=>(
                       <TableTr key={`transaction-${d.id}`} data={d} />

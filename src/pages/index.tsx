@@ -1,6 +1,6 @@
 // material
 import { Box, Grid, Container, Typography,styled,SxProps,Theme,List,ListItem,Hidden, Stack } from '@mui/material';
-import {WhatsApp,Email,Instagram,Twitter} from '@mui/icons-material'
+import {WhatsApp,Email,Instagram,Facebook} from '@mui/icons-material'
 // components
 import Header from '../components/Header';
 import Dashboard,{APP_BAR_DESKTOP,APP_BAR_MOBILE} from '../layout/home/index'
@@ -198,25 +198,25 @@ export default function DashboardApp() {
             <Grid item xs={12} sm={6} md={3}>
               <Stack direction='row' spacing={2} alignItems='center' justifyContent={{xs:'flex-start',md:'center'}}>
                 <Email />
-                <Typography>{config.contact.email}</Typography>
+                <a href={`mailto:${config.contact.email}`}><Typography sx={{color:'text.primary'}}>{config.contact.email}</Typography></a>
               </Stack>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <Stack direction='row' spacing={2} alignItems='center' justifyContent={{xs:'flex-start',md:'center'}}>
                 <WhatsApp />
-                <Typography>{config.contact.whatsapp}</Typography>
+                <a href={`${process.env.NEXT_PUBLIC_URL}/wa`} target="_blank" rel="nofollow noopener noreferrer"><Typography sx={{color:'text.primary'}}>{config.contact.whatsapp}</Typography></a>
               </Stack>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <Stack direction='row' spacing={2} alignItems='center' justifyContent={{xs:'flex-start',md:'center'}}>
                 <Instagram />
-                <Typography>{config.contact.instagram}</Typography>
+                <a href={`${process.env.NEXT_PUBLIC_URL}/ig`} target="_blank" rel="nofollow noopener noreferrer"><Typography sx={{color:'text.primary'}}>{config.contact.instagram}</Typography></a>
               </Stack>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <Stack direction='row' spacing={2} alignItems='center' justifyContent={{xs:'flex-start',md:'center'}}>
-                <Twitter />
-                <Typography>{config.contact.twitter}</Typography>
+                <Facebook />
+                <a href={`${process.env.NEXT_PUBLIC_URL}/fb`} target="_blank" rel="nofollow noopener noreferrer"><Typography sx={{color:'text.primary'}}>{config.contact.facebook.name}</Typography></a>
               </Stack>
             </Grid>
           </Grid>

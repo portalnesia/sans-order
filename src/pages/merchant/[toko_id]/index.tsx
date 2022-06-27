@@ -24,11 +24,11 @@ export default function MerchantIndex({meta}: IPages) {
 	const {toko_id} = router.query;
 	const {toko,errToko} = useToko(toko_id);
 	const [page,setPage] = usePagination(true);
-	const {data:outlet,error:errorOutlet} = useSWR<ResponsePagination<IOutletPagination>>(`/toko/${toko_id}/outlet?page=${page}&per_page=24`)
+	const {data:outlet,error:errorOutlet} = useSWR<ResponsePagination<IOutletPagination>>(`/sansorder/toko/${toko_id}/outlet?page=${page}&per_page=24`)
 
 	return (
 		<Header title={meta?.title} desc={meta?.description} image={meta?.image}>
-			<Dashboard withDashboard={false} withNavbar={false} logoProps={{href:!toko ? false : `merchant/${toko?.slug}`}}>
+			<Dashboard withDashboard={false} withNavbar={false} logoProps={{href:!toko ? false : `merchant/${toko?.slug}`}} whatsappWidget={{enabled:false}}>
 				<Container maxWidth='lg' sx={{mt:2}}>
 					{!toko && !errToko ? (
 						<Box display='flex' position='absolute' top='40%' left='50%' alignItems={'center'} justifyContent='center'><Circular /></Box>

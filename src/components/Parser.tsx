@@ -2,12 +2,13 @@ import React from 'react'
 import Parserr,{domToReact,Element,HTMLReactParserOptions,attributesToProps} from 'html-react-parser'
 import {styled} from '@mui/material/styles'
 import Image from '@comp/Image'
+import {Circular as Loading} from '@comp/Loading'
 import clx from 'classnames'
 import Link from 'next/link'
 import {slugFormat} from '@portalnesia/utils'
-import {Table,TableHead,TableBody,TableRow,TableCell,Typography,SxProps,Theme} from '@mui/material'
+import {Table,TableHead,TableBody,TableRow,TableCell,Typography,SxProps,Theme,} from '@mui/material'
 import {convertToHtml} from '@utils/marked'
-import DOMpurify from 'dompurify'
+import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
 import Script from 'next/script'
 
@@ -131,10 +132,10 @@ const parseOption = (opt : {preview?:boolean}): HTMLReactParserOptions =>({
           }
           if(
             /^https?\:\/\//.test(href)
-            && !/portalnesia\.com/.test(href)
+            && !/sansorder\.com/.test(href)
             && !/kakek\.c1\.biz/.test(href)
           ) {
-            const hreff = /utm\_source\=portalnesia/i.test(href) ? href : `${process.env.PORTAL_URL}/link?u=${Buffer.from(encodeURIComponent(href)).toString('base64')}`
+            const hreff = (/utm\_source\=portalnesia/i.test(href) || /portalnesia\.com/.test(href)) ? href : `${process.env.PORTAL_URL}/link?u=${Buffer.from(encodeURIComponent(href)).toString('base64')}`
             return (
               <a target="_blank" rel='nofollow noreferrer noopener' href={hreff} {...other}>
                   {domToReact(node?.children,parseOption(opt))}
@@ -142,9 +143,9 @@ const parseOption = (opt : {preview?:boolean}): HTMLReactParserOptions =>({
             )
           } else if(
               (typeof target === 'undefined' || target=='_self')
-              && (/^https:\/\/portalnesia\.com+/.test(href) || /^\//.test(href))
+              && (/^https:\/\/sansorder\.com+/.test(href) || /^\//.test(href))
           ) {
-            const hreff=href?.replace(/^https:\/\/portalnesia\.com\/?/,"/");
+            const hreff=href?.replace(/^https:\/\/sansorder\.com\/?/,"/");
             return <Link href={hreff} passHref><a {...other}>{domToReact(node?.children,parseOption(opt))}</a></Link>
           }
         }
@@ -238,10 +239,10 @@ const parseOption = (opt : {preview?:boolean}): HTMLReactParserOptions =>({
       }
     }
 
-    if(node?.type==='tag' && ['h1','h2','h3','h4'].includes(node?.name)) {
+    if(node?.type==='tag' && ['h1','h2','h3','h4','h5','h6'].includes(node?.name)) {
       let {id,style,...other}=node?.attribs;
       const styles = attributesToProps({style})
-      if(!id) {
+      if(!id && ['h1','h2','h3','h4'].includes(node?.name)) {
         let text="";
         node?.children?.forEach(c=>{
           if(c?.type === 'text') text+=` ${(c as any)?.data}`;
@@ -254,7 +255,7 @@ const parseOption = (opt : {preview?:boolean}): HTMLReactParserOptions =>({
         if(text?.length > 0) id = slugFormat(text);
       }
       const parent = node?.parent as Element
-      if(id && parent?.name != 'td') {
+      if(id && parent?.name != 'td' && !['h5','h6'].includes(node?.name)) {
         if(node?.name === 'h1') {
           return <a className="no-format" href={`#${id}`} onClick={handlePageContent(id)}><Typography sx={{mb:3}} variant='h2' component='h2' {...attributesToProps(other)} style={styles.style} id={id} >{domToReact(node?.children,parseOption(opt))}</Typography></a>
         }
@@ -272,7 +273,7 @@ const parseOption = (opt : {preview?:boolean}): HTMLReactParserOptions =>({
             return <Typography sx={{mb:3}} variant='h3' component='h3' {...attributesToProps(other)} id={id} {...(parent?.name == 'td' ? {style:{...styles.style,paddingBottom:'unset',borderBottom:'unset'}} : {style:styles.style})}>{domToReact(node?.children,parseOption(opt))}</Typography>
         }
         else if(node?.name === 'h3'||node?.name === 'h4'||node?.name === 'h5'||node?.name === 'h6') {
-            return <Typography sx={{mb:3}} variant='h4' component='h4' {...attributesToProps(other)} id={id} {...(parent?.name == 'td' ? {style:{...styles.style,paddingBottom:'unset',borderBottom:'unset'}} : {style:styles.style})}>{domToReact(node?.children,parseOption(opt))}</Typography>
+            return <Typography sx={{mb:3}} variant='h4' component='h4' {...attributesToProps(other)} id={id} {...(parent?.name == 'td' || ['h5','h6'].includes(node?.name) ? {style:{...styles.style,paddingBottom:'unset',borderBottom:'unset'}} : {style:styles.style})}>{domToReact(node?.children,parseOption(opt))}</Typography>
         }
       }
     }
@@ -312,11 +313,17 @@ export interface MarkdrownProps extends React.DetailedHTMLProps<React.HTMLAttrib
 }
 
 export function Markdown({source,skipHtml,preview,...other}: MarkdrownProps) {
-  const html = React.useMemo(()=>{
-    const hhtm = convertToHtml(source,preview);
-    const forb = skipHtml ? ['img','iframe','video'] : ['video'];
-    return DOMpurify.sanitize(hhtm, {FORBID_TAGS: forb,USE_PROFILES: {html: true}})
-  },[source,skipHtml,preview])
+  const [html,setHtml] = React.useState<string|undefined>();
 
+  React.useEffect(()=>{
+    if(typeof window !== 'undefined') {
+      const hhtm = convertToHtml(source,preview);
+      const forb = skipHtml ? ['img','iframe','video'] : ['video'];
+      const html = DOMPurify.sanitize(hhtm, {FORBID_TAGS: forb,USE_PROFILES: {html: true}})
+      setHtml(html);
+    }
+  },[source,preview])
+
+  if(!html) return <Loading />
   return <Parser preview={preview} html={html} {...other} />
 }

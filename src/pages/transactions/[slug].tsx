@@ -1,6 +1,6 @@
 // material
 import { Box, Grid, Container, Typography,Table,TableBody,TableRow,TableCell,TableHead,TableFooter, Stack, Card } from '@mui/material';
-import {Download} from '@mui/icons-material'
+import {CheckBox,CheckBoxOutlineBlank} from '@mui/icons-material'
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'
@@ -26,9 +26,9 @@ export const getServerSideProps = wrapper({name:'check_transactions',translation
 function TransactionsPage({meta,socket}: IPages & {socket?: ISocket}) {
   const {t} = useTranslation('dash_tr')
   const {t:tCom} = useTranslation('common');
-  const {t:tMenu} = useTranslation('menu')
+  const {t:tMenu} = useTranslation('menu');
 
-  const {data,error,mutate} = useSWR<TransactionsDetail>(`/toko/transactions/${meta?.slug}`);
+  const {data,error,mutate} = useSWR<TransactionsDetail>(`/sansorder/toko/transactions/${meta?.slug}`);
 
   const onPrint = React.useCallback(()=>{
     if(data && data?.toko && data?.token_print) {
@@ -42,7 +42,7 @@ function TransactionsPage({meta,socket}: IPages & {socket?: ISocket}) {
     }
     
     if(data?.toko) {
-      socket?.emit('toko outlet',{toko_id:data.toko.toko.slug,outlet_id:data.toko.id,debug:process.env.NEXT_PUBLIC_PN_ENV==='test'})
+      socket?.emit('toko outlet',{toko_id:data.toko.toko.slug,outlet_id:data.toko.id,dashboard:false,view:'public transactions',debug:process.env.NEXT_PUBLIC_PN_ENV==='test'})
     }
     socket?.on('toko transactions',handleTransactionChange)
     socket?.on('toko transactions orderstatus',handleTransactionChange)
@@ -54,7 +54,7 @@ function TransactionsPage({meta,socket}: IPages & {socket?: ISocket}) {
 
   return (
     <Header title={`${tMenu('transactions')} #${meta?.slug}`}>
-      <Dashboard withDashboard={false}>
+      <Dashboard withDashboard={false} backToTop={{position:'bottom',color:'primary'}} whatsappWidget={{enabled:false}}>
         <Container maxWidth='lg' sx={{mt:2}}>
           {!data && !error ? (
 						<Box display='flex' position='absolute' top='40%' left='50%' alignItems={'center'} justifyContent='center'><Circular /></Box>
@@ -95,6 +95,7 @@ function TransactionsPage({meta,socket}: IPages & {socket?: ISocket}) {
                     <Table>
                       <TableHead>
                         <TableRow>
+                          <TableCell rowSpan={2} align='center'>Status</TableCell>
                           <TableCell align='center' colSpan={4}>{tMenu("products")}</TableCell>
                           <TableCell rowSpan={2} align='right'>Subtotal</TableCell>
                           <TableCell rowSpan={2} align='right'>{t("disscount")}</TableCell>
@@ -114,7 +115,11 @@ function TransactionsPage({meta,socket}: IPages & {socket?: ISocket}) {
                           const total = subtotal-disscount;
                           return (
                             <TableRow hover key={`items-${data.id}-${d.id}`}>
-                              <TableCell>{`${d.name}`}</TableCell>
+                              <TableCell align='center' sx={{whiteSpace:'nowrap'}}>{d.done ? <CheckBox color='primary' /> : <CheckBoxOutlineBlank />}</TableCell>
+                              <TableCell>
+                                <Typography>{`${d.name}`}</Typography>
+                                {d?.notes && <Typography variant='caption'>{d?.notes}</Typography>}
+                              </TableCell>
                               <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
                               <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.disscount}`)}`}</TableCell>
                               <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.qty}</TableCell>
@@ -137,4 +142,4 @@ function TransactionsPage({meta,socket}: IPages & {socket?: ISocket}) {
   )
 }
 
-export default withSocket(TransactionsPage);
+export default withSocket(TransactionsPage,{dashboard:false,view:'public transaction'});

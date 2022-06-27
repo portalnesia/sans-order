@@ -11,11 +11,9 @@ import {useTranslation} from 'next-i18next';
 import Button from '@comp/Button'
 import fs from 'fs'
 import splitMarkdown from '@utils/split-markdown';
-import { marked } from 'marked';
-import htmlEncode from '@utils/html-encode'
 import { getDayJs, getDir } from '@utils/Main';
 import { convertToPlaintext } from '@utils/marked';
-import { Parser,usePageContent } from '@comp/Parser';
+import { Markdown,usePageContent } from '@comp/Parser';
 import { useRouter } from 'next/router';
 import useTableContent,{HtmlLgDown,HtmlLgUp} from '@comp/TableContent'
 import Sidebar from '@comp/Sidebar'
@@ -45,7 +43,7 @@ type IPages = {
     title: string,
     slug: string,
     description: string,
-    html: string,
+    markdown: string,
     keywords?: string[],
     callbackLang: boolean
   }
@@ -81,15 +79,13 @@ export const getStaticProps = staticProps(async({getTranslation,locale,params})=
       if(meta?.description) {
         meta.description = truncate(clean(meta.description),200)
       } else {
-        meta.description = convertToPlaintext(split.html);
+        meta.description = convertToPlaintext(split.data);
       }
-      const markHtml = marked(split.html);
-      const html = htmlEncode(markHtml,true);
       
       meta.published = getDayJs().utcOffset(7).format("YYYY-MM-DDTHH:mm:ssZ");
       meta.modified = getDayJs((meta?.modified ? meta?.modified : undefined)).utcOffset(7).format("YYYY-MM-DDTHH:mm:ssZ");
 
-      meta.html = html;
+      meta.markdown = split.data;
       meta.slug = slug
 
       const defaultKeywords = ['Pages','Order System','Developer','Docs','Documentation'];
@@ -114,7 +110,7 @@ export default function Pages({meta}: IPages) {
 
   return (
     <Header title={meta?.title} desc={meta?.description}>
-      <Dashboard>
+      <Dashboard backToTop={{position:'bottom',color:'primary'}} whatsappWidget={{enabled:false}}>
         <Container maxWidth={content.length > 0 ? 'xl' : 'lg'}>
           <Box textAlign='center' mb={8}>
             <Typography variant='h1' component='h1'>{meta?.title}</Typography>
@@ -127,7 +123,7 @@ export default function Pages({meta}: IPages) {
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12} lg={content.length > 0 ? 8 : 12}>
               <Box id='cardContent'>
-                <Parser html={meta?.html||""} />
+                <Markdown source={meta?.markdown||""} />
               </Box>
             </Grid>
             <Hidden lgDown>

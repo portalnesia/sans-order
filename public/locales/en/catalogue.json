@@ -43,5 +43,7 @@
   "saturday":"Saturday",
   "busy":"Temporary Closed",
   "close":"Close",
-  "open":"Open"
+  "open":"Open",
+  "example_notes":"Max. 100 characters. Ex: Less sugar",
+  "notes":"Notes"
 }

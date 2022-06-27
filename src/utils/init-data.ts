@@ -4,12 +4,15 @@ import portalnesia from './portalnesia'
 import {TokenResponse} from '@portalnesia/portalnesia-js'
 import {useDispatch,State, useSelector} from '@redux/index'
 import {getToken,initializeAppCheck,ReCaptchaV3Provider,onTokenChanged,Unsubscribe} from 'firebase/app-check'
-import firebase from './firebase'
+import firebase,{getAnalytics,setUserId} from './firebase'
 import {useRouter} from 'next/router'
 import cookie from 'js-cookie'
 import {getDayJs} from '@utils/Main'
 import useDarkTheme from '@utils/useDarkTheme'
 
+/**
+ * GET PORTALNESIA SAVED TOKEN AND REFRESH IF EXPIRED
+ */
 async function initData() {
   try {
     const savedToken = LocalStorage.get<TokenResponse>('sans_token');
@@ -24,12 +27,20 @@ async function initData() {
     return undefined;
   } catch(e) {
     console.log(e);
+    const code = portalnesia.oauth.generatePKCE();
+    LocalStorage.set('pkce',code);
 
+    const url = portalnesia.oauth.getAuthorizationUrl({code_challenge:code.code_challenge});
+    
+    window.location.href = url;
     //LocalStorage.remove('sans_token');
     return undefined;
   }
 }
 
+/**
+ * VERIFY ID_TOKEN FROM ACCESS_TOKEN
+ */
 async function verifyIdToken(token: string) {
   try {
     const user = await portalnesia.oauth.verifyIdToken(token) as any;
@@ -40,6 +51,9 @@ async function verifyIdToken(token: string) {
   }
 }
 
+/**
+ * GET FIREBASE APP CHECK TOKEN
+ */
 async function getAppToken(callback: (token: string)=>void) {
   if(process.env.NODE_ENV==='development') {
     (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
@@ -61,7 +75,8 @@ async function getAppToken(callback: (token: string)=>void) {
 
 export default function useIniData() {
   const router = useRouter();
-  const {ready,user} = useSelector<Pick<State,'user'|'ready'>>(s=>({ready:s.ready,user:s.user}));
+  const {user} = useSelector<Pick<State,'user'>>(s=>({user:s.user}));
+  const [readyInit,setReadyInit] = useState(false);
   const dispatch = useDispatch();
   const [adBlock,setAdBlock] = useState(false);
   const {checkTheme,setTheme} = useDarkTheme();
@@ -83,18 +98,28 @@ export default function useIniData() {
       dispatch({type:"CUSTOM",payload:{appToken:token}})
     }
 
+    /**
+     * Init Data
+     * Get Firebase App Check
+     * Init Portalnesia Token to Portalnesia Instance
+     */
     async function init() {
       try {
         setTheme(checkTheme());
         const token = await getAppToken(onTokenIsChanged);
         unsubcribe = token.unsubcribe;
         await initData();
-        dispatch({type:"CUSTOM",payload:{appToken:token.token,ready:true}});
+        dispatch({type:"CUSTOM",payload:{appToken:token.token}});
+        setReadyInit(true);
       } catch(e) {
-        dispatch({type:"CUSTOM",payload:{user:false,ready:true}})
+        dispatch({type:"CUSTOM",payload:{user:false}})
+        setReadyInit(true);
       }
     }
 
+    /**
+     * ON REFRESH TOKEN EVENT
+     */
     async function PNtokenRefresh(token: TokenResponse & ({expiredAt: number})){
       try {
         if(token.id_token) {
@@ -120,20 +145,28 @@ export default function useIniData() {
   },[])
 
   useEffect(()=>{
+    /**
+     * WHEN READY IS COMPLETED
+     * Get Portalnesia Token AND SET STATE
+     */
     async function initUser() {
+      const analytics = getAnalytics();
       try {
         if(portalnesia.token?.token.id_token) {
           const users = await verifyIdToken(portalnesia.token?.token.id_token);
-          dispatch({type:"CUSTOM",payload:{user:users}})
+          if(typeof users === 'object') {
+            setUserId(analytics,`${users?.sub}`)
+          }
+          dispatch({type:"CUSTOM",payload:{user:users,ready:true}})
           return;
         }
       } catch {}
-      dispatch({type:"CUSTOM",payload:{user:false}})
+      dispatch({type:"CUSTOM",payload:{user:false,ready:true}})
     }
-    if(ready && user===null) {
+    if(readyInit && user===null) {
       initUser();
     }
-  },[ready,user])
+  },[readyInit,user])
 
   useEffect(()=>{
     if(router.isReady) {

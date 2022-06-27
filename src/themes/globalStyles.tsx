@@ -11,8 +11,8 @@ export default function GlobalStyles() {
     <GlobalThemeStyles
       styles={{
         '*': {
-          margin: 0,
-          padding: 0,
+          //margin: 0,
+          //padding: 0,
           boxSizing: 'border-box'
         },
         html: {
@@ -27,6 +27,9 @@ export default function GlobalStyles() {
         '#root': {
           width: '100%',
           height: '100%'
+        },
+        'ul,ol':{
+          paddingInlineStart:20
         },
         input: {
           '&[type=number]': {
@@ -155,6 +158,9 @@ export default function GlobalStyles() {
         },
         '.grecaptcha-badge':{
           visibility:'hidden'
+        },
+        '.sans-scroll-disabled':{
+          overflow:'hidden'
         }
       }}
     />

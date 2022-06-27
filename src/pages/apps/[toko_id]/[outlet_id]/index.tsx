@@ -84,7 +84,7 @@ export default function OutletIndex({meta}: IPages) {
   const [dRange,setDRange] = React.useState(false);
   const filterRef = React.useRef(null);
   const rangeRef = React.useRef(null);
-  const {data,error}=useSWR<IResponse>(`/toko/${toko_id}/${outlet_id}/insight?filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}`)
+  const {data,error}=useSWR<IResponse>(`/sansorder/toko/${toko_id}/${outlet_id}/insight?filter=${query?.filter}${query?.filter === 'custom' ? `&from=${query?.from}&to=${query?.to}` : ''}`)
   const [graph,setGraph] = React.useState<{items: IResponse['graph']['items']|null,transactions: IResponse['graph']['transactions']|null}>({items:null,transactions:null});
   const [iData,setIData] = React.useState<{income:number|null,tr:number|null,income_today:number|null,tr_today:number|null}>({income:null,tr:null,income_today:null,tr_today:null});
   const [trChart,setTrChart] = React.useState<null|any>(null);
@@ -398,7 +398,7 @@ export default function OutletIndex({meta}: IPages) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Header title={meta?.title} desc={meta?.description}>
-        <Dashboard title={meta?.title} subtitle={meta?.toko_name}>
+        <Dashboard title={meta?.title} subtitle={meta?.toko_name} view='dashboard'>
           <Container>
             <Box pb={2} mb={5}>
               <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
