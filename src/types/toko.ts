@@ -54,13 +54,20 @@ export interface IOutlet {
   }
 }
 
-export type IStocks = {
+export type IIngredients = {
   id: number,
   name: string,
   description: string|null,
+  unit: string,
+}
+
+export type IStocks = {
+  id: string,
+  items: IIngredients,
   price: number,
   stock: number,
-  unit: string,
+  type: 'in'|'out',
+  timestamp: number
 }
 
 export type IProduct<D=any> = {
@@ -70,11 +77,12 @@ export type IProduct<D=any> = {
   name: string,
   description: string|null,
   price: number,
+  hpp: number,
   image: string|null,
   active: boolean,
   category: string|null,
   disscount?: number,
-  stocks: (IStocks & {consume: number})[]|null,
+  recipes: (IIngredients & {consume: number})[]|null,
   show_in_menu: boolean,
   metadata: D|null
 }
@@ -99,6 +107,8 @@ export type IItems<D=any> = {
   disscount: number,
   metadata: D|null,
   hpp?: number|null,
+  notes?: string,
+  done?: boolean
 }
 
 export type ITransaction<D=any> = {
@@ -114,7 +124,7 @@ export type ITransaction<D=any> = {
   payment:IPayment,
   status:IStatus,
   order_status:IOrderStatus,
-  user?: (UserPagination|{name: string}) & ({email?: string})
+  user?: (UserPagination|{name: string}) & ({email?: string,telephone?:string})
   payload: Record<string,any>|null
   platform_fees: number,
   metadata: D|null,

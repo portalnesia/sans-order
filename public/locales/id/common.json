@@ -45,5 +45,6 @@
     "new_desc":"Transaksi Dibayarkan",
     "updated_desc":"Transaksi #{{id}} sudah dibayar dengan metode pembayaran {{method}}"
   },
-  "maintenance_subs":"Berlangganan secara online sedang dalam pemeliharaan. Silakan hubungi sales kami jika Anda ingin berlangganan paket"
+  "maintenance_subs":"Berlangganan secara online sedang dalam pemeliharaan. Silakan hubungi sales kami jika Anda ingin berlangganan paket",
+  "type":"Jenis"
 }

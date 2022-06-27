@@ -1,0 +1,36 @@
+faq:
+  - q: What is SansOrder?
+    a: |
+      SansOrder is an online-based order and cashier system specifically designed to assist customers in ordering and paying via smartphone by scanning the barcode provided at each table. The cashier system has been equipped with stock management, COGS, revenue charts and best-selling products, and others
+  - q: How do I order on SansOrder?
+    a: |
+      - Open the merchant's website by scanning the available QR code
+      - Select the menu you want to order.
+      - Open shopping cart (bottom right corner) to make payment
+      - Confirm your order, then click `PAY`
+      - Fill in your bio and select an available payment method
+      - Make payment according to the instructions on the screen
+      - After payment is complete, we will forward your order to the merchant
+      - Order completed, you just need to wait for your order to be delivered
+  - q: What payment methods does SansOrder support?
+    a: |
+      We are constantly working to support the various payment methods available.
+
+      Until now, We support the following payment methods*:
+
+      - Bank
+          - Bank Mandiri
+          - Bank BRI
+          - Bank BNI
+          - Bank Permata
+      - E-Wallet
+          - DANA
+          - LinkAja
+          - ShopeePay
+      - QRIS
+      - COD (Direct payment via cashier)*
+
+      \* Payment methods at each merchant can be different, depending on whether the merchant activates the payment method
+  - q: How do I make a payment using SansOrder?
+    a: |
+      For the payment method, you can see in more detail the respective payment methods [here](/help/payment).

@@ -25,6 +25,7 @@ import { isMobile } from 'react-device-detect';
 import Recaptcha from './Recaptcha';
 import useSocket from '@utils/Socket';
 import Lottie from './Lottie';
+import {logEvent,getAnalytics} from '@utils/firebase'
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -57,7 +58,12 @@ function Cart({cart,total,subtotal,disscount}: {cart:IItems[],total:number,subto
         <List>
           {cart.map((c,i)=>(
             <ListItem>
-              <ListItemText primary={c.name} secondary={`${c.qty} x IDR ${numberFormat(`${c.price - c.disscount}`)}`} />
+              <ListItemText primary={c.name} secondary={
+                <>
+                  <Typography>{`${c.qty} x IDR ${numberFormat(`${c.price - c.disscount}`)}`}</Typography>
+                  {c?.notes && <Typography variant='caption'>{`${t('notes')}: ${c?.notes}`}</Typography>}
+                </>
+              } />
               <ListItemSecondaryAction>
                 <Typography variant='body2'>{`IDR ${numberFormat(`${(c.price*c.qty) -( c.disscount*c.qty)}`)}`}</Typography>
               </ListItemSecondaryAction>
@@ -609,6 +615,20 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
       }
       const recaptcha = await captchaRef.current?.execute();
       const response = await post<PaymentResult>(`/toko/${toko_id}/${outlet_id}/transactions`,{...dt,recaptcha});
+      const analytics = getAnalytics();
+      logEvent(analytics,'purchase',{
+        currency:"IDR",
+        value:total,
+        transaction_id: response.id,
+        items: cart.map(i=>({
+          item_id: `${i.id}`,
+          item_name: i.name,
+          discount: i.disscount,
+          price: i.price,
+          quantity: i.qty
+        }))
+      })
+
       removeCart();
 
       const r = {...response,name,email} as PaymentResponse;

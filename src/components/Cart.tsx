@@ -8,6 +8,7 @@ import { useTranslation } from 'next-i18next';
 import { numberFormat } from '@portalnesia/utils';
 import Button from './Button';
 import Payment from '@comp/Payment'
+import {logEvent,getAnalytics} from '@utils/firebase'
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -19,12 +20,12 @@ const FabStyled = styled(Fab)(({theme})=>({
   right:theme.spacing(3),
   bottom:theme.spacing(3),
   [theme.breakpoints.up('md')]:{
-    right:theme.spacing(5),
-    bottom:theme.spacing(5),
+    right:theme.spacing(4),
+    bottom:theme.spacing(4),
   }
 }))
 
-function CartFab({onClick}:{onClick(): void}) {
+function CartFab({onClick,enabled}:{onClick(): void,enabled?:boolean}) {
   const {t} = useTranslation('catalogue');
   const context = React.useContext(Context);
   const {cart} = context;
@@ -41,7 +42,7 @@ function CartFab({onClick}:{onClick(): void}) {
     <Portal>
       <Fade in={length > 0} unmountOnExit>
         <Tooltip title={t("cart")}>
-          <FabStyled color='primary' onClick={onClick}>
+          <FabStyled color='primary' onClick={onClick} disabled={!!enabled}>
             <Badge badgeContent={length} color="error" max={10}>
               <Iconify icon="eva:shopping-cart-fill" width={24} height={24} />
             </Badge>
@@ -52,7 +53,7 @@ function CartFab({onClick}:{onClick(): void}) {
   )
 }
 
-export default function Cart({table_number}: {table_number?:string}) {
+export default function Cart({table_number,enabled}: {table_number?:string,enabled?:boolean}) {
   const {t} = useTranslation('catalogue');
   const {t: tCom} = useTranslation('common');
   const {t: tMenu} = useTranslation('menu');
@@ -75,9 +76,38 @@ export default function Cart({table_number}: {table_number?:string}) {
   },[cart])
 
   const handlePayBtn = React.useCallback(()=>{
+    const analytics = getAnalytics();
+    logEvent(analytics,'begin_checkout',{
+      currency:"IDR",
+      value: total,
+      items:cart.map(i=>({
+        item_id: `${i.id}`,
+        item_name: i.name,
+        discount: i.disscount,
+        price: i.price,
+        quantity: i.qty
+      }))
+    })
     setOpen(false);
     setPay(true)
-  },[])
+  },[cart,total])
+
+  React.useEffect(()=>{
+    if(open) {
+      const analytics = getAnalytics();
+      logEvent(analytics,'view_cart',{
+        currency:"IDR",
+        value: total,
+        items:cart.map(i=>({
+          item_id: `${i.id}`,
+          item_name: i.name,
+          discount: i.disscount,
+          price: i.price,
+          quantity: i.qty
+        }))
+      })
+    }
+  },[cart,open,total])
 
   return (
     <>
@@ -93,7 +123,12 @@ export default function Cart({table_number}: {table_number?:string}) {
             <List component={'div'}>
               {cart.map((c,i)=>(
                 <ListItem>
-                  <ListItemText primary={c.name} secondary={`IDR ${numberFormat(`${(c.price*c.qty)-(c.disscount*c.qty)}`)}`} />
+                  <ListItemText primary={c.name} secondary={
+                    <>
+                      <Typography>{`IDR ${numberFormat(`${(c.price*c.qty)-(c.disscount*c.qty)}`)}`}</Typography>
+                      {c?.notes && <Typography variant='caption'>{`${t('notes')}: ${c?.notes}`}</Typography>}
+                    </>
+                  } />
                   <ListItemSecondaryAction>
                     <Stack direction='row' alignItems='center' spacing={1}>
                       <IconButton size='small' onClick={()=>removeQty(c)}><Remove /></IconButton>
@@ -131,7 +166,7 @@ export default function Cart({table_number}: {table_number?:string}) {
           <Button disabled={cart.length === 0} onClick={handlePayBtn}>{t("pay")}</Button>
         </DialogActions>
       </Dialog>
-      <CartFab onClick={()=>setOpen(true)} />
+      <CartFab enabled={!enabled} onClick={()=>setOpen(true)} />
       <Payment open={pay} handleClose={()=>setPay(false)} table_number={table_number} />
     </>
   )

@@ -1,22 +1,16 @@
 // material
-import { Box, Grid, Container, Typography,Hidden,Stack } from '@mui/material';
+import { Box, Grid, Container, Typography,Hidden,Stack, Card, CardContent, CardActionArea } from '@mui/material';
 import {Edit,ArrowBack,ArrowForward } from '@mui/icons-material'
-import wrapper,{staticProps} from '@redux/store'
+import {staticProps} from '@redux/store'
+import { styled } from '@mui/material/styles';
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'
-import {numberFormat,truncate,clean} from '@portalnesia/utils'
+import {truncate,clean} from '@portalnesia/utils'
 import React from 'react'
-import Image from '@comp/Image'
 import {useTranslation} from 'next-i18next';
 import Button from '@comp/Button'
-import {useDefaultSWR} from '@utils/swr'
-import {Circular} from '@comp/Loading'
-import Label from '@comp/Label'
-import Iconify from '@comp/Iconify'
-import nodePath from 'path'
 import fs from 'fs'
-import axios from 'axios'
 import splitMarkdown from '@utils/split-markdown';
 import { marked } from 'marked';
 import htmlEncode from '@utils/html-encode'
@@ -29,6 +23,9 @@ import Sidebar from '@comp/Sidebar'
 import Link from 'next/link'
 import { BankCode} from '@type/index';
 import {QrisIcon,BankIcon,DanaIcon,ShopeePayIcon,LinkAjaIcon} from '@comp/payment-icon/index'
+import path from 'path';
+
+const CAArea = styled(CardActionArea)<{component?: string}>(()=>({}))
 
 async function getData(slug: string) {
   try {
@@ -53,7 +50,7 @@ type PaymentCode = BankCode | 'EWALLET' | 'QRIS' | 'COD'
 type IIndex = {title: string,link: string,key: PaymentCode}
 
 async function getIndex() {
-  const file = await fs.promises.readFile('./data/help/payment/index.json');
+  const file = await fs.promises.readFile(path.resolve('./data/help/payment/index.json'));
   const index = Buffer.from(file).toString();
   const json = JSON.parse(index) as IIndex[];
   return json;
@@ -99,7 +96,8 @@ export const getStaticProps = staticProps(async({getTranslation,locale,params})=
   if(typeof slugs === 'undefined') {
     return {props:{meta:{
       html:'',
-      callbackLang:false
+      callbackLang:false,
+      index: await getIndex(),
     },...(await getTranslation('pages',bhs))}}
   }
   try {
@@ -247,6 +245,7 @@ function PaymentHelpDetail({meta}: IPages) {
 export default function PaymentHelp({meta}: IPages) {
   const router = useRouter();
   const {slug} = router.query;
+  const {t:tMenu} = useTranslation('menu');
   //const {data:paymentIndex,error} = useIndex();
 
   const icon = React.useCallback((data: PaymentCode)=>{
@@ -255,7 +254,7 @@ export default function PaymentHelp({meta}: IPages) {
     if(data === 'EWALLET') {
       return (
         <Box textAlign='center'>
-          <Typography>E-Wallet</Typography>
+          <Typography variant='h4' component='h4'>E-Wallet</Typography>
           <Stack mt={4} direction='row' spacing={2} justifyContent='center' alignItems='center'>
             <DanaIcon />
             <LinkAjaIcon />
@@ -272,19 +271,38 @@ export default function PaymentHelp({meta}: IPages) {
       }
     }
 
-    if(data === 'COD') return <Typography>COD</Typography>;
+    if(data === 'COD') return <Typography variant='h3' component='h3'>COD</Typography>;
     return null
   },[])
 
   return (
-    <Header title={meta?.title} desc={meta?.description}>
+    <Header title={meta?.title||tMenu('payment_tutorial')} desc={meta?.description}>
       <Dashboard>
         {typeof slug?.[0] !== 'undefined' ? (
           <PaymentHelpDetail meta={meta} />
         ) : (
           <Container>
-            <Grid container spacing={2}>
+            <Box textAlign='center' mb={8}>
+              <Typography variant='h1' component='h1'>{tMenu("payment_tutorial")}</Typography>
+            </Box>
 
+            <Grid container spacing={2}>
+              {meta?.index?.map((m,i)=>(
+                <Grid item xs={12} sm={6}>
+                  <Card>
+                  <Link href={`/help/payment${m.link}`} passHref><CAArea component='a'>
+                      <CardContent>
+                        {m?.key === 'EWALLET' ? icon(m.key as PaymentCode) : (
+                          <Stack spacing={2} justifyContent='center' alignItems='center'>
+                            <Typography variant='h4' component='h4'>{m.title}</Typography>
+                            {icon(m.key as PaymentCode)}
+                          </Stack>
+                        )}
+                      </CardContent>
+                    </CAArea></Link>
+                  </Card>
+                </Grid>
+              ))}
             </Grid>
           </Container>
         )}

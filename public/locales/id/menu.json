@@ -15,9 +15,17 @@
   "cashier":"Kasir",
   "transactions":"Transaksi",
   "stock": "Stok",
+  "ingredient":"Bahan",
+  "recipes":"Resep",
   "order":"Pesanan",
   "customer":"Pelanggan",
   "terms_of_services":"Syarat & Ketentuan",
   "policy_privacy":"Kebijakan Privasi",
-  "policy_cookie":"Kebijakan Kuki"
+  "policy_cookie":"Kebijakan Kuki",
+  "payment_tutorial":"Tutorial Pembayaran",
+  "kitchen_view":"Tampilan Dapur",
+  "company": "Perusahaan",
+  "help": "Bantuan",
+  "product":"Produk",
+  "faq":"Pertanyaan Yang Sering Diajukan"
 }

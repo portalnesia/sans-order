@@ -2,11 +2,12 @@
 import Iconify from '../../components/Iconify';
 import type {TFunction} from 'next-i18next'
 import type {NextRouter} from 'next/router'
+import { INavItems } from '@comp/NavSection';
 // ----------------------------------------------------------------------
 
-const getIcon = (name: string) => <Iconify icon={name} width={22} height={22} />;
+export const getIcon = (name: string) => <Iconify icon={name} width={22} height={22} />;
 
-const sidebarConfig = (t: TFunction)=>([
+const sidebarConfig = (t: TFunction): INavItems[]=>([
   {
     title: t("home"),
     path: `/`,
@@ -27,6 +28,10 @@ const sidebarConfig = (t: TFunction)=>([
     path: `/transactions`,
     icon: getIcon('icon-park-outline:transaction')
   },{
+    title: t("ingredient"),
+    path: `/ingredients`,
+    icon: getIcon('eos-icons:products-outlined')
+  },{
     title: t("stock"),
     path: `/stocks`,
     icon: getIcon('icon-park-outline:ad-product')
@@ -34,6 +39,11 @@ const sidebarConfig = (t: TFunction)=>([
     title: t("products"),
     path: `/products`,
     icon: getIcon('eva:shopping-bag-fill')
+  },{
+    title: t("kitchen_view"),
+    path: `/kitchen-display`,
+    icon: getIcon('fa6-solid:kitchen-set'),
+    new_tab: true
   },{
     title: t("setting"),
     path: `/setting`,

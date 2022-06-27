@@ -239,7 +239,7 @@ export default function WalletPage({meta}: IPages) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Header title={t("wallet")}>
-        <Dashboard withNavbar={false}>
+        <Dashboard withNavbar={false} backToTop={{position:'bottom',color:'primary'}} whatsappWidget={{enabled:false}}>
           <Container maxWidth='lg' sx={{mb:6}}>
             {meta?.title && (
               <>

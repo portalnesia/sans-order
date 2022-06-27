@@ -1,13 +1,15 @@
 import {createContext,Dispatch, useCallback, useEffect, useState,ReactNode} from 'react'
-import {IItems, Without} from '@type/index'
+import {CopyPartial, IItems, Without} from '@type/index'
 import { useRouter } from 'next/router'
 import LocalStorage from '@utils/local-storage'
+import {logEvent,getAnalytics} from '@utils/firebase'
 
-type Items = Without<IItems,'qty'|'hpp'>
+type Items = CopyPartial<Without<IItems,'qty'|'hpp'|'done'>,'notes'>
 
 export type ContextType = {
   cart: IItems[],
   addQty(item: Items): void,
+  manualQty(item: Items,qty: number,notes?: string): void,
   removeQty(item: Items): void,
   removeCart(): void
 }
@@ -15,6 +17,7 @@ export type ContextType = {
 const defaultValue = {
   cart:[],
   addQty:()=>{},
+  manualQty:()=>{},
   removeQty:()=>{},
   removeCart:()=>{}
 }
@@ -36,6 +39,47 @@ export default function Cart({children}: {children: ReactNode}) {
     }
     checkStorage();
   },[toko_id,outlet_id])
+
+  const manualQty = useCallback((item: Items,qty: number,notes?:string)=>{
+    const analytics = getAnalytics();
+    const index = cart.findIndex(c=>c.id === item.id);
+    let newCart: IItems[];
+    if(index > -1) {
+      newCart = [...cart];
+      if(qty > 0) {
+        newCart[index].qty = qty;
+        newCart[index].notes = notes && notes?.length > 0 ? notes : undefined;
+      } else {
+        logEvent(analytics,'remove_from_cart',{
+          currency:"IDR",
+          value: item.price-item.disscount,
+          items:[{
+            item_id: `${item.id}`,
+            item_name: item.name,
+            discount: item.disscount,
+            price: item.price,
+            quantity: qty
+          }]
+        })
+        newCart.splice(index,1);
+      }
+    } else {
+      logEvent(analytics,'add_to_cart',{
+        currency:"IDR",
+        value: item.price-item.disscount,
+        items:[{
+          item_id: `${item.id}`,
+          item_name: item.name,
+          discount: item.disscount,
+          price: item.price,
+          quantity: qty
+        }]
+      })
+      newCart = cart.concat({...item,qty,...(notes && notes?.length > 0 ? {notes} : {})});
+    }
+    setCart(newCart);
+    LocalStorage.set(`cart_${toko_id}_${outlet_id}`,newCart);
+  },[cart,toko_id,outlet_id])
 
   const addQty = useCallback((item: Items)=>{
     const index = cart.findIndex(c=>c.id === item.id);
@@ -77,6 +121,7 @@ export default function Cart({children}: {children: ReactNode}) {
         removeCart,
         removeQty,
         addQty,
+        manualQty,
         cart
       }}
     >

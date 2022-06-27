@@ -1,5 +1,5 @@
 ---
-title: Bank Mandiri Bank Transfer
+title: Bank Mandiri Payment Method
 keywords:
   - Bank transfer
   - Payment method

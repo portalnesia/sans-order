@@ -672,7 +672,7 @@ export default function OutletSetting({meta}: IPages) {
 
   return (
     <Header title={`${slug?.[0] === 'team' ? tMenu("team") : tMenu("setting")} - ${meta?.title}`} desc={meta?.description}>
-      <Dashboard title={meta?.title} subtitle={meta?.toko_name}>
+      <Dashboard title={meta?.title} subtitle={meta?.toko_name} {...(typeof slug?.[0] === 'string' ? {view:`dashboard setting ${slug?.[0]}`} : {})}>
         <Container>          
           <Box>
             {slug?.[0] === 'outlet' && (

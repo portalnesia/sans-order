@@ -114,7 +114,7 @@ export default function Pages({meta}: IPages) {
 
   return (
     <Header title={meta?.title} desc={meta?.description}>
-      <Dashboard>
+      <Dashboard backToTop={{position:'bottom',color:'primary'}} whatsappWidget={{enabled:false}}>
         <Container maxWidth={content.length > 0 ? 'xl' : 'lg'}>
           <Box textAlign='center' mb={8}>
             <Typography variant='h1' component='h1'>{meta?.title}</Typography>

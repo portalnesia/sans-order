@@ -1,3 +1,5 @@
+import { uuid } from "@portalnesia/utils";
+
 module LocalStorage {
     export function set(key: string,data:Record<string,any>|any[]) {
         if(typeof window !== 'undefined') {
@@ -19,6 +21,17 @@ module LocalStorage {
         if(typeof window !== 'undefined') {
             window.localStorage.removeItem(key);
         }
+    }
+    export function getID() {
+      if(typeof window !== 'undefined') {
+        let id = window.localStorage.getItem('pn_device_id');
+        if(!id) {
+          id = uuid('pn_device_id');
+          window.localStorage.setItem('pn_device_id',id);
+        }
+        return id;
+      }
+      return undefined;
     }
 }
 export default LocalStorage;

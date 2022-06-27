@@ -1,6 +1,7 @@
 {
   "title":"SansOrder",
   "description":"Smart Order System",
+  "tagline":"Hidup Itu Harus Sans",
   "logo":{
     "dark":"/icon/dark/android-icon-48x48.png",
     "light":"/icon/light/android-icon-48x48.png"
@@ -9,6 +10,10 @@
     "whatsapp":"+6281246400074",
     "email":"support@portalnesia.com",
     "instagram":"@sans.order",
-    "twitter":"@Portalnesia1"
+    "twitter":"@Portalnesia1",
+    "facebook":{
+      "name":"Portalnesia",
+      "slug":"portalnesia"
+    }
   }
 }
