@@ -27,5 +27,14 @@
   "wednesday":"Wednesday",
   "thursday":"Thursday",
   "friday":"Friday",
-  "saturday":"Saturday"
+  "saturday":"Saturday",
+  "access_help":{
+    "items": "When enabled, this user can add, edit and/or delete products",
+    "stocks": "When enabled, this user can add, edit and/or delete stocks",
+    "outlet":"When enabled, this user can add and edit outlet but cannot delete outlets. Only merchant owners can delete outlets.",
+    "promo": "When enabled, this user can add, edit and/or delete promotion",
+    "transactions": "When enabled, this user can add transactions",
+    "users": "When enabled, this user can add, edit and/or delete users",
+    "superusers": "When enabled, this user gets admin privileges. This user can add, edit and/or delete product, team, outlet settings, but cannot delete outlets. Only merchant owners can delete outlets."
+  }
 }

@@ -1,12 +1,12 @@
 import {useState,useMemo,useCallback,useRef,useEffect} from 'react'
 // material
 import { alpha, styled } from '@mui/material/styles';
-import { Box, Stack, AppBar, Toolbar, ListItemText,IconButton,MenuItem,useTheme,Typography } from '@mui/material';
+import { Box, Stack, AppBar, Toolbar, IconButton,MenuItem,useTheme,Typography } from '@mui/material';
 import Button from '@comp/Button'
 // components
 import Link from 'next/link'
 import Iconify from '../../components/Iconify';
-import Logo from '@comp/Logo'
+import Logo, { LogoProps } from '@comp/Logo'
 import navbarConfig from './NavbarConfig'
 import MenuPopover from '@comp/MenuPopover';
 import {useRouter} from 'next/router'
@@ -16,15 +16,17 @@ import useResponsive from '@comp/useResponsive'
 import {useSelector,State} from '@redux/index'
 import AccountPopover from '../dashboard/AccountPopover';
 import ThemePopover from '../ThemePopover'
+import config from '@root/web.config.json'
 
 const APPBAR_MOBILE = 64;
 const APPBAR_DESKTOP = 92;
 
-const RootStyle = styled(AppBar)(({ theme }) => ({
+const RootStyle = styled(AppBar)<{scrolled?: boolean}>(({ theme,scrolled }) => ({
   boxShadow: 'none',
   backdropFilter: 'blur(6px)',
   WebkitBackdropFilter: 'blur(6px)', // Fix on Mobile
-  backgroundColor: alpha(theme.palette.background.default, 0.72)
+  backgroundColor: alpha(theme.palette.background.default, 0.72),
+  ...(scrolled ? {borderBottom:`solid .5px ${theme.palette.divider}`} : {})
 }));
 
 const ToolbarStyle = styled(Toolbar)(({ theme }) => ({
@@ -173,7 +175,7 @@ function MobileNavItem({items}: MobileNavItemProps) {
         open={open}
         onClose={handleClose}
         anchorEl={anchorRef.current}
-        paperSx={{minWidth:'70%'}}
+        //paperSx={{minWidth:'70%'}}
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           {items.map((it)=>{
@@ -199,30 +201,52 @@ function MobileNavItem({items}: MobileNavItemProps) {
 
 export interface HomeNavbarProps {
   withNavbar?: boolean,
-  withDashboard?: boolean
+  withDashboard?: boolean,
+  logoProps?: LogoProps
 }
 
-export default function HomeNavbar({withNavbar=true,withDashboard=true} : HomeNavbarProps) {
+export default function HomeNavbar({withNavbar=true,withDashboard=true,logoProps} : HomeNavbarProps) {
   const router = useRouter();
   const {t} = useTranslation('menu');
   const user = useSelector<State['user']>(s=>s.user);
-  const menuDesktop = useResponsive('up',722)
-  const menuMobile = useResponsive('down',722);
-  const textHidden1 = useResponsive('between',722,765);
-  const textHidden2 = useResponsive('down',370);
+  const menuDesktop = useResponsive('up',884)
+  const menuMobile = useResponsive('down',884);
+  const textHidden1 = useResponsive('between',884,765);
+  const textHidden2 = useResponsive('down',455);
+  const logoHidden = useResponsive('down',357);
+
+  const [scrolled,setScrolled] = useState(false);
 
   const navbar = useMemo(()=>navbarConfig(t),[t]);
 
+  useEffect(()=>{
+    function onScroll() {
+      const scroll = document?.documentElement?.scrollTop || document.body.scrollTop;
+      if(scroll > 60) {
+        setScrolled(true)
+      } else {
+        setScrolled(false)
+      }
+    }
+    window.addEventListener('scroll',onScroll);
+
+    return ()=>window.removeEventListener('scroll',onScroll);
+  },[])
+
   return (
-    <RootStyle>
+    <RootStyle scrolled={scrolled}>
       <ToolbarStyle>
-        <Box sx={{ pr:1,display: 'inline-flex' }}>
-          <Logo />
+        <Box sx={{ pr:1,display: logoHidden ? 'none' : 'inline-flex' }}>
+          <Logo {...logoProps} />
         </Box>
         <Box sx={{display:textHidden1||textHidden2 ? 'none':'block'}}>
-          <Link href='/' passHref><a style={{textDecoration:'none'}}>
-            <Typography variant='h4' sx={{color: 'text.primary'}}>SansOrder</Typography>
-          </a></Link>
+          {typeof logoProps?.href === 'boolean' ? (
+            <Typography variant='h4' sx={{color: 'text.primary'}}>{config.title}</Typography>
+          ) : (
+            <Link href={`/${logoProps?.href||''}`} passHref><a style={{textDecoration:'none'}}>
+              <Typography variant='h4' sx={{color: 'text.primary'}}>{config.title}</Typography>
+            </a></Link>
+          )}
         </Box>
         <Box sx={{ flexGrow: 1 }} />
         {withNavbar ? (

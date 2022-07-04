@@ -398,7 +398,7 @@ export default function OutletIndex({meta}: IPages) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Header title={meta?.title} desc={meta?.description}>
-        <Dashboard title={meta?.title} subtitle={meta?.toko_name}>
+        <Dashboard title={meta?.title} subtitle={meta?.toko_name} view='dashboard'>
           <Container>
             <Box pb={2} mb={5}>
               <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>

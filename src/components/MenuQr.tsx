@@ -65,7 +65,7 @@ export default function MenuQr({...other}: MenuQrProps) {
             <ListItemIcon>
               <Iconify icon='fluent:qr-code-20-regular' width={22} height={22} />
             </ListItemIcon>
-            <ListItemText disableTypography primary={`Menu Qr Code`} />
+            <ListItemText sx={t=>({...t.typography.body2})} disableTypography primary={`Menu Qr Code`} />
           </ListItemButton>
         </List>
       </Box>
@@ -101,6 +101,11 @@ export default function MenuQr({...other}: MenuQrProps) {
               </Box>
             </>
           )}
+
+          <Divider sx={{my:3}} />
+          <Box px={3} mt={2} display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
+            <a href={`/merchant/${toko_id}/${outlet_id}`} >View Website</a>
+          </Box>
         </DialogContent>
       </Dialog>
     </>

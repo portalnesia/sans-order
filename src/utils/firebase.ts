@@ -1,4 +1,9 @@
+import { getAnalytics as getAnalyticsOri,logEvent,setUserId } from 'firebase/analytics';
 import {initializeApp} from 'firebase/app'
+import {getMessaging as getMessagingOri} from 'firebase/messaging'
+
+export {logEvent,setUserId} from 'firebase/analytics'
+export {getToken,isSupported,onMessage} from 'firebase/messaging'
 
 const firebaseConfig = {
     apiKey: "AIzaSyCVHHSOJz98Duilzyc4f_pQ3hCOtukPOmA",
@@ -13,4 +18,9 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig)
 
+const getAnalytics = ()=>getAnalyticsOri(firebaseApp);
+
+const getMessaging = ()=>getMessagingOri(firebaseApp);
+
+export {getAnalytics,getMessaging}
 export default firebaseApp;

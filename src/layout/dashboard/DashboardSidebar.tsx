@@ -3,7 +3,7 @@ import Link from 'next/link';
 import {useRouter} from 'next/router'
 // material
 import { styled } from '@mui/material/styles';
-import { Box, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
+import { Box, Drawer, SxProps, Theme, Typography } from '@mui/material';
 // mocks_
 //import account from '../../_mocks_/account';
 // hooks
@@ -15,7 +15,8 @@ import Scrollbar from '../../components/Scrollbar';
 import NavSection from '../../components/NavSection';
 import sidebarConfig from './SidebarConfig';
 import MenuQr from '@comp/MenuQr';
-import footerMenu from '@layout/FooterConfig';
+import {dashboardFooterMenu as footerMenu} from '@layout/FooterConfig';
+import config from '@root/web.config.json'
 // ----------------------------------------------------------------------
 
 const DRAWER_WIDTH = 280;
@@ -87,16 +88,22 @@ export const FooterChild = styled('div')(({theme})=>({
   whiteSpace:'pre-wrap',
 }))
 
-export const FooterAChild = styled('a')(({theme})=>({
-  color:theme.palette.text.secondary,
-  lineHeight:'20px',
-  fontSize:13,
+export const FooterAChild = styled('a')<{home?:boolean}>(({theme,home})=>({
   overflowWrap:'break-word',
-  margin:'2px 0',
   padding:0,
-  paddingRight:10,
   whiteSpace:'pre-wrap',
+  ...(home ? {
+
+  } : {
+    color:theme.palette.text.secondary,
+    paddingRight:10,
+    fontSize:13,
+    margin:'2px 0',
+    lineHeight:'20px',
+  }),
 }))
+
+const Span = styled('span')(()=>({}));
 
 
 // ----------------------------------------------------------------------
@@ -108,19 +115,19 @@ export interface DashboardSidebarProps {
   subtitle?: string
 };
 
-export function MenuItem({data}: {data: ReturnType<typeof footerMenu>[number]}) {
+export function MenuItem({data,sx,home,spanSx}: {data: ReturnType<typeof footerMenu>[number],home?:boolean,sx?: SxProps<Theme>,spanSx?: SxProps<Theme>}) {
 
   return (
     <>
       {data.link ? (
         <Link href={data.link} passHref>
-          <FooterAChild>
-            <span>{data.name}</span>
+          <FooterAChild sx={sx} home={home}>
+            <Span sx={spanSx}>{data.name}</Span>
           </FooterAChild>
         </Link>
       ) : data.exlink ? (
-        <FooterAChild href={data.exlink} target='blank' rel='nofollow noopener noreferrer'>
-          <span>{data.name}</span>
+        <FooterAChild href={data.exlink} target='blank' rel='nofollow noopener noreferrer' sx={sx} home={home}>
+          <Span sx={spanSx}>{data.name}</Span>
         </FooterAChild>
       ) : null}
     </>
@@ -132,6 +139,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title,
   const pathname = router.pathname;
   const {t} = useTranslation('menu');
   const isDesktop = useResponsive('up', 'lg');
+  const {toko_id,outlet_id} = router.query;
 
   useEffect(() => {
     if (isOpenSidebar) {
@@ -149,6 +157,9 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title,
     >
       <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
         <Logo href='/apps' />
+        <Link href={`/apps`} passHref><a style={{textDecoration:'none',marginLeft:8,marginTop:6}}>
+          <Typography variant='h5' sx={{color: 'text.primary'}}>{config.title}</Typography>
+        </a></Link>
       </Box>
 
       {title && subtitle && (
@@ -185,7 +196,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title,
           <FooterMenu>
             <FooterChild>
               <span {...({"xmlns:cc":"http://creativecommons.org/ns#","xmlns:dct":"http://purl.org/dc/terms/"})}>
-                <a property="dct:title" rel="cc:attributionURL" href={process.env.NEXT_PUBLIC_URL}>SansOrder</a> © {(new Date().getFullYear())}
+                <Link href='/' passHref><a property="dct:title" rel="cc:attributionURL">SansOrder</a></Link> © {(new Date().getFullYear())}
               </span>
             </FooterChild>
             <FooterChild><span>Powered by <a target='_blank' href={process.env.PORTAL_URL}>Portalnesia</a></span></FooterChild>

@@ -40,7 +40,9 @@ yarn-error.log*
 version.js
 *.crt
 /public/*.js
+/public/*.js.map
 /ORIGINAL
 db.ts
 src/version.ts
 server.js
+*.exp

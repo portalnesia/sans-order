@@ -31,30 +31,19 @@ const FEATURES = (t: TFunction,tCom:TFunction)=>([
 const PACKAGES = [
   {
     id:"toko_1",
-    name:"Bronze",
+    name:"Advanced",
     features:[
       true,
       true,
       true,
       true,
-      false,
+      true,
       false
     ]
   },{
     id:"toko_2",
-    name:"Silver",
+    name:"Enterprise",
     recommend:false,
-    features:[
-      true,
-      true,
-      true,
-      true,
-      true,
-      false
-    ]
-  },{
-    id:"toko_3",
-    name:'Gold',
     features:[
       true,
       true,
@@ -96,7 +85,7 @@ function PricingSection({item}: SectionProps) {
   const {name,features,recommend}=packages;
 
   return (
-    <Grid item xs={12} md={6} lg={4}>
+    <Grid item xs={12} md={6}>
       <Card variant='elevation'>
         <CardContent>
           {recommend && (

@@ -3,6 +3,8 @@ import { UserPagination } from "./user"
 
 export type IDay = 'sunday'|'monday'|'tuesday'|'wednesday'|'thursday'|'friday'|'saturday';
 export const daysArray = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] as IDay[]
+export type IUserAccess = 'items'|'stocks'|'outlet'|'promo'|'transactions'|'users'|'superusers';
+export const userAccess = ['items','stocks','outlet','promo','transactions','users','superusers'] as IUserAccess[]
 
 export type IToko = {
   id: number,
@@ -30,9 +32,12 @@ export interface IOutlet {
   self_order: boolean;
   cod: boolean;
   online_payment: boolean;
-  isAdmin: boolean,
-  isOwner: boolean,
+  access: IUserAccess[],
+  /**
+   * Am i an employee in this toko/outlet?
+   */
   isMyToko: boolean,
+  isOwner: boolean,
   wallet?: boolean,
   table_number: boolean,
   token_download_qr?: string,
@@ -49,6 +54,22 @@ export interface IOutlet {
   }
 }
 
+export type IIngredients = {
+  id: number,
+  name: string,
+  description: string|null,
+  unit: string,
+}
+
+export type IStocks = {
+  id: string,
+  items: IIngredients,
+  price: number,
+  stock: number,
+  type: 'in'|'out',
+  timestamp: number
+}
+
 export type IProduct<D=any> = {
   id: number,
   toko_id: number,
@@ -56,16 +77,26 @@ export type IProduct<D=any> = {
   name: string,
   description: string|null,
   price: number,
-  disscount: number,
+  hpp: number,
   image: string|null,
   active: boolean,
   category: string|null,
-  hpp: number|null,
-  stock: number|null,
-  stock_per_items?: number|null,
-  unit: string|null,
+  disscount?: number,
+  recipes: (IIngredients & {consume: number})[]|null,
   show_in_menu: boolean,
   metadata: D|null
+}
+
+export type IPromo = {
+  id: number,
+  item_id: number,
+  amount: number,
+  name: string,
+  description: string|null,
+  image: string|null,
+  show_in_menu: boolean,
+  from: number,
+  to: number
 }
 
 export type IItems<D=any> = {
@@ -76,7 +107,8 @@ export type IItems<D=any> = {
   disscount: number,
   metadata: D|null,
   hpp?: number|null,
-  remaining_stock?: number|null
+  notes?: string,
+  done?: boolean
 }
 
 export type ITransaction<D=any> = {
@@ -92,12 +124,12 @@ export type ITransaction<D=any> = {
   payment:IPayment,
   status:IStatus,
   order_status:IOrderStatus,
-  user?: (UserPagination|{name: string}) & ({email?: string})
+  user?: (UserPagination|{name: string}) & ({email?: string,telephone?:string})
   payload: Record<string,any>|null
   platform_fees: number,
   metadata: D|null,
   cashier?: string,
-  type:'self_order'|'cashier',
+  type:'self_order'|'cashier'|'withdraw',
   token_print?: string
 }
 
@@ -120,9 +152,9 @@ export interface TokoUsers {
   name: string,
   username: string,
   picture: string|null,
-  admin: boolean,
-  owner:boolean,
-  pending: boolean
+  access: IUserAccess[]
+  owner: boolean
+  pending:boolean
 }
 
 export interface IMenu {

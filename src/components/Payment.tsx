@@ -25,6 +25,7 @@ import { isMobile } from 'react-device-detect';
 import Recaptcha from './Recaptcha';
 import useSocket from '@utils/Socket';
 import Lottie from './Lottie';
+import {logEvent,getAnalytics} from '@utils/firebase'
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -57,7 +58,12 @@ function Cart({cart,total,subtotal,disscount}: {cart:IItems[],total:number,subto
         <List>
           {cart.map((c,i)=>(
             <ListItem>
-              <ListItemText primary={c.name} secondary={`${c.qty} x IDR ${numberFormat(`${c.price - c.disscount}`)}`} />
+              <ListItemText primary={c.name} secondary={
+                <>
+                  <Typography>{`${c.qty} x IDR ${numberFormat(`${c.price - c.disscount}`)}`}</Typography>
+                  {c?.notes && <Typography variant='caption'>{`${t('notes')}: ${c?.notes}`}</Typography>}
+                </>
+              } />
               <ListItemSecondaryAction>
                 <Typography variant='body2'>{`IDR ${numberFormat(`${(c.price*c.qty) -( c.disscount*c.qty)}`)}`}</Typography>
               </ListItemSecondaryAction>
@@ -166,7 +172,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
 },[input])
 
   useEffect(()=>{
-    if(option.length === 0) {
+    if(option.length === 0 && !user) {
       get<Record<ITelephone['label'],ITelephone['code']>>(`/internal/list_telephone`)
       .then((res)=>{
         setLoadingList(false)
@@ -181,7 +187,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
         setLoadingList(false)
       })
     }
-  },[openList,option])
+  },[openList,option,user])
 
   return (
     <Box sx={{p:2}}>
@@ -224,7 +230,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
             </Grid>
             <Grid item xs={12}>
               <Grid container spacing={2}>
-                <Grid item xs={4}>
+                <Grid item xs={5}>
                   <Autocomplete
                     open={openList}
                     disableClearable
@@ -246,6 +252,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
                     onClose={() => {
                       setOpenList(false);
                     }}
+                    fullWidth
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -264,7 +271,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
                     )}
                   />
                 </Grid>
-                <Grid item xs={8}>
+                <Grid item xs={7}>
                   <TextField
                     fullWidth
                     label={t("telephone")}
@@ -291,6 +298,10 @@ type IPaymentMethod = {
 
 function MethodItems({dt,payment,onChange,category}: {payment:IForm['input']['payment'],dt:IPaymentMethod[],onChange(payment: IForm['input']['payment']): void,category: IPayment}) {
   const [expand,setExpand] = useState(false);
+
+  useEffect(()=>{
+    console.log("DT",dt)
+  },[dt])
 
   const handleChange=useCallback((d: IPaymentMethod)=>()=>{
     let dt: IForm['input']['payment']|undefined;
@@ -604,6 +615,20 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
       }
       const recaptcha = await captchaRef.current?.execute();
       const response = await post<PaymentResult>(`/toko/${toko_id}/${outlet_id}/transactions`,{...dt,recaptcha});
+      const analytics = getAnalytics();
+      logEvent(analytics,'purchase',{
+        currency:"IDR",
+        value:total,
+        transaction_id: response.id,
+        items: cart.map(i=>({
+          item_id: `${i.id}`,
+          item_name: i.name,
+          discount: i.disscount,
+          price: i.price,
+          quantity: i.qty
+        }))
+      })
+
       removeCart();
 
       const r = {...response,name,email} as PaymentResponse;
@@ -762,7 +787,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
               <Button type='submit' disabled={loading!==null} loading={loading==='submit'} icon='submit'>{t("pay")}</Button>
             </DialogActions>
           )}
-          {(menu !== null && process.env.NEXT_PUBLIC_PN_EN==='test') && (
+          {(menu !== null && process.env.NEXT_PUBLIC_PN_ENV==='test') && (
             <DialogActions>
               <Button onClick={handleSimulation} disabled={loading!==null} loading={loading==='simulation'} icon='submit'>Simulate</Button>
             </DialogActions>

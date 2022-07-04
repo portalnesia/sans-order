@@ -1,5 +1,5 @@
 // material
-import { Box, Grid, Container, Typography,styled,CardContent,CardActionArea,Card,Stack,Alert, CardMedia, Divider,CircularProgress } from '@mui/material';
+import { Box, Grid, Container, Typography,styled,CardContent,CardActionArea,Card,Stack,Alert, CardMedia, Divider,CircularProgress, List, ListItem } from '@mui/material';
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'
@@ -26,6 +26,8 @@ import useInitData from '@utils/init-data'
 import {IToko,IOutletPagination} from '@type/index'
 import Recaptcha from '@comp/Recaptcha'
 import dynamic from 'next/dynamic'
+import { getSysInfo, PSysInfo } from '@comp/Feedback';
+import { logEvent, getAnalytics } from '@utils/firebase';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -95,7 +97,7 @@ function LoginSection() {
             <Typography variant="h4" gutterBottom>
               {t("signin")}
             </Typography>
-            <Button onClick={login} sx={{mt:3,backgroundColor:'#2f6f4e !important'}} size="large" startIcon={<Image src="/icon/android-icon-48x48.png" width={25} />}>{tMenu("signin")}</Button>
+            <Button onClick={login} sx={{mt:3,backgroundColor:'#2f6f4e !important'}} size="large" startIcon={<Image src="/portalnesia-icon/android-icon-48x48.png" width={25} />}>{tMenu("signin")}</Button>
             {typeof err === 'string' && (
               <Alert variant='outlined' sx={{mt:2,minWidth:{xs:'90%',md:400,justifyContent:'center'}}} severity='error'>{decodeURIComponent(err.replace(/\+/gim,' '))}</Alert>
             )}
@@ -150,7 +152,7 @@ function Loginned({user}: {user:IUser}) {
   },[input,post,setNotif,t])
 
   return (
-    <Dashboard withNavbar={false}>
+    <Dashboard withNavbar={false} backToTop={{position:'bottom',color:'primary'}} whatsappWidget={{enabled:false}}>
       <Container maxWidth="lg">
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
@@ -308,6 +310,7 @@ export default function DashboardApp() {
   const router = useRouter();
   const code = router.query?.code;
   let codeLoading = React.useRef(false)
+  const [features,setFeatures] = React.useState<Pick<PSysInfo,'cookieEnabled'|'support_localStorage'|'support_sessionStorage'|'support_webSocket'>|null|false>(null)
 
   React.useEffect(()=>{
     async function login() {
@@ -328,6 +331,8 @@ export default function DashboardApp() {
                 cookie.set("_so_token_",`${user?.sub}`,{
                   expires:getDayJs().add(1,'month').toDate()
                 })
+                const analytics = getAnalytics();
+                logEvent(analytics,'login',{method:"Portalnesia"})
                 dispatch({type:"CUSTOM",payload:{user}})
               }
             }
@@ -345,15 +350,50 @@ export default function DashboardApp() {
       }
     }
 
-    if(typeof code === 'string' && !codeLoading.current && router.isReady) login();
-  },[code,router.isReady])
+    if(typeof code === 'string' && !codeLoading.current && router.isReady && features === false) login();
+  },[code,router.isReady,features])
+
+  React.useEffect(()=>{
+    const system = getSysInfo();
+    const {cookieEnabled,support_localStorage,support_sessionStorage,support_webSocket} = system
+    if(
+      cookieEnabled && 
+      support_localStorage && 
+      support_sessionStorage && 
+      support_webSocket
+    ) {
+      setFeatures(false)
+    } else {
+      setFeatures({cookieEnabled,support_localStorage,support_sessionStorage,support_webSocket})
+    }
+    //setFeatures({cookieEnabled:false,support_localStorage:false,support_sessionStorage:false,support_webSocket:false})
+  },[])
 
   return (
     <Header title={ucwords(tMenu("dashboard"))}>
       {!router.isReady || (user===null||loaded===false) ? (
         <div style={{position:'fixed',top:0,left:0,height:'100%',width:'100%',background:'#2f6f4e',zIndex:5000}}>
-          <img style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)'}} onContextMenu={(e)=>e.preventDefault()} className='load-child no-drag' alt='Portalnesia' src={loadingImage} />
+          <img style={{position:'fixed',top:'40%',left:'50%',transform:'translate(-40%,-50%)'}} onContextMenu={(e)=>e.preventDefault()} className='load-child no-drag' alt='Portalnesia' src={loadingImage} />
+          <Box position='fixed' top='70%' left='52%' sx={{transform:'translate(-70%,-52%)'}}>
+            <CircularProgress size={75} sx={{color:'white'}} />
+          </Box>
         </div>
+      ) : features === null ? (
+        <RootStyle sx={{display:'flex',flexDirection:'column',minHeight:'100vh',alignItems:'center',justifyContent:'center'}}>
+          <CircularProgress size={50} />
+          {t("features").split("\n").map((t,i)=>(
+            <Typography key={`features-wait-${i}`} sx={{mt:3}} variant={i===0 ? 'h3' : 'h4'} component={i===0 ? 'h3' : 'h4'}>{t}</Typography>
+          ))}
+        </RootStyle>
+      ) : typeof features === 'object' ? (
+        <RootStyle sx={{display:'flex',flexDirection:'column',minHeight:'100vh',alignItems:'center',justifyContent:'center'}}>
+          <Typography sx={{mt:3}} variant="h3" component='h3'>{`${t("features_failed.title")}`}</Typography>
+          <List component={'ol'} sx={{listStyle:'decimal',listStylePosition:'inside'}}>
+            {Object.entries(features).filter(f=>f[1]===false).map((f)=>(
+              <ListItem key={`features-failed-${f[0]}`} disablePadding sx={{display:'list-item'}}>{t(`features_failed.${f[0]}`)}</ListItem>
+            ))}
+          </List>
+        </RootStyle>
       ) : typeof code === 'string' ? (
         <RootStyle sx={{display:'flex',flexDirection:'column',minHeight:'100vh',alignItems:'center',justifyContent:'center'}}>
           <CircularProgress size={50} />

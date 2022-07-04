@@ -45,5 +45,6 @@
     "new_desc":"Transactions Paid",
     "updated_desc":"Transaction #{{id}} has been paid with the {{method}} payment method"
   },
-  "maintenance_subs":"The online subscription is currently under maintenance. Please contact our sales if you want to subscribe to the package"
+  "maintenance_subs":"The online subscription is currently under maintenance. Please contact our sales if you want to subscribe to the package",
+  "type":"Type"
 }

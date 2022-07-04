@@ -6,7 +6,7 @@ const qrOptions: Options = {
   height:500,
   type:'svg',
   margin:5,
-  image:"/icon/android-chrome-192x192.png",
+  image:"/portalnesia-icon/android-chrome-192x192.png",
   qrOptions:{
     typeNumber:0,
     mode:'Byte',

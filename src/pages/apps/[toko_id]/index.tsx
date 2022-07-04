@@ -159,7 +159,7 @@ export default function DashboardApp({meta}: IPages) {
 
   return (
     <Header title={meta?.title} desc={meta?.description}>
-      <Dashboard withNavbar={false}>
+      <Dashboard withNavbar={false} backToTop={{position:'bottom',color:'primary'}} whatsappWidget={{enabled:false}}>
         <Container maxWidth='lg' sx={{mb:6}}>
           {toko && (
             <Box>

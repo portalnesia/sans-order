@@ -11,8 +11,8 @@ export default function GlobalStyles() {
     <GlobalThemeStyles
       styles={{
         '*': {
-          margin: 0,
-          padding: 0,
+          //margin: 0,
+          //padding: 0,
           boxSizing: 'border-box'
         },
         html: {
@@ -27,6 +27,9 @@ export default function GlobalStyles() {
         '#root': {
           width: '100%',
           height: '100%'
+        },
+        'ul,ol':{
+          paddingInlineStart:20
         },
         input: {
           '&[type=number]': {
@@ -67,11 +70,17 @@ export default function GlobalStyles() {
           marginTop:16,
           marginBottom:16
         },
+        'code:not(.hljs), blockquote, code.code:not(.hljs)':{
+          background:theme.palette.action.hover,
+          color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
+          borderRadius:'.5rem',
+          padding:'.15rem .5rem',
+        },
         blockquote:{
           fontSize:16,
           width:'100%',
           margin:'10px 0 10px 0',
-          padding: '0.5em 10px .5em 15px',
+          padding: '1em 10px 1em 15px',
           borderLeft:'8px solid #78c0a8',
           position:'relative',
           overflowX:'auto'
@@ -93,10 +102,6 @@ export default function GlobalStyles() {
           fontStyle:'normal',
           fontWeight:700,
           marginTop:'1em'
-        },
-        'code:not(.hljs), blockquote, code.code:not(.hljs)':{
-          background:theme.palette.action.hover,
-          borderRadius:'.5rem'
         },
         li:{
           listStylePosition:'inside'
@@ -150,6 +155,12 @@ export default function GlobalStyles() {
         '.underline-heading':{
           paddingBottom:'.1rem',
           borderBottom:`1px solid ${theme.palette.divider}`
+        },
+        '.grecaptcha-badge':{
+          visibility:'hidden'
+        },
+        '.sans-scroll-disabled':{
+          overflow:'hidden'
         }
       }}
     />
