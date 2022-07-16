@@ -1,0 +1,67 @@
+{
+  "kind": "collectionType",
+  "collectionName": "promos",
+  "info": {
+    "singularName": "promo",
+    "pluralName": "promos",
+    "displayName": "Promo",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "from": {
+      "type": "date",
+      "required": true
+    },
+    "to": {
+      "type": "date",
+      "required": true
+    },
+    "active": {
+      "type": "boolean",
+      "default": false
+    },
+    "products": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::product.product",
+      "mappedBy": "promo"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "fixed",
+        "percentage"
+      ],
+      "required": true
+    },
+    "amount": {
+      "type": "float",
+      "required": true
+    },
+    "outlet": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::outlet.outlet",
+      "inversedBy": "promos"
+    }
+  }
+}

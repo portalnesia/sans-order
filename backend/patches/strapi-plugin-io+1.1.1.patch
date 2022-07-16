@@ -1,0 +1,26 @@
+diff --git a/node_modules/strapi-plugin-io/server/bootstrap.js b/node_modules/strapi-plugin-io/server/bootstrap.js
+index 52cdae0..dfccba8 100644
+--- a/node_modules/strapi-plugin-io/server/bootstrap.js
++++ b/node_modules/strapi-plugin-io/server/bootstrap.js
+@@ -32,7 +32,7 @@ module.exports = async ({ strapi }) => {
+ 				}
+ 
+ 				// register all other events to be triggered at a later time
+-				socket.on(event.name, (...data) => event.handler({ strapi, io: strapi.$io }, ...data));
++				socket.on(event.name, (...data) => event.handler({ strapi, io: strapi.$io,socket }, ...data));
+ 			}
+ 		});
+ 	}
+diff --git a/node_modules/strapi-plugin-io/server/middlewares/handshake.js b/node_modules/strapi-plugin-io/server/middlewares/handshake.js
+index 995cc73..5fabdc8 100644
+--- a/node_modules/strapi-plugin-io/server/middlewares/handshake.js
++++ b/node_modules/strapi-plugin-io/server/middlewares/handshake.js
+@@ -28,7 +28,7 @@ async function handshake(socket, next) {
+ 			if (user.blocked) {
+ 				throw Error('Invalid credentials');
+ 			}
+-
++      socket.data.user = user;
+ 			socket.join(authUser.role.name);
+ 		} catch (error) {
+ 			next(error);

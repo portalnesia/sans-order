@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "outlet_user_roles",
+  "info": {
+    "singularName": "outlet-user-role",
+    "pluralName": "outlet-user-roles",
+    "displayName": "Outlet User Role"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}

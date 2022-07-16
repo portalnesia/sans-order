@@ -1,0 +1,1 @@
+export type {PortalnesiaUser as User} from '@portalnesia/portalnesia-strapi'

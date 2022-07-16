@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_wallet_account_wallet_accounts",
+  "info": {
+    "displayName": "Wallet Account"
+  },
+  "options": {},
+  "attributes": {
+    "bank_code": {
+      "type": "enumeration",
+      "enum": [
+        "BANK MANDIRI",
+        "BANK BNI",
+        "BANK BRI",
+        "BANK BCA",
+        "DANA",
+        "LINKAJA",
+        "SHOPEEPAY",
+        "OVO",
+        "GOPAY"
+      ],
+      "required": true
+    },
+    "account_name": {
+      "type": "string",
+      "required": true
+    },
+    "account_number": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "kind": "collectionType",
+  "collectionName": "outlets",
+  "info": {
+    "singularName": "outlet",
+    "pluralName": "outlets",
+    "displayName": "Outlet",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "pluginOptions": {},
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "pluginOptions": {},
+      "type": "richtext"
+    },
+    "address": {
+      "pluginOptions": {},
+      "type": "string"
+    },
+    "busy": {
+      "pluginOptions": {},
+      "type": "boolean",
+      "default": false
+    },
+    "self_order": {
+      "pluginOptions": {},
+      "type": "boolean",
+      "default": false
+    },
+    "online_payment": {
+      "pluginOptions": {},
+      "type": "boolean",
+      "default": false
+    },
+    "cod": {
+      "pluginOptions": {},
+      "type": "boolean",
+      "default": false
+    },
+    "table_number": {
+      "pluginOptions": {},
+      "type": "boolean",
+      "default": false
+    },
+    "block": {
+      "pluginOptions": {},
+      "type": "boolean",
+      "default": false
+    },
+    "toko": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::toko.toko",
+      "inversedBy": "outlets"
+    },
+    "products": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::product.product",
+      "private": true,
+      "mappedBy": "outlet"
+    },
+    "idcounter": {
+      "type": "integer",
+      "private": true,
+      "min": 0,
+      "default": 0
+    },
+    "ingredients": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::ingredient.ingredient",
+      "private": true,
+      "mappedBy": "outlet"
+    },
+    "promos": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::promo.promo",
+      "mappedBy": "outlet"
+    },
+    "business_hour": {
+      "type": "component",
+      "repeatable": true,
+      "component": "business-hour.business-hour"
+    },
+    "users": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::outlet-user.outlet-user",
+      "mappedBy": "outlet"
+    }
+  }
+}

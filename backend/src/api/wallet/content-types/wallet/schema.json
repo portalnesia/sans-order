@@ -1,0 +1,34 @@
+{
+  "kind": "collectionType",
+  "collectionName": "wallets",
+  "info": {
+    "singularName": "wallet",
+    "pluralName": "wallets",
+    "displayName": "Wallet",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "toko": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::toko.toko",
+      "inversedBy": "wallet"
+    },
+    "balance": {
+      "type": "biginteger",
+      "required": true,
+      "min": "0"
+    },
+    "account": {
+      "displayName": "Wallet Account",
+      "type": "component",
+      "repeatable": false,
+      "component": "wallet-account.wallet-account",
+      "required": true
+    }
+  }
+}

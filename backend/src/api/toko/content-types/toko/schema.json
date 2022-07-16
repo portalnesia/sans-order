@@ -1,0 +1,70 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tokos",
+  "info": {
+    "singularName": "toko",
+    "pluralName": "tokos",
+    "displayName": "Toko",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "pluginOptions": {},
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "pluginOptions": {},
+      "type": "richtext"
+    },
+    "slug": {
+      "pluginOptions": {},
+      "type": "uid",
+      "required": true
+    },
+    "slogan": {
+      "pluginOptions": {},
+      "type": "string"
+    },
+    "block": {
+      "pluginOptions": {},
+      "type": "boolean",
+      "default": false
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "outlets": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::outlet.outlet",
+      "mappedBy": "toko"
+    },
+    "wallet": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::wallet.wallet",
+      "mappedBy": "toko"
+    },
+    "logo": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "files": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::upload.file",
+      "private": true,
+      "mappedBy": "outlet"
+    }
+  }
+}

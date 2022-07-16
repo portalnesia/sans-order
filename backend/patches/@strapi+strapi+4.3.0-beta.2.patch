@@ -1,0 +1,62 @@
+diff --git a/node_modules/@strapi/strapi/lib/commands/develop.js b/node_modules/@strapi/strapi/lib/commands/develop.js
+index 23f25b7..1bd40a8 100644
+--- a/node_modules/@strapi/strapi/lib/commands/develop.js
++++ b/node_modules/@strapi/strapi/lib/commands/develop.js
+@@ -66,6 +66,7 @@ const primaryProcess = async ({ distDir, appDir, build, isTSProject, watchAdmin,
+         srcDir: appDir,
+       });
+     } catch (err) {
++      console.error(err)
+       process.exit(1);
+     }
+   }
+@@ -76,6 +77,7 @@ const primaryProcess = async ({ distDir, appDir, build, isTSProject, watchAdmin,
+         stdio: 'inherit',
+       });
+     } catch (err) {
++      console.error(err)
+       process.exit(1);
+     }
+   }
+diff --git a/node_modules/@strapi/strapi/lib/core-api/controller/transform.js b/node_modules/@strapi/strapi/lib/core-api/controller/transform.js
+index af078c3..67ec637 100644
+--- a/node_modules/@strapi/strapi/lib/core-api/controller/transform.js
++++ b/node_modules/@strapi/strapi/lib/core-api/controller/transform.js
+@@ -34,9 +34,7 @@ const transformComponent = (data, component) => {
+   if (isNil(res)) {
+     return res;
+   }
+-
+-  const { id, attributes } = res;
+-  return { id, ...attributes };
++  return res;
+ };
+ 
+ const transformEntry = (entry, type) => {
+@@ -63,7 +61,7 @@ const transformEntry = (entry, type) => {
+     if (attribute && attribute.type === 'relation') {
+       const data = transformEntry(property, strapi.contentType(attribute.target));
+ 
+-      attributeValues[key] = { data };
++      attributeValues[key] = { ...data };
+     } else if (attribute && attribute.type === 'component') {
+       attributeValues[key] = transformComponent(property, strapi.components[attribute.component]);
+     } else if (attribute && attribute.type === 'dynamiczone') {
+@@ -77,7 +75,7 @@ const transformEntry = (entry, type) => {
+     } else if (attribute && attribute.type === 'media') {
+       const data = transformEntry(property, strapi.contentType('plugin::upload.file'));
+ 
+-      attributeValues[key] = { data };
++      attributeValues[key] = { ...data };
+     } else {
+       attributeValues[key] = property;
+     }
+@@ -85,7 +83,7 @@ const transformEntry = (entry, type) => {
+ 
+   return {
+     id,
+-    attributes: attributeValues,
++    ...attributeValues,
+     // NOTE: not necessary for now
+     // meta: {},
+   };

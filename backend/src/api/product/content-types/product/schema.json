@@ -1,0 +1,78 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "info": {
+    "singularName": "product",
+    "pluralName": "products",
+    "displayName": "Product",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "outlet": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::outlet.outlet",
+      "inversedBy": "products"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "price": {
+      "type": "float",
+      "required": true,
+      "min": 0,
+      "default": 0
+    },
+    "hpp": {
+      "type": "float",
+      "required": false,
+      "min": 0
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "active": {
+      "type": "boolean",
+      "default": false
+    },
+    "category": {
+      "type": "string"
+    },
+    "show_in_menu": {
+      "type": "boolean",
+      "default": false
+    },
+    "block": {
+      "type": "boolean",
+      "default": false
+    },
+    "metadata": {
+      "type": "json"
+    },
+    "recipes": {
+      "displayName": "Recipes",
+      "type": "component",
+      "repeatable": true,
+      "component": "recipes.recipes"
+    },
+    "promo": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::promo.promo",
+      "inversedBy": "products"
+    }
+  }
+}

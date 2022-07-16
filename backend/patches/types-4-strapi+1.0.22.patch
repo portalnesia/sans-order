@@ -1,0 +1,280 @@
+diff --git a/node_modules/types-4-strapi/src/createComponentInterface.js b/node_modules/types-4-strapi/src/createComponentInterface.js
+index 7675ad2..6595ef5 100644
+--- a/node_modules/types-4-strapi/src/createComponentInterface.js
++++ b/node_modules/types-4-strapi/src/createComponentInterface.js
+@@ -37,7 +37,7 @@ module.exports = (schemaPath, interfaceName) => {
+         });
+       const isArray = attributeValue.relation === 'oneToMany';
+       const bracketsIfArray = isArray ? '[]' : '';
+-      tsProperty = `  ${attributeName}: { data: ${tsType}${bracketsIfArray} };\n`;
++      tsProperty = `  ${attributeName}: ${tsType}${bracketsIfArray};\n`;
+     }
+     // -------------------------------------------------
+     // Component
+@@ -61,16 +61,16 @@ module.exports = (schemaPath, interfaceName) => {
+     // Media
+     // -------------------------------------------------
+     else if (attributeValue.type === 'media') {
+-      tsType = 'Media';
+-      const tsImportPath = '../Media';
++      tsType = 'File';
++      const tsImportPath = '../File';
+       if (tsImports.every((x) => x.path !== tsImportPath))
+         tsImports.push({
+           type: tsType,
+           path: tsImportPath,
+         });
+-      tsProperty = `  ${attributeName}: { data: ${tsType}${
++      tsProperty = `  ${attributeName}: ${tsType}${
+         attributeValue.multiple ? '[]' : ''
+-      } };\n`;
++      };\n`;
+     }
+     // -------------------------------------------------
+     // Enumeration
+diff --git a/node_modules/types-4-strapi/src/createInterface.js b/node_modules/types-4-strapi/src/createInterface.js
+index 4dfb032..4f32e1a 100644
+--- a/node_modules/types-4-strapi/src/createInterface.js
++++ b/node_modules/types-4-strapi/src/createInterface.js
+@@ -6,7 +6,6 @@ module.exports = (schemaPath, interfaceName) => {
+   var tsInterface = `\n`;
+   tsInterface += `export interface ${interfaceName} {\n`;
+   tsInterface += `  id: number;\n`;
+-  tsInterface += `  attributes: {\n`;
+   var schemaFile;
+   var schema;
+   try {
+@@ -38,7 +37,7 @@ module.exports = (schemaPath, interfaceName) => {
+         });
+       const isArray = attributeValue.relation.endsWith('ToMany');
+       const bracketsIfArray = isArray ? '[]' : '';
+-      tsProperty = `    ${attributeName}: { data: ${tsPropertyType}${bracketsIfArray} };\n`;
++      tsProperty = `  ${attributeName}: ${tsPropertyType}${bracketsIfArray};\n`;
+     }
+     // -------------------------------------------------
+     // Component
+@@ -56,7 +55,7 @@ module.exports = (schemaPath, interfaceName) => {
+         });
+       const isArray = attributeValue.repeatable;
+       const bracketsIfArray = isArray ? '[]' : '';
+-      tsProperty = `    ${attributeName}: ${tsPropertyType}${bracketsIfArray};\n`;
++      tsProperty = `  ${attributeName}: ${tsPropertyType}${bracketsIfArray};\n`;
+     }
+     // -------------------------------------------------
+     // Dynamic zone
+@@ -64,29 +63,29 @@ module.exports = (schemaPath, interfaceName) => {
+     else if (attributeValue.type === 'dynamiczone') {
+       // TODO
+       tsPropertyType = 'any';
+-      tsProperty = `    ${attributeName}: ${tsPropertyType};\n`;
++      tsProperty = `  ${attributeName}: ${tsPropertyType};\n`;
+     }
+     // -------------------------------------------------
+     // Media
+     // -------------------------------------------------
+     else if (attributeValue.type === 'media') {
+-      tsPropertyType = 'Media';
+-      const tsImportPath = './Media';
++      tsPropertyType = 'File';
++      const tsImportPath = './File';
+       if (tsImports.every((x) => x.path !== tsImportPath))
+         tsImports.push({
+           type: tsPropertyType,
+           path: tsImportPath,
+         });
+-      tsProperty = `    ${attributeName}: { data: ${tsPropertyType}${
++      tsProperty = `  ${attributeName}: ${tsPropertyType}${
+         attributeValue.multiple ? '[]' : ''
+-      } };\n`;
++      };\n`;
+     }
+     // -------------------------------------------------
+     // Enumeration
+     // -------------------------------------------------
+     else if (attributeValue.type === 'enumeration') {
+       const enumOptions = attributeValue.enum.map((v) => `'${v}'`).join(' | ');
+-      tsProperty = `    ${attributeName}: ${enumOptions};\n`;
++      tsProperty = `  ${attributeName}: ${enumOptions};\n`;
+     }
+     // -------------------------------------------------
+     // Text, RichText, Email, UID
+@@ -99,14 +98,14 @@ module.exports = (schemaPath, interfaceName) => {
+       attributeValue.type === 'uid'
+     ) {
+       tsPropertyType = 'string';
+-      tsProperty = `    ${attributeName}: ${tsPropertyType};\n`;
++      tsProperty = `  ${attributeName}: ${tsPropertyType};\n`;
+     }
+     // -------------------------------------------------
+     // Json
+     // -------------------------------------------------
+     else if (attributeValue.type === 'json') {
+       tsPropertyType = 'any';
+-      tsProperty = `    ${attributeName}: ${tsPropertyType};\n`;
++      tsProperty = `  ${attributeName}: ${tsPropertyType};\n`;
+     }
+     // -------------------------------------------------
+     // Password
+@@ -124,7 +123,7 @@ module.exports = (schemaPath, interfaceName) => {
+       attributeValue.type === 'float'
+     ) {
+       tsPropertyType = 'number';
+-      tsProperty = `    ${attributeName}: ${tsPropertyType};\n`;
++      tsProperty = `  ${attributeName}: ${tsPropertyType};\n`;
+     }
+     // -------------------------------------------------
+     // Date
+@@ -135,32 +134,32 @@ module.exports = (schemaPath, interfaceName) => {
+       attributeValue.type === 'time'
+     ) {
+       tsPropertyType = 'Date';
+-      tsProperty = `    ${attributeName}: ${tsPropertyType};\n`;
++      tsProperty = `  ${attributeName}: ${tsPropertyType};\n`;
+     }
+     // -------------------------------------------------
+     // Boolean
+     // -------------------------------------------------
+     else if (attributeValue.type === 'boolean') {
+       tsPropertyType = 'boolean';
+-      tsProperty = `    ${attributeName}: ${tsPropertyType};\n`;
++      tsProperty = `  ${attributeName}: ${tsPropertyType};\n`;
+     }
+     // -------------------------------------------------
+     // Others
+     // -------------------------------------------------
+     else {
+       tsPropertyType = 'any';
+-      tsProperty = `    ${attributeName}: ${tsPropertyType};\n`;
++      tsProperty = `  ${attributeName}: ${tsPropertyType};\n`;
+     }
+     tsInterface += tsProperty;
++    console.log(tsInterface)
+   }
+   // -------------------------------------------------
+   // Localization
+   // -------------------------------------------------
+   if (schema.pluginOptions?.i18n?.localized) {
+-    tsInterface += `    locale: string;\n`;
+-    tsInterface += `    localizations?: { data: ${interfaceName}[] }\n`;
++    tsInterface += `  locale: string;\n`;
++    tsInterface += `  localizations?: { data: ${interfaceName}[] }\n`;
+   }
+-  tsInterface += `  }\n`;
+   tsInterface += '}\n';
+   for (const tsImport of tsImports) {
+     tsInterface =
+diff --git a/node_modules/types-4-strapi/src/index.js b/node_modules/types-4-strapi/src/index.js
+index 9e2d0ae..7c3eb39 100644
+--- a/node_modules/types-4-strapi/src/index.js
++++ b/node_modules/types-4-strapi/src/index.js
+@@ -13,7 +13,7 @@ if (!fs.existsSync(typesDir)) fs.mkdirSync(typesDir);
+ // Payload
+ // --------------------------------------------
+ 
+-const payloadTsInterface = `export interface Payload<T> {
++const payloadTsInterface = `export interface Payload<T,E=any> {
+   data: T;
+   meta: {
+     pagination?: {
+@@ -23,6 +23,12 @@ const payloadTsInterface = `export interface Payload<T> {
+       total: number;
+     }
+   };
++  error?: {
++    status: number,
++    name: string,
++    message: string,
++    details: E
++  }
+ }
+ `;
+ 
+@@ -34,15 +40,16 @@ fs.writeFileSync(`${typesDir}/Payload.ts`, payloadTsInterface);
+ 
+ const userTsInterface = `export interface User {
+   id: number;
+-  attributes: {
+-    username: string;
+-    email: string;
+-    provider: string;
+-    confirmed: boolean;
+-    blocked: boolean;
+-    createdAt: Date;
+-    updatedAt: Date;
+-  }
++  name: string
++  username: string;
++  picture: string
++  email: string;
++  telephone?: string;
++  provider: string;
++  confirmed: boolean;
++  blocked: boolean;
++  createdAt: Date;
++  updatedAt: Date;
+ }
+ `;
+ 
+@@ -72,30 +79,30 @@ fs.writeFileSync(`${typesDir}/MediaFormat.ts`, mediaFormatTsInterface);
+ // --------------------------------------------
+ 
+ var mediaTsInterface = `import { MediaFormat } from './MediaFormat';
++import {Outlet} from './Outlet';
+ 
+-export interface Media {
++export interface File {
+   id: number;
+-  attributes: {
+-    name: string;
+-    alternativeText: string;
+-    caption: string;
+-    width: number;
+-    height: number;
+-    formats: { thumbnail: MediaFormat; medium: MediaFormat; small: MediaFormat; };
+-    hash: string;
+-    ext: string;
+-    mime: string;
+-    size: number;
+-    url: string;
+-    previewUrl: string;
+-    provider: string;
+-    createdAt: Date;
+-    updatedAt: Date;
+-  }
++  name: string;
++  alternativeText: string;
++  caption: string;
++  width: number;
++  height: number;
++  formats: { thumbnail: MediaFormat; medium: MediaFormat; small: MediaFormat; };
++  hash: string;
++  ext: string;
++  mime: string;
++  size: number;
++  url: string;
++  previewUrl: string;
++  provider: string;
++  createdAt: Date;
++  updatedAt: Date;
++  outlet?: Outlet;
+ }
+ `;
+ 
+-fs.writeFileSync(`${typesDir}/Media.ts`, mediaTsInterface);
++fs.writeFileSync(`${typesDir}/File.ts`, mediaTsInterface);
+ 
+ // --------------------------------------------
+ // API Types
+diff --git a/node_modules/types-4-strapi/src/utils.js b/node_modules/types-4-strapi/src/utils.js
+index b99c191..ac253d6 100644
+--- a/node_modules/types-4-strapi/src/utils.js
++++ b/node_modules/types-4-strapi/src/utils.js
+@@ -10,7 +10,7 @@ module.exports.pascalCase = (str) => {
+ 
+ module.exports.isOptional = (attributeValue) => {
+   // arrays are never null
+-  if (attributeValue.relation === 'oneToMany' || attributeValue.repeatable) {
++  if (attributeValue.relation === 'oneToMany' || attributeValue.repeatable || typeof attributeValue.default !== 'undefined') {
+     return false;
+   }
+   return attributeValue.required !== true;

@@ -1,0 +1,19 @@
+{
+  "kind": "singleType",
+  "collectionName": "list_telephones",
+  "info": {
+    "singularName": "list-telephone",
+    "pluralName": "list-telephones",
+    "displayName": "list-telephone"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "data": {
+      "type": "json",
+      "required": true
+    }
+  }
+}
