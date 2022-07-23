@@ -98,23 +98,31 @@ export default factories.createCoreController('api::ingredient.ingredient',({str
     const outlet = ctx.state.outlet as Outlet;
     const filter = ctx.request.body?.data?.filters;
     if(!Array.isArray(filter)) return ctx.badRequest('Invalid "filters" parameter');
+
+    filter.forEach(f=>{
+      if(typeof f !== 'number') {
+        return ctx.badRequest('Invalid "filters" parameter');
+      }
+    })
     
-    const filters = {
-      $and: filter.concat({
+    const where = {
+      $and:[{
+        id:{
+          $in: filter
+        }
+      },{
         outlet:{
           id:{
             $eq: outlet.id
           }
         }
-      })
+      }]
     }
 
-    const data = strapi.db.query('api::ingredient.ingredient').delete({
-      where:{
-        filters
-      }
+    await strapi.db.query('api::ingredient.ingredient').delete({
+      where
     })
 
-    return this.transformResponse(data);
+    return this.transformResponse({ok:true});
   }
 }));

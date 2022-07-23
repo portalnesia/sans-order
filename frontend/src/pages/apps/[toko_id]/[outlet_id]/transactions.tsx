@@ -116,9 +116,9 @@ export function TableTr({data}: {data: Transaction}) {
       >
         <TableCell sx={{whiteSpace:'nowrap'}}>{data.uid}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}}>{date}</TableCell>
-        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.subtotal}`)}`}</TableCell>
-        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.disscount}`)}`}</TableCell>
-        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.total}`)}`}</TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${data.subtotal}`)}`}</TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${data.discount||0}`)}`}</TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${data.total}`)}`}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Menu data={data} onDetail={onDetail} /></TableCell>
       </TableRow>
       <Portal>
@@ -135,10 +135,6 @@ export function TableTr({data}: {data: Transaction}) {
                 <Typography paragraph variant='h6' component='h6'>Detail</Typography>
                 <Table>
                   <TableBody>
-                    <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset',py:1}}>{tMenu("cashier")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset',py:1}}>{data.cashier}</TableCell>
-                    </TableRow>
                     <TableRow hover>
                       <TableCell sx={{borderBottom:'unset',py:1}}>{t("type")}</TableCell>
                       <TableCell sx={{borderBottom:'unset',py:1}}><Label variant='filled' color='default'>{data.type.toUpperCase()}</Label></TableCell>
@@ -170,6 +166,17 @@ export function TableTr({data}: {data: Transaction}) {
                       <TableCell sx={{borderBottom:'unset',py:1}}>Telephone</TableCell>
                       <TableCell sx={{borderBottom:'unset',py:1}}>{data?.user?.telephone ? data.user.telephone : '-'}</TableCell>
                     </TableRow>
+                    {data?.cashier ? (
+                      <>
+                        <TableRow>
+                          <TableCell colSpan={2} sx={{pt:4,pl:0,borderBottom:'unset'}}><Typography variant='h6' component='h6'>{tMenu("cashier")}</Typography></TableCell>
+                        </TableRow>
+                        <TableRow hover>
+                          <TableCell sx={{borderBottom:'unset',py:1}}>{tCom("name")}</TableCell>
+                          <TableCell sx={{borderBottom:'unset',py:1}}>{data.cashier?.name||'-'}</TableCell>
+                        </TableRow>
+                      </>
+                    ) : null}
                   </TableBody>
                 </Table>
               </Box>
@@ -182,33 +189,33 @@ export function TableTr({data}: {data: Transaction}) {
                     <TableRow>
                       <TableCell align='center' colSpan={4}>{tMenu("products")}</TableCell>
                       <TableCell rowSpan={2} align='right'>Subtotal</TableCell>
-                      <TableCell rowSpan={2} align='right'>{t("disscount")}</TableCell>
+                      <TableCell rowSpan={2} align='right'>{t("discount")}</TableCell>
                       <TableCell rowSpan={2} align='right'>Total</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>{tCom("name")}</TableCell>
                       <TableCell align='right'>{t("price")}</TableCell>
-                      <TableCell align='right'>{t("disscount")}</TableCell>
+                      <TableCell align='right'>{t("discount")}</TableCell>
                       <TableCell align='right'>Qty</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {Object.values(data.items).map((d)=>{
                       const subtotal = d.price*d.qty;
-                      const disscount = d.disscount * d.qty;
-                      const total = subtotal-disscount;
+                      const discount = (d.discount||0) * d.qty;
+                      const total = subtotal-discount;
                       return (
                         <TableRow hover key={`items-${data.id}-${d.id}`}>
                           <TableCell>
                             <Typography>{`${d?.item?.name}`}</Typography>
                             {d?.notes && <Typography variant='caption'>{d?.notes}</Typography>}
                           </TableCell>
-                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
-                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.disscount}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${d.price}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${(d.discount||0)}`)}`}</TableCell>
                           <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.qty}</TableCell>
-                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${subtotal}`)}`}</TableCell>
-                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${disscount}`)}`}</TableCell>
-                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${total}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${subtotal}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${discount}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${total}`)}`}</TableCell>
                         </TableRow>
                       )
                     })}
@@ -381,7 +388,7 @@ export default function OutletTransactions({meta}: IPages<Outlet>){
                       <TableCell align='left'>ID</TableCell>
                       <TableCell align='left'>{t("date")}</TableCell>
                       <TableCell align='right'>Subtotal</TableCell>
-                      <TableCell align='right'>{t("disscount")}</TableCell>
+                      <TableCell align='right'>{t("discount")}</TableCell>
                       <TableCell align='right'>Total</TableCell>
                       <TableCell align='center'></TableCell>
                     </TableRow>

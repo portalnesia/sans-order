@@ -10,7 +10,7 @@ export interface TransactionItem {
   datetime: Date;
   price: number;
   done: boolean;
-  disscount: number;
+  discount: number;
   metadata?: any;
   notes?: string;
   transaction?: Transaction;

@@ -64,7 +64,7 @@ function MenuCard({data,mutate}: {data: Transaction<{table_number?: string}>,mut
     } finally {
       setLoading(false);
     }
-  },[put,outlet_id,data,setNotif])
+  },[put,outlet_id,data,setNotif,tCom])
 
   return (
     <Card sx={{mx:1,height:{xs:`calc(100vh - ${APP_BAR_MOBILE + 45}px)`,lg:`calc(100vh - ${APP_BAR_DESKTOP + 45}px)`},minWidth:300}}>
@@ -105,9 +105,11 @@ function OutletKitchenDisplay({socket}: IPages<Outlet> & {socket?: ISocket}) {
     }
 
     socket?.on('toko transactions',handleTransactionChange)
+    socket?.on('toko transactions items',handleTransactionChange)
     socket?.on('toko transactions orderstatus',handleTransactionChange)
     return ()=>{
       socket?.off('toko transactions',handleTransactionChange)
+      socket?.off('toko transactions items',handleTransactionChange)
       socket?.off('toko transactions orderstatus',handleTransactionChange)
     }
   },[socket])

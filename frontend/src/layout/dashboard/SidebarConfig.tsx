@@ -40,6 +40,10 @@ const sidebarConfig = (t: TFunction): INavItems[]=>([
     path: `/products`,
     icon: getIcon('eva:shopping-bag-fill')
   },{
+    title: t("promo"),
+    path: `/promotions`,
+    icon: getIcon('nimbus:marketing')
+  },{
     title: t("kitchen_view"),
     path: `/kitchen-display`,
     icon: getIcon('fa6-solid:kitchen-set'),

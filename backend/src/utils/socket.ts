@@ -24,6 +24,14 @@ export const socketEvents = [
     handler: ({ strapi }: {strapi: Strapi}, socket: CustomSocket) => {
       strapi.log.info(`[io] new connection with id ${socket.id}`);
     },
+  },{
+    name: "disconnect",
+    handler: async({ strapi,io,socket }: {strapi: Strapi,io: IO,socket:CustomSocket}) => {
+      const outlet = socket.data.outlet;
+      if(outlet && outlet?.dashboard) {
+        io.socket.to(`outlet::${outlet.toko?.id}::${outlet.id}`).emit('toko closed',{...outlet});
+      }
+    },
   },
   {
     name: "check data",
@@ -39,7 +47,7 @@ export const socketEvents = [
         const soc = sockets.find(s=>s.id !== socket.id && s.data.outlet?.dashboard && s.data.outlet?.id === dt.outlet_id);
 
         if(dt.dashboard) {
-          if(socket) {
+          if(soc) {
             socket.emit('outlet errors',{...dt});
             return;
           }

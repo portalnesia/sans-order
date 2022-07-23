@@ -1,18 +1,19 @@
 {
-  "name": "@portalnesia/sans-order-parent",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@portalnesia/sans-order",
+  "version": "0.0.2-beta",
+  "description": "Sans Order System by Portalnesia",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:backend": "cd ./backend && npm run dev",
     "dev:frontend": "cd ./frontend && npm run dev",
-    "dev": "npm run dev:backend && cd ../frontend && npm run dev",
     "build:backend": "cd ./backend && npm run build",
     "build:frontend": "cd ./frontend && npm run build",
     "build": "npm run build:backend && cd ../frontend && npm run build",
-    "start:backend": "cd ./backend && npm start",
-    "start:frontend": "cd ./frontend && npm start",
-    "start": "npm run build:backend && cd ../frontend && npm start"
+    "start:backend": "SET \"ENV_PATH=./backend/.env\" && node backend/server.js",
+    "start:frontend": "node frontend/server.js",
+    "t4s":"cd ./backend && npm run t4s",
+    "tsc": "cd ./frontend && npm run tsc",
+    "version": "cd ./frontend && npm run version"
   },
   "repository": {
     "type": "git",

@@ -23,6 +23,9 @@ export const footerMenu = (t: TFunction): {header:string,child:{name: string,lin
   },{
     header:t('help'),
     child:[{
+      name:t("contact_us"),
+      link:"/help/contact"
+    },{
       name:"FAQ",
       link:"/help/faq"
     },
@@ -35,6 +38,9 @@ export const footerMenu = (t: TFunction): {header:string,child:{name: string,lin
 
 export const dashboardFooterMenu = (t: TFunction): {name: string,link?:string,exlink?:string}[] => ([
   {
+    name:t("contact_us"),
+    link:"/help/contact"
+  },{
     name:t("terms_of_services"),
     link:"/pages/terms-of-services"
   },{

@@ -45,5 +45,10 @@
   "close":"Tutup",
   "open":"Buka",
   "example_notes":"Maks 100 karakter. Contoh: Dikitin gulanya",
-  "notes":"Catatan"
+  "notes":"Catatan",
+  "contact":{
+    "header":"Jika Anda mempunyai pertanyaan, kritik, atau saran, Anda dapat menghubungi Kami melalui akun resmi SansOrder atau dengan mengisi formulir di bawah",
+    "subject":"Subjek",
+    "message":"Pesan"
+  }
 }

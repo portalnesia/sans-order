@@ -13,7 +13,7 @@ import Button from '@comp/Button'
 import Backdrop from '@comp/Backdrop'
 import Image from '@comp/Image'
 import Popover from '@comp/Popover'
-import {IDays as IDay, Outlet,IPages,IUserAccess,OutletUsers,userAccess, Nullable, OutletUsersCreate} from '@type/index'
+import {IDays as IDay, Outlet,IPages,IUserAccess,OutletUsers,userAccess, Nullable, OutletUsersCreate, Config} from '@type/index'
 import wrapper, { useSelector } from '@redux/store'
 import {TFunction, useTranslation} from 'next-i18next';
 import useSWR from '@utils/swr';
@@ -34,6 +34,7 @@ import { Circular } from '@comp/Loading';
 import { BusinessHour, BusinessHourCreate } from '@type/components';
 import { State } from '@redux/types';
 import { OutletUserRole } from '@type/OutletUserRole';
+import useConfig from '@utils/useConfig';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -110,7 +111,7 @@ function DayTime({open,onClose,onChecked,day,days,loading,tempHour,value,onTimeC
 }
 
 
-export function GeneralSetting({meta}: {meta: IPages<Outlet>['meta']}) {
+export function GeneralSetting({meta,config}: {meta: IPages<Outlet>['meta'],config?:Config}) {
   const {t} = useTranslation('dash_setting');
   const {t:tMenu} = useTranslation('menu');
   const {t:tCom} = useTranslation('common');
@@ -240,7 +241,7 @@ export function GeneralSetting({meta}: {meta: IPages<Outlet>['meta']}) {
           </Box>
           <Grid container spacing={6}>
             <Grid item xs={12} sx={{mb:2}}>
-              <Grid container spacing={2}>
+              <Grid container spacing={1}>
                 <Grid item xs={12} sm={6} md={4} lg={3}>
                   <FormGroup sx={{flexDirection:'row'}}>
                     <FormControlLabel
@@ -274,7 +275,7 @@ export function GeneralSetting({meta}: {meta: IPages<Outlet>['meta']}) {
                         <FormControlLabel
                           sx={{mt:0,mr:1}}
                           control={
-                            <Switch disabled={loading!==null} checked={input?.online_payment||false} color="primary" onChange={handleCheckedChange('online_payment')} />
+                            <Switch disabled={loading!==null||!config?.online_payment} checked={input?.online_payment||false} color="primary" onChange={handleCheckedChange('online_payment')} />
                           }
                           label={t("online_payment")}
                         />
@@ -387,6 +388,7 @@ interface UserMenu {
 }
 
 function UserMenu({onEdit,onDelete,editDisabled,allDisabled}: UserMenu) {
+  const {t:tCom} = useTranslation('common');
   const ref=React.useRef(null);
   const [open,setOpen] = React.useState(false);
 
@@ -413,7 +415,7 @@ function UserMenu({onEdit,onDelete,editDisabled,allDisabled}: UserMenu) {
           <ListItemIcon>
             <Iconify icon="eva:trash-2-outline" width={24} height={24} />
           </ListItemIcon>
-          <ListItemText primary="Delete" primaryTypographyProps={{ variant: 'body2' }} />
+          <ListItemText primary={tCom("del")} primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
       </MenuPopover>
     </>
@@ -673,7 +675,7 @@ export function TeamSetting({meta}: {meta: IPages<Outlet>['meta']}) {
         <DialogTitle>{t("are_you_sure")}</DialogTitle>
         <DialogActions>
           <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{tCom("cancel")}</Button>
-          <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{tCom("delete")}</Button>
+          <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{tCom("del")}</Button>
         </DialogActions>
       </Dialog>
     </Box>
@@ -684,6 +686,7 @@ export default function OutletSetting({meta}: IPages<Outlet>) {
   const {t:tMenu} = useTranslation('menu');
   const router = useRouter();
   const {slug,toko_id,outlet_id} = router.query;
+  const {config} = useConfig();
 
   React.useEffect(()=>{
     if(typeof slug?.[0] === 'undefined') {
@@ -697,7 +700,7 @@ export default function OutletSetting({meta}: IPages<Outlet>) {
         <Container>          
           <Box>
             {slug?.[0] === 'outlet' && (
-              <GeneralSetting meta={meta} />
+              <GeneralSetting meta={meta} config={config?.data} />
             )}
             {slug?.[0] === 'team' && (
               <TeamSetting meta={meta} />

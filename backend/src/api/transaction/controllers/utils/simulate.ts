@@ -29,9 +29,26 @@ export default async function simulatePayment(strapi: Strapi,ctx: Context) {
       }
     },
     populate:{
+      outlet:{
+        populate:{
+          toko:{
+            populate:'user'
+          }
+        }
+      },
       items:{
-        populate:'item'
-      }
+        populate:{
+          item:{
+            populate:{
+              recipes:{
+                populate:'*'
+              }
+            }
+          }
+        }
+      },
+      cashier:'*',
+      user:'*'
     }
   })
 

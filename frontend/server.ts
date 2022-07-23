@@ -7,7 +7,6 @@ import config from './web.config.json'
 const canvasProxy = require('html2canvas-proxy');
 
 const dev = process.env.NODE_ENV === 'development'
-const port = process.env.NODE_ENV === 'production' ? 3001 : 3503;
 const hostn = "localhost";
 
 const app = next({ dev })
@@ -19,20 +18,22 @@ const useApiProxy=(req: Request,res: Response,next: NextFunction)=>{
     changeOrigin: true,
     headers:{
       host:`http://localhost:${process.env.API_PORT}`
-    }
+    },
+    logLevel:'error'
   });
   return apiProxy(req,res,next);
 }
 
 app.prepare().then(()=>{
+  const port = Number(process.env.PORT);
   const server = express();
 
   server.use('/uploads', useApiProxy);
   server.use('/sansorder-admin', useApiProxy);
 
   server.get('/wa',(_,res)=>res.redirect(`https://wa.me/${config.contact.whatsapp}`))
-  server.get('/ig',(_,res)=>res.redirect(`https://instagram.com/${config.contact.instagram}`))
-  server.get('/tw',(_,res)=>res.redirect(`https://twitter.com/${config.contact.twitter}`))
+  server.get('/ig',(_,res)=>res.redirect(`https://instagram.com/${config.contact.instagram.substring(1)}`))
+  server.get('/tw',(_,res)=>res.redirect(`https://twitter.com/${config.contact.twitter.substring(1)}`))
   server.get('/fb',(_,res)=>res.redirect(`https://facebook.com/${config.contact.facebook.slug}`))
 
   server.use('/canvas-proxy', canvasProxy());

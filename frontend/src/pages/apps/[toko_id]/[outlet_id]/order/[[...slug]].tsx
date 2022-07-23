@@ -1,5 +1,5 @@
 // material
-import { Box, Grid, Container, Typography, IconButton,TextField,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,TableFooter,Card, MenuItem, ListItemIcon, ListItemText, Collapse,Portal} from '@mui/material';
+import { Box, Grid, Container, Typography, IconButton,TextField,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,TableFooter,Card, MenuItem, ListItemIcon, ListItemText, Collapse,Portal, alpha} from '@mui/material';
 import {Close,Add,Remove,ExpandMore as ExpandMoreIcon, CheckBox, CheckBoxOutlineBlank} from '@mui/icons-material'
 // components
 import Header from '@comp/Header';
@@ -55,9 +55,9 @@ interface PayProps {
   onClose(): void,
   onSuccess?(data?: Transaction): void,
   /**
-   * Transaction ID, pay by cashier (COD)
+   * Transaction, pay by cashier (COD)
    */
-  id?: string,
+  pending?: Transaction,
   table_number?: string
 }
 
@@ -92,7 +92,7 @@ function DateTime() {
   )
 }
 
-function DialogPay({items,total,open,onClose,id,onSuccess,table_number}: PayProps) {
+function DialogPay({items,total,open,onClose,pending,onSuccess,table_number}: PayProps) {
   const {t} = useTranslation('dash_order');
   const {t:tCom} = useTranslation('common');
 
@@ -114,11 +114,11 @@ function DialogPay({items,total,open,onClose,id,onSuccess,table_number}: PayProp
     if(e?.preventDefault) e.preventDefault();
     if(cash < total) return setNotif(tCom("error_500"),true);
     setLoading(true)
-    const url = id ? `/transactions/outlet/${outlet_id}/${id}/pay` : `/transactions/outlet/${outlet_id}`;
+    const url = pending?.id ? `/transactions/outlet/${outlet_id}/${pending?.id}/pay` : `/transactions/outlet/${outlet_id}`;
     try {
       const input = {
         cash,
-        ...(items ? {type:'cashier',items: items.map(s=>({id:s.id,qty:s.qty}))} : {}),
+        ...(items ? {type:'cashier',items: items.map(s=>({item:s.id,qty:s.qty}))} : {}),
         ...(TN && TN.length > 0 ? {metadata:{table_number:TN}} : {})
       }
       const d = await post<Transaction>(url,input);
@@ -130,14 +130,14 @@ function DialogPay({items,total,open,onClose,id,onSuccess,table_number}: PayProp
     } finally {
       setLoading(false);
     }
-  },[post,cash,items,total,tCom,toko_id,outlet_id,id,handleClose,TN])
+  },[post,cash,items,total,tCom,toko_id,outlet_id,pending,handleClose,TN])
 
   React.useEffect(()=>{
     if(open) {
       setTimeout(()=>{
         const el = document.getElementById('cash-input') as HTMLInputElement;
-        el.select();
-      },200)
+        if(el) el.select();
+      },500)
     }
   },[open])
 
@@ -148,11 +148,11 @@ function DialogPay({items,total,open,onClose,id,onSuccess,table_number}: PayProp
         <DialogContent>
           <Table>
             <TableBody>
-              <TableRow>
+              <TableRow onClick={e=>e.stopPropagation()}>
                 <TableCell>Total</TableCell>
-                <TableCell>{`IDR ${numberFormat(`${total}`)}`}</TableCell>
+                <TableCell>{`Rp${numberFormat(`${total}`)}`}</TableCell>
               </TableRow>
-              <TableRow>
+              <TableRow onClick={e=>e.stopPropagation()}>
                 <TableCell>Cash</TableCell>
                 <TableCell>
                   <TextField
@@ -168,11 +168,11 @@ function DialogPay({items,total,open,onClose,id,onSuccess,table_number}: PayProp
                   />
                 </TableCell>
               </TableRow>
-              <TableRow>
+              <TableRow onClick={e=>e.stopPropagation()}>
                 <TableCell>Changes</TableCell>
-                <TableCell>{`IDR ${numberFormat(`${cash-total}`)}`}</TableCell>
+                <TableCell>{`Rp${numberFormat(`${cash-total}`)}`}</TableCell>
               </TableRow>
-              <TableRow>
+              <TableRow onClick={e=>e.stopPropagation()}>
                 <TableCell>{`${tCom("table_number")}${outlet?.data?.table_number ? '*' : ''}`}</TableCell>
                 <TableCell>
                   <TextField
@@ -221,18 +221,18 @@ function OutletCashier() {
   useMousetrap(['+','shift+='],()=>setDialog(true));
   useMousetrap('shift+p',()=>selected.length > 0 && setDPay(true));
 
-  const {total,subtotal,disscount} = React.useMemo(()=>{
-    const {price,disscount} = selected.reduce((p,n)=>{
+  const {total,subtotal,discount} = React.useMemo(()=>{
+    const {price,discount} = selected.reduce((p,n)=>{
       const price = n.price * n.qty;
-      let disscount = getDisscount(n)
-      disscount = disscount * n.qty;
+      let discount = getDisscount(n)
+      discount = discount * n.qty;
       p.price = p.price + price;
-      p.disscount = (p.disscount||0) + disscount;
+      p.discount = (p.discount||0) + discount;
       return p;
-    },{price:0,disscount:0})
+    },{price:0,discount:0})
 
-    const total = price - disscount
-    return {total,subtotal:price,disscount};
+    const total = price - discount
+    return {total,subtotal:price,discount};
   },[selected])
 
   const closeDialog=React.useCallback(()=>{
@@ -325,7 +325,7 @@ function OutletCashier() {
                     <TableCell align='left'>{tCom("name")}</TableCell>
                     <TableCell align='left' width={100}>Qty</TableCell>
                     <TableCell align='right'>{t("price")}</TableCell>
-                    <TableCell align='right'>{t("disscount")}</TableCell>
+                    <TableCell align='right'>{t("discount")}</TableCell>
                     <TableCell align='right'>Total</TableCell>
                   </TableRow>
                 </TableHead>
@@ -353,9 +353,9 @@ function OutletCashier() {
                             </Box>
                           </Box>
                         </TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${disc}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${(d.price*d.qty) - (disc*d.qty)}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${d.price}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${disc}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${(d.price*d.qty) - (disc*d.qty)}`)}`}</TableCell>
                       </TableRow>
                     )
                   })}
@@ -364,15 +364,15 @@ function OutletCashier() {
                   <TableFooter>
                     <TableRow>
                       <TableCell align='right' colSpan={4}><Typography>Subtotal</Typography></TableCell>
-                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'><Typography>{`IDR ${numberFormat(`${subtotal}`)}`}</Typography></TableCell>
+                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'><Typography>{`Rp${numberFormat(`${subtotal}`)}`}</Typography></TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell align='right' colSpan={4}><Typography>{t("disscount")}</Typography></TableCell>
-                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'><Typography>{`IDR ${numberFormat(`${disscount}`)}`}</Typography></TableCell>
+                      <TableCell align='right' colSpan={4}><Typography>{t("discount")}</Typography></TableCell>
+                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'><Typography>{`Rp${numberFormat(`${discount}`)}`}</Typography></TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell align='right' colSpan={4}><Typography>Total</Typography></TableCell>
-                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'><Typography>{`IDR ${numberFormat(`${total}`)}`}</Typography></TableCell>
+                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'><Typography>{`Rp${numberFormat(`${total}`)}`}</Typography></TableCell>
                     </TableRow>
                   </TableFooter>
                 )}
@@ -398,7 +398,7 @@ function OutletCashier() {
                   <TableCell align='left'>{tCom("name")}</TableCell>
                   <TableCell align='left' width={100}>Qty</TableCell>
                   <TableCell align='right'>{t("price")}</TableCell>
-                  <TableCell align='right'>{t("disscount")}</TableCell>
+                  <TableCell align='right'>{t("discount")}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -425,8 +425,8 @@ function OutletCashier() {
                           </Box>
                         </Box>
                       </TableCell>
-                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
-                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${disc}`)}`}</TableCell>
+                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${d.price}`)}`}</TableCell>
+                      <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${disc}`)}`}</TableCell>
                     </TableRow>
                   )
                 })}
@@ -535,7 +535,7 @@ function Menu({data,disabled,mutate,onDetail}: IMenu) {
         </MenuItem>
       </MenuPopover>
 
-      <DialogPay items={dialogPayItems} onClose={()=>{setPay(false)}} open={pay} onSuccess={onPaySuccess} total={data.total} id={data.uid as string} table_number={data.metadata?.table_number} />
+      <DialogPay items={dialogPayItems} onClose={()=>{setPay(false)}} open={pay} onSuccess={onPaySuccess} total={data.total} pending={data} table_number={data.metadata?.table_number} />
 
       <Dialog open={dialog!==null} handleClose={()=>setDialog(null)} loading={loading!==null} fullScreen={false}>
           <DialogTitle>{`${t("print")} E-Receipt?`}</DialogTitle>
@@ -580,6 +580,11 @@ function TableTr({data,mutate}: {data: ITransactaion,mutate: KeyedMutator<Strapi
     }
   },[])
 
+  const isComplete = React.useMemo(()=>{
+    const process = data.items.filter(i=>i.done === false).length > 0
+    return !process;
+  },[data])
+
   return (
     <>
       <TableRow
@@ -587,7 +592,12 @@ function TableTr({data,mutate}: {data: ITransactaion,mutate: KeyedMutator<Strapi
         tabIndex={-1}
         hover
         onClick={onDetail}
-        sx={{cursor:'pointer'}}
+        sx={{
+          cursor:'pointer',
+          ...(isComplete ? {
+            background:t=>alpha(t.palette.primary.main,t.palette.action.hoverOpacity)
+          } : {})
+        }}
       >
         <TableCell sx={{whiteSpace:'nowrap'}}>{data.uid}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}}>{`${data.metadata?.table_number||'-'}`}</TableCell>
@@ -595,7 +605,7 @@ function TableTr({data,mutate}: {data: ITransactaion,mutate: KeyedMutator<Strapi
         <TableCell sx={{whiteSpace:'nowrap'}} align='left'>{data.payment}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Label variant='filled' color={colorOrderStatus[data.order_status]}>{data.order_status}</Label></TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Label variant='filled' color={colorStatus[data.status]}>{data.status}</Label></TableCell>
-        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${data.total}`)}`}</TableCell>
+        <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${data.total}`)}`}</TableCell>
         <TableCell sx={{whiteSpace:'nowrap'}} align='center'><Menu data={data} mutate={mutate} onDetail={onDetail} /></TableCell>
       </TableRow>
       <Portal>
@@ -612,10 +622,6 @@ function TableTr({data,mutate}: {data: ITransactaion,mutate: KeyedMutator<Strapi
                 <Typography paragraph variant='h6' component='h6'>Detail</Typography>
                 <Table>
                   <TableBody>
-                    <TableRow hover>
-                      <TableCell sx={{borderBottom:'unset',py:1}}>{tMenu("cashier")}</TableCell>
-                      <TableCell sx={{borderBottom:'unset',py:1}}>{data.cashier}</TableCell>
-                    </TableRow>
                     <TableRow hover>
                       <TableCell sx={{borderBottom:'unset',py:1}}>{t("type")}</TableCell>
                       <TableCell sx={{borderBottom:'unset',py:1}}><Label variant='filled' color='default'>{data.type.toUpperCase()}</Label></TableCell>
@@ -647,6 +653,17 @@ function TableTr({data,mutate}: {data: ITransactaion,mutate: KeyedMutator<Strapi
                       <TableCell sx={{borderBottom:'unset',py:1}}>Telephone</TableCell>
                       <TableCell sx={{borderBottom:'unset',py:1}}>{data?.user?.telephone ? data.user.telephone : '-'}</TableCell>
                     </TableRow>
+                    {data?.cashier ? (
+                      <>
+                        <TableRow>
+                          <TableCell colSpan={2} sx={{pt:4,pl:0,borderBottom:'unset'}}><Typography variant='h6' component='h6'>{tMenu("cashier")}</Typography></TableCell>
+                        </TableRow>
+                        <TableRow hover>
+                          <TableCell sx={{borderBottom:'unset',py:1}}>{tCom("name")}</TableCell>
+                          <TableCell sx={{borderBottom:'unset',py:1}}>{data.cashier?.name||'-'}</TableCell>
+                        </TableRow>
+                      </>
+                    ) : null}
                   </TableBody>
                 </Table>
               </Box>
@@ -660,21 +677,21 @@ function TableTr({data,mutate}: {data: ITransactaion,mutate: KeyedMutator<Strapi
                       <TableCell rowSpan={2} align='center'>Status</TableCell>
                       <TableCell align='center' colSpan={4}>{tMenu("products")}</TableCell>
                       <TableCell rowSpan={2} align='right'>Subtotal</TableCell>
-                      <TableCell rowSpan={2} align='right'>{t("disscount")}</TableCell>
+                      <TableCell rowSpan={2} align='right'>{t("discount")}</TableCell>
                       <TableCell rowSpan={2} align='right'>Total</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>{tCom("name")}</TableCell>
                       <TableCell align='right'>{t("price")}</TableCell>
-                      <TableCell align='right'>{t("disscount")}</TableCell>
+                      <TableCell align='right'>{t("discount")}</TableCell>
                       <TableCell align='right'>Qty</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {data?.items?.map((d)=>{
                       const subtotal = d.price*d.qty;
-                      const disscount = (d.disscount||0)*d.qty;
-                      const total = subtotal-disscount;
+                      const discount = (d.discount||0)*d.qty;
+                      const total = subtotal-discount;
                       return (
                         <TableRow hover key={`items-${data.id}-${d.id}`}>
                           <TableCell align='center' sx={{whiteSpace:'nowrap'}}>{d.done ? <CheckBox color='primary' /> : <CheckBoxOutlineBlank />}</TableCell>
@@ -682,12 +699,12 @@ function TableTr({data,mutate}: {data: ITransactaion,mutate: KeyedMutator<Strapi
                             <Typography>{`${d.item.name}`}</Typography>
                             {d?.notes && <Typography variant='caption'>{d?.notes}</Typography>}
                           </TableCell>
-                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
-                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${(d.disscount||0)}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${d.price}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${(d.discount||0)}`)}`}</TableCell>
                           <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.qty}</TableCell>
-                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${subtotal}`)}`}</TableCell>
-                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${disscount}`)}`}</TableCell>
-                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${total}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${subtotal}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${discount}`)}`}</TableCell>
+                          <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${total}`)}`}</TableCell>
                         </TableRow>
                       )
                     })}
@@ -742,10 +759,12 @@ function OutletSelfOrder() {
     function onTransactions() {
       mutate();
     }
+    socket?.on('toko transactions items',onTransactions);
     socket?.on('toko transactions',onTransactions);
     socket?.on('toko cashier',onTransactions);
     return ()=>{
-      socket?.off('toko transactions',onTransactions)
+      socket?.off('toko transactions items',onTransactions)
+      socket?.off('toko transactions',onTransactions);
       socket?.off('toko cashier',onTransactions)
     }
   },[socket,mutate])

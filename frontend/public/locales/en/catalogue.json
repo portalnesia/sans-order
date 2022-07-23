@@ -8,7 +8,7 @@
   "view_more":"View More",
   "order_summary":"Order Summary",
   "pay_before":"Pay Before",
-  "disscount":"Dissount",
+  "disscount":"Discount",
   "name":"Name",
   "telephone":"Telephone",
   "error":{
@@ -45,5 +45,10 @@
   "close":"Close",
   "open":"Open",
   "example_notes":"Max. 100 characters. Ex: Less sugar",
-  "notes":"Notes"
+  "notes":"Notes",
+  "contact":{
+    "header":"If you have questions, criticisms, or suggestions, you can contact us at SansOrder official accounts or please fill out the form bellow",
+    "subject":"Subject",
+    "message":"Message"
+  }
 }

@@ -1,9 +1,9 @@
 import {useCallback,useMemo,useState,useContext,FormEvent, ChangeEvent,useEffect, Fragment, useRef} from 'react'
-import {Box,Typography,Stack,IconButton,Slide,Fade,Collapse,ListItem,List,ListItemText,ListItemSecondaryAction, Divider,Grid, TextField,Autocomplete, CircularProgress, Paper } from '@mui/material'
+import {Box,Typography,Stack,IconButton,Slide,Fade,Collapse,ListItem,List,ListItemText,ListItemSecondaryAction, Divider,Grid, TextField,Autocomplete, CircularProgress, Paper, ListItemButton } from '@mui/material'
 import {Close,ArrowBackIosRounded,ExpandMore as ExpandMoreIcon} from '@mui/icons-material'
 import Button from './Button';
 import { useTranslation } from 'next-i18next';
-import { BANK_CODES, CopyRequired, EWALLET_CODE, EWalletResults, PAYMENT_TYPE, QrCodeResults, VirtualAccResults,sendBankCode,walletChannelCodetoEwalletCode,Transaction,paymentCodeName } from '@type/index';
+import { BANK_CODES, CopyRequired, EWALLET_CODE, EWalletResults, PAYMENT_TYPE, QrCodeResults, VirtualAccResults,sendBankCode,walletChannelCodetoEwalletCode,Transaction,paymentCodeName, PAYMENT_STATUS } from '@type/index';
 import { Context, ICard } from '@redux/cart';
 import { useSelector,State } from '@redux/index';
 import ExpandMore from './ExpandMore';
@@ -41,7 +41,7 @@ export interface PaymentProps {
   table_number?: string
 }
 
-function Cart({cart,total,subtotal,disscount}: {cart:ICard[],total:number,subtotal:number,disscount:number}) {
+function Cart({cart,total,subtotal,discount}: {cart:ICard[],total:number,subtotal:number,discount:number}) {
   const {t} = useTranslation('catalogue');
   const [expand,setExpand] = useState(false);
   return (
@@ -56,35 +56,37 @@ function Cart({cart,total,subtotal,disscount}: {cart:ICard[],total:number,subtot
         <Divider />
         <List>
           {cart.map((c,i)=>(
-            <ListItem>
+            <ListItemButton>
               <ListItemText primary={c.item.name} secondary={
                 <>
-                  <Typography>{`${c.qty} x IDR ${numberFormat(`${c.price - c.disscount}`)}`}</Typography>
+                  <Typography variant='body2'>{`${c.qty} x Rp${numberFormat(`${c.price - c.discount}`)}`}</Typography>
+                  {c.discount > 0 && <Typography variant='caption'>{`disc. Rp${numberFormat(`${(c.discount)}`)}`}</Typography>}
                   {c?.notes && <Typography variant='caption'>{`${t('notes')}: ${c?.notes}`}</Typography>}
                 </>
               } />
               <ListItemSecondaryAction>
-                <Typography variant='body2'>{`IDR ${numberFormat(`${(c.price*c.qty) -( c.disscount*c.qty)}`)}`}</Typography>
+                <Typography sx={{mt:3}} variant='body2'>{`Rp${numberFormat(`${(c.price*c.qty) -( c.discount*c.qty)}`)}`}</Typography>
+                {c.discount > 0 && <Typography variant='body2'>{`(Rp${numberFormat(`${(c.discount*c.qty)}`)})`}</Typography>}
               </ListItemSecondaryAction>
-            </ListItem>
+            </ListItemButton>
           ))}
           <Divider sx={{my:2}} />
           <ListItem disablePadding sx={{px:2}}>
             <ListItemText primary="Subtotal" />
             <ListItemSecondaryAction>
-              <Typography variant='body2'>{`IDR ${numberFormat(`${subtotal}`)}`}</Typography>
+              <Typography variant='body2'>{`Rp${numberFormat(`${subtotal}`)}`}</Typography>
             </ListItemSecondaryAction>
           </ListItem>
           <ListItem disablePadding sx={{px:2}}>
-            <ListItemText primary={t("disscount")} />
+            <ListItemText primary={t("discount")} />
             <ListItemSecondaryAction>
-              <Typography variant='body2'>{`IDR ${numberFormat(`${disscount}`)}`}</Typography>
+              <Typography variant='body2'>{`Rp${numberFormat(`${discount}`)}`}</Typography>
             </ListItemSecondaryAction>
           </ListItem>
           <ListItem disablePadding sx={{px:2}}>
             <ListItemText primary="Total" />
             <ListItemSecondaryAction>
-              <Typography variant='body2'>{`IDR ${numberFormat(`${total}`)}`}</Typography>
+              <Typography variant='body2'>{`Rp${numberFormat(`${total}`)}`}</Typography>
             </ListItemSecondaryAction>
           </ListItem>
         </List>
@@ -135,11 +137,11 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
   const {t:tCom} = useTranslation('common');
   const {get} = useAPI();
   const router = useRouter();
-  const {toko_id,outlet_id} = router.query;
+  const {outlet_id} = router.query;
   const [openList,setOpenList]=useState(false)
   const [option,setOption]=useState<ITelephone[]>([]);
   const [loadingList,setLoadingList]=useState(false);
-  const {outlet} = useOutlet(outlet_id);
+  const {outlet} = useOutlet(outlet_id,{revalidateOnMount:true});
 
   const handleChange=useCallback((name: 'name'|'email'|'telephone'|'type'|'bank'|'ewallet'|'table_number')=>(e: ChangeEvent<HTMLInputElement|HTMLTextAreaElement>)=>{
     const newInput = {
@@ -172,16 +174,16 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
 
   useEffect(()=>{
     if(option.length === 0 && !user) {
-      get<ITelephone[]>(`/internal/list_telephone`)
+      get<{data:ITelephone[]}>(`/list-telephone`)
       .then((res)=>{
         setLoadingList(false)
-        const list = res.data;
+        const list = res.data.data;
         setOption(list);
       }).catch((err)=>{
         setLoadingList(false)
       })
     }
-  },[openList,option,user])
+  },[openList,option,user,get])
 
   return (
     <Box sx={{p:2}}>
@@ -210,6 +212,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
                 onChange={handleChange('name')}
                 required
                 placeholder='John Doe'
+                autoComplete='name'
               />
             </Grid>
             <Grid item xs={12}>
@@ -220,6 +223,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
                 onChange={handleChange('email')}
                 required
                 placeholder='example@portalnesia.com'
+                autoComplete='email'
               />
             </Grid>
             <Grid item xs={12}>
@@ -231,12 +235,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
                     value={input.tel||defaultInput.tel}
                     onChange={telephoneCompleteChange}
                     isOptionEqualToValue={(option, value) => option.code == value.code}
-                    getOptionLabel={(option) => {
-                        if (typeof option === 'string') {
-                            return option;
-                        }
-                        return option.label
-                    }}
+                    getOptionLabel={(option) => option.label}
                     options={option}
                     loading={loadingList || option.length===0 && openList}
                     onOpen={() => {
@@ -253,7 +252,6 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
                         disabled={loading!==null}
                         InputProps={{
                           ...params.InputProps,
-                          autoComplete: 'new-password',
                           endAdornment: (
                             <Fragment>
                                 {loadingList ? <CircularProgress color="inherit" size={20} /> : null}
@@ -272,6 +270,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
                     value={input.telephone||''}
                     onChange={handleChange('telephone')}
                     placeholder='8123456789'
+                    autoComplete='tel'
                   />
                 </Grid>
               </Grid>
@@ -292,10 +291,6 @@ type IPaymentMethod = {
 
 function MethodItems({dt,payment,onChange,category}: {payment:IForm['input']['payment'],dt:IPaymentMethod[],onChange(payment: IForm['input']['payment']): void,category: PAYMENT_TYPE}) {
   const [expand,setExpand] = useState(false);
-
-  useEffect(()=>{
-    console.log("DT",dt)
-  },[dt])
 
   const handleChange=useCallback((d: IPaymentMethod)=>()=>{
     let dt: IForm['input']['payment']|undefined;
@@ -377,7 +372,6 @@ function Method({payment,onChange}: {payment:IForm['input']['payment'],onChange(
 
       return d.is_enabled && ((process.env.NEXT_PUBLIC_PN_ENV === 'test' && d.channel_category !== 'EWALLET') || process.env.NEXT_PUBLIC_PN_ENV!=='test')
     });
-    console.log(filter)
     const dt = filter.reduce((p,n)=>{
       (p[n.channel_category] = p[n.channel_category] || []).push(n);
       return p;
@@ -454,7 +448,7 @@ function QrisInformation({data}: {data: PaymentResponse<QrCodeResults>}) {
         <Box mt={3} display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
           <Image src={img} dataSrc={img} fancybox style={{maxWidth:'80%',height:'auto',marginLeft:'auto',marginRight:'auto'}} />
           <Box mt={3}>
-            <Button href={img} download={`QRIS #${data.id}`}>Download</Button>
+            <Button href={img} download={`QRIS #${data.uid}`}>Download</Button>
           </Box>
         </Box>
       )}
@@ -501,7 +495,7 @@ function EwalletInformation({data}: {data: PaymentResponse<EWalletResults>}) {
                 <Image src={img} dataSrc={img} fancybox={!isMobile} style={{maxWidth:'80%',height:'auto',marginLeft:'auto',marginRight:'auto'}} />
               </a>
               <Box mt={3}>
-                <Button href={img} download={`ShopeePay #${data.id}`}>Download</Button>
+                <Button href={img} download={`ShopeePay #${data.uid}`}>Download</Button>
               </Box>
             </Box>
           )}
@@ -561,7 +555,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
   const setNotif = useNotification();
   const [loading,setLoading] = useState<string|null>(null);
   const [input,setInput] = useState<IForm['input']>(defaultInput);
-  const {outlet,errOutlet} = useOutlet(outlet_id);
+  const {outlet,errOutlet} = useOutlet(outlet_id,{revalidateOnMount:true});
   const [menu,setMenu] = useState<PaymentResponse|null>(null);
   const [dSuccess,setDSuccess] = useState<Transaction|null>(null);
 
@@ -569,17 +563,17 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
 
   const context = useContext(Context);
   const {cart,removeCart} = context;
-  const {total,subtotal,disscount} = useMemo(()=>{
-    const {price,disscount} = cart.reduce((p,n)=>{
+  const {total,subtotal,discount} = useMemo(()=>{
+    const {price,discount} = cart.reduce((p,n)=>{
       const price = n.price * n.qty;
-      const disscount = n.disscount * n.qty;
+      const discount = n.discount * n.qty;
       p.price = p.price + price;
-      p.disscount = p.disscount + disscount;
+      p.discount = p.discount + discount;
       return p;
-    },{price:0,disscount:0})
+    },{price:0,discount:0})
 
-    const total = price - disscount
-    return {total,subtotal:price,disscount};
+    const total = price - discount
+    return {total,subtotal:price,discount};
   },[cart])
 
   const onClose = useCallback(()=>{
@@ -602,23 +596,23 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
       const dt = {
         type:'self_order',
         cash:total,
-        items:cart.map(c=>({id:c.item.id,qty:c.qty})),
+        items:cart.map(c=>({item:c.item.id,qty:c.qty,notes:c.notes})),
         ...(!user ? {name,email,telephone} : {}),
         payment:input.payment,
         metadata:input.metadata
       }
-      const response = await post<Transaction>(`/transactions/outlet/${outlet_id}`,{data:{...dt}});
+      const response = await post<Transaction>(`/transactions/outlet/${outlet_id}`,{...dt});
       const analytics = getAnalytics();
 
       // @ts-ignore
       logEvent(analytics,'purchase',{
         currency:"IDR",
         value:total,
-        transaction_id: response.data.id,
+        transaction_id: response.data.uid,
         items: cart.map(i=>({
           item_id: `${i.item.id}`,
           item_name: i.item.name,
-          discount: i.disscount,
+          discount: i.discount,
           price: i.price,
           quantity: i.qty
         }))
@@ -643,7 +637,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
       }
       setMenu(r);
     } catch(e: any) {
-      setNotif(e?.message||tCom("error_500"),true);
+      setNotif(e?.error?.message||tCom("error_500"),true);
     } finally {
       setLoading(null)
     }
@@ -658,7 +652,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
       await post(`/transactions/outlet/${outlet_id}/simulation/${menu.id}`);
 
     } catch(e: any) {
-      setNotif(e?.message||tCom("error_500"),true);
+      setNotif(e?.error?.message||tCom("error_500"),true);
     } finally {
       setLoading(null)
     }
@@ -683,7 +677,8 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
 
   useEffect(()=>{
     async function handleOnTransactions(dt: Transaction) {
-      if(menu && menu.id === dt.id) {
+      console.log(menu)
+      if(menu && menu.id === dt.id && dt.status === PAYMENT_STATUS.PAID) {
         setDSuccess(dt);
         onClose();
         timeout.current = setTimeout(()=>{
@@ -716,7 +711,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
           <DialogContent dividers sx={{p:0,position:'relative',overflow:'hidden'}}>
             {menu===null && (
               <Box>
-                <Cart cart={cart} total={total} subtotal={subtotal} disscount={disscount} />
+                <Cart cart={cart} total={total} subtotal={subtotal} discount={discount} />
                 {!outlet && !errOutlet ? (
                   <Box sx={{p:2}}><Circular /></Box>
                 ) : errOutlet ? (
@@ -737,7 +732,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
                       <TableBody>
                         <TableRow sx={{borderBottom:'unset'}}>
                           <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${t("id",{what:tMenu("transactions")})}`}</TableCell>
-                          <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${menu.id}`}</TableCell>
+                          <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${menu.uid}`}</TableCell>
                         </TableRow>
                         <TableRow sx={{borderBottom:'unset'}}>
                           <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${t("payment_method")}`}</TableCell>
@@ -759,7 +754,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
                 <Box p={2} textAlign='center'>
                   <Typography>{(`${t("pay_before")} `).toUpperCase()}</Typography>
                   <Typography gutterBottom variant='h6' component='h6'>{(getDayJs(menu.expired).pn_format('full')).toUpperCase()}</Typography>
-                  <Typography variant='h3' component='h3'>{`IDR ${numberFormat(`${menu.total}`)}`}</Typography>
+                  <Typography variant='h3' component='h3'>{`Rp${numberFormat(`${menu.total}`)}`}</Typography>
                 </Box>
                 <Divider />
                 <Box p={2}>
@@ -781,7 +776,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
               <Button type='submit' disabled={loading!==null} loading={loading==='submit'} icon='submit'>{t("pay")}</Button>
             </DialogActions>
           )}
-          {(menu !== null && process.env.NEXT_PUBLIC_PN_ENV==='test') && (
+          {(menu !== null && process.env.NEXT_PUBLIC_PN_ENV==='test' && menu.payment !== PAYMENT_TYPE.COD) && (
             <DialogActions>
               <Button onClick={handleSimulation} disabled={loading!==null} loading={loading==='simulation'} icon='submit'>Simulate</Button>
             </DialogActions>
@@ -801,7 +796,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
               <TableBody>
                 <TableRow sx={{borderBottom:'unset'}}>
                   <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${t("id",{what:tMenu("transactions")})}`}</TableCell>
-                  <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${dSuccess?.id}`}</TableCell>
+                  <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${dSuccess?.uid}`}</TableCell>
                 </TableRow>
                 <TableRow sx={{borderBottom:'unset'}}>
                   <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${t("payment_method")}`}</TableCell>

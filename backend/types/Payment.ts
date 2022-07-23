@@ -4,6 +4,7 @@ import { Dayjs,ManipulateType } from 'dayjs'
 import { Outlet } from './Outlet'
 import { TransactionItem } from './TransactionItem';
 import { Without } from '@portalnesia/utils';
+import { CopyPartial } from './General';
 
 export { QrCodeTypes, Currency, ChannelCode };
 export type { Basket, ChannelProps };
@@ -300,9 +301,11 @@ export type DisbursementResult = {
   email_bcc?: string[]
 }
 
-export type ICreateItems = Pick<TransactionItem,'datetime'|'disscount'|'hpp'|'item'|'metadata'|'notes'|'price'|'qty'|'done'> & ({outlet?: any})
+//export type ICreateItemss = Pick<TransactionItem,'datetime'|'discount'|'hpp'|'item'|'metadata'|'notes'|'price'|'qty'|'done'> & ({outlet?: any})
 
-export type ICreatePayment<IsCreated extends boolean = true> = {
+export type ICreateItems<D=any> = Pick<TransactionItem,'datetime'|'discount'|'hpp'|'item'|'metadata'|'notes'|'price'|'qty'|'done'> & ({outlet?: D})
+
+export type ICreatePayment<Items = any> = {
   uid: string,
   outlet?: Outlet;
   email: string,
@@ -310,11 +313,11 @@ export type ICreatePayment<IsCreated extends boolean = true> = {
   telephone?: string,
   payment: PAYMENT_TYPE,
   subtotal: number,
-  disscount: number,
+  discount: number,
   total: number
   cash: number
   platform_fees: number,
-  items: IsCreated extends true ? ICreateItems[] : TransactionItem[],
+  items: ICreateItems<Items>[],
   expiration?:[number,ManipulateType],
   datetime: Dayjs,
   updated: Dayjs,

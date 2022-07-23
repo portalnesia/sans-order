@@ -13,6 +13,7 @@ import fs from 'fs'
 import { Markdown } from '@comp/Parser';
 import { useRouter } from 'next/router';
 import jsYaml from 'js-yaml'
+import path from 'path'
 
 type Iqa = {
   q: string,
@@ -26,7 +27,7 @@ type IPages = {
 
 async function getYaml(locale: string='id') {
   const bhs = locale === 'id' ? '' : '/en'
-  const buffer = await fs.promises.readFile(`../data/help${bhs}/faq.yaml`);
+  const buffer = await fs.promises.readFile(path.resolve(`../data/help${bhs}/faq.yaml`));
   const faq_string = buffer.toString();
   const faq = await jsYaml.load(faq_string) as {faq: Iqa[]};
   return faq;

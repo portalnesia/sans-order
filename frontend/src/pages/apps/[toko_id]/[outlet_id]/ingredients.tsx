@@ -102,6 +102,7 @@ interface UserMenu {
 }
 
 function UserMenu({onEdit,onDelete,editDisabled,allDisabled}: UserMenu) {
+  const {t:tCom} = useTranslation('common');
   const ref=React.useRef(null);
   const [open,setOpen] = React.useState(false);
 
@@ -128,7 +129,7 @@ function UserMenu({onEdit,onDelete,editDisabled,allDisabled}: UserMenu) {
           <ListItemIcon>
             <Iconify icon="eva:trash-2-outline" width={24} height={24} />
           </ListItemIcon>
-          <ListItemText primary="Delete" primaryTypographyProps={{ variant: 'body2' }} />
+          <ListItemText primary={tCom("del")} primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
       </MenuPopover>
     </>
@@ -226,7 +227,7 @@ export default function OutletIngredients({meta}: IPages<Outlet>) {
     } finally {
       setLoading(false);
     }
-  },[dEdit,input,setNotif,put,outlet_id,mutate])
+  },[dEdit,input,setNotif,put,outlet_id,mutate,tCom])
 
   const handleDelete=React.useCallback(async()=>{
     if(typeof dDelete !== 'boolean' && dDelete && 'id' in dDelete) {
@@ -248,22 +249,19 @@ export default function OutletIngredients({meta}: IPages<Outlet>) {
     if(typeof dDelete === 'boolean') {
       setLoading(true);
       try {
-        const filters = selected.map(s=>({
-          id:{
-            $eq: s.id
-          }
-        }));
+        const filters = selected.map(s=>s.id);
         await post(`/ingredients/${outlet_id}/bulk-delete`,{filters});
         mutate();
-        setNotif(tCom("General.deleted"),false)
+        setNotif(tCom("deleted"),false)
         setDDelete(null)
+        setSelected([]);
       } catch(e: any) {
         setNotif(e?.error?.message||tCom("error_500"),true);
       } finally {
         setLoading(false);
       }
     }
-  },[selected,post,setNotif,outlet_id,mutate,tCom])
+  },[selected,post,setNotif,outlet_id,mutate,tCom,dDelete])
 
   useMousetrap(['+','shift+='],buttonCreate);
 
@@ -383,9 +381,9 @@ export default function OutletIngredients({meta}: IPages<Outlet>) {
         <DialogActions>
           <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{tCom("cancel")}</Button>
           {typeof dDelete === 'boolean' ? (
-            <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDeleteAll}>{tCom("delete")}</Button>
+            <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDeleteAll}>{tCom("del")}</Button>
           ) : (
-            <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{tCom("delete")}</Button>
+            <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{tCom("del")}</Button>
           )}
         </DialogActions>
       </Dialog>

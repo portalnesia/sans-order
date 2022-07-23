@@ -47,9 +47,11 @@ function TransactionsPage({meta,socket}: IPages<Transaction> & {socket?: ISocket
     console.log("DATA",data?.data.outlet)
     console.log("OUTLET",outlet.current)
     socket?.on('toko transactions',handleTransactionChange)
+    socket?.on('toko transactions items',handleTransactionChange)
     socket?.on('toko transactions orderstatus',handleTransactionChange)
     return ()=>{
       socket?.off('toko transactions',handleTransactionChange)
+      socket?.off('toko transactions items',handleTransactionChange)
       socket?.off('toko transactions orderstatus',handleTransactionChange)
     }
   },[data,socket])
@@ -100,21 +102,21 @@ function TransactionsPage({meta,socket}: IPages<Transaction> & {socket?: ISocket
                           <TableCell rowSpan={2} align='center'>Status</TableCell>
                           <TableCell align='center' colSpan={4}>{tMenu("products")}</TableCell>
                           <TableCell rowSpan={2} align='right'>Subtotal</TableCell>
-                          <TableCell rowSpan={2} align='right'>{t("disscount")}</TableCell>
+                          <TableCell rowSpan={2} align='right'>{t("discount")}</TableCell>
                           <TableCell rowSpan={2} align='right'>Total</TableCell>
                         </TableRow>
                         <TableRow>
                           <TableCell>{tCom("name")}</TableCell>
                           <TableCell align='right'>{t("price")}</TableCell>
-                          <TableCell align='right'>{t("disscount")}</TableCell>
+                          <TableCell align='right'>{t("discount")}</TableCell>
                           <TableCell align='right'>Qty</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {!data?.data.items ? null : Object.values(data?.data.items).map((d)=>{
                           const subtotal = d.price*d.qty;
-                          const disscount = d.disscount*d.qty;
-                          const total = subtotal-disscount;
+                          const discount = d.discount*d.qty;
+                          const total = subtotal-discount;
                           return (
                             <TableRow hover key={`items-${data?.data.id}-${d.id}`}>
                               <TableCell align='center' sx={{whiteSpace:'nowrap'}}>{d.done ? <CheckBox color='primary' /> : <CheckBoxOutlineBlank />}</TableCell>
@@ -122,12 +124,12 @@ function TransactionsPage({meta,socket}: IPages<Transaction> & {socket?: ISocket
                                 <Typography>{`${d.item?.name}`}</Typography>
                                 {d?.notes && <Typography variant='caption'>{d?.notes}</Typography>}
                               </TableCell>
-                              <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
-                              <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${d.disscount}`)}`}</TableCell>
+                              <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${d.price}`)}`}</TableCell>
+                              <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${d.discount}`)}`}</TableCell>
                               <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{d.qty}</TableCell>
-                              <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${subtotal}`)}`}</TableCell>
-                              <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${disscount}`)}`}</TableCell>
-                              <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`IDR ${numberFormat(`${total}`)}`}</TableCell>
+                              <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${subtotal}`)}`}</TableCell>
+                              <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${discount}`)}`}</TableCell>
+                              <TableCell sx={{whiteSpace:'nowrap'}} align='right'>{`Rp${numberFormat(`${total}`)}`}</TableCell>
                             </TableRow>
                           )
                         })}

@@ -25,6 +25,10 @@ export const getStaticProps = staticProps(async({getTranslation,locale})=>{
     props: {
       meta: {
         index:[{
+          title:'contact_us',
+          link:'/help/contact',
+          icon:'healthicons:contact-support'
+        },{
           title:'faq',
           link:'/help/faq',
           icon:'wpf:faq'
@@ -51,9 +55,9 @@ export default function HelpIndex({meta}: IPages) {
           </Box>
           <Grid container spacing={2}>
             {meta?.index?.map((m,i)=>(
-              <Grid item xs={12} sm={6}>
-                <Card>
-                  <Link href={m.link} passHref><CAArea component='a'>
+              <Grid item xs={12} sm={6} md={4}>
+                <Card sx={{height:'100%'}}>
+                  <Link href={m.link} passHref><CAArea component='a' sx={{height:'100%',display:'flex',justifyContent:'center'}}>
                     <CardContent>
                       <Stack spacing={2} justifyContent='center' alignItems='center'>
                         <Iconify icon={m.icon} width={50} height={50} />

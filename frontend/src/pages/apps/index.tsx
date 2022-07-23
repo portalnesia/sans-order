@@ -139,7 +139,7 @@ function Loginned({user}: {user:PortalnesiaUser}) {
     } finally {
       setLoading(false);
     }
-  },[input,post,setNotif,t])
+  },[input,post,setNotif,tCom])
 
   return (
     <Dashboard withNavbar={false} backToTop={{position:'bottom',color:'primary'}} whatsappWidget={{enabled:false}}>
@@ -169,7 +169,7 @@ function Loginned({user}: {user:PortalnesiaUser}) {
             <Grid item xs={12}>
               {data?.data.length === 0 ? (
                 <Box mb={2}>
-                  <Typography variant="h4" component='h4'>{t("no_what",{what:"data"})}</Typography>
+                  <Typography variant="h4" component='h4'>{tCom("no_what",{what:"data"})}</Typography>
                 </Box>
               ) : (
                 <Grid container spacing={2}>

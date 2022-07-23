@@ -14,6 +14,7 @@ import { sanitisizedPopulate } from '../../../utils/ctx';
 import { IChannelPayment } from '../../../../types/Payment';
 import OutletUsersControllers from './user-utils/outlet-users';
 import user from '../../../extensions/users-permissions/server/content-types/user';
+import { Config } from '../../../../types/Config';
 
 export default factories.createCoreController('api::outlet.outlet',({strapi})=>{
   const usersControllers = OutletUsersControllers({strapi})
@@ -82,7 +83,8 @@ export default factories.createCoreController('api::outlet.outlet',({strapi})=>{
                   $eq: user.id
                 }
               }
-            }
+            },
+            roles:'*'
           }
         }
       }
@@ -134,8 +136,6 @@ export default factories.createCoreController('api::outlet.outlet',({strapi})=>{
           }
         }
 
-        ctx.query.populate = populate;
-
         const {results:outlet,pagination} = await strapi.entityService.findPage<'api::outlet.outlet',Outlet>('api::outlet.outlet',{populate,filters})
         const results: Outlet[] = [];
         for(const o of outlet) {
@@ -154,17 +154,20 @@ export default factories.createCoreController('api::outlet.outlet',({strapi})=>{
     async update(ctx) {
       const user = ctx.state?.user;
       const {id} = ctx.params;
-      const outlet = await strapi.entityService.findOne<'api::outlet.outlet',Outlet>('api::outlet.outlet',id,{populate:{
-        toko:{
-          populate:{
-            user:'*',
-            wallet:'*'
+      const [outlet,config] = await Promise.all([
+        strapi.entityService.findOne<'api::outlet.outlet',Outlet>('api::outlet.outlet',id,{populate:{
+          toko:{
+            populate:{
+              user:'*',
+              wallet:'*'
+            }
+          },
+          users:{
+            populate:'*'
           }
-        },
-        users:{
-          populate:'*'
-        }
-      }})
+        }}),
+        strapi.service('api::config.config').find({})
+      ])
       const subs = await checkTokoSubscription(strapi,outlet?.toko?.user);
       if(!subs) return ctx.notFound();
   
@@ -184,6 +187,7 @@ export default factories.createCoreController('api::outlet.outlet',({strapi})=>{
       }
   
       if(isTrue(data.online_payment)) {
+        if(!config.online_payment) return ctx.badRequest("`online_payment` is under maintenance");
         const wallet = outlet.toko?.wallet;
         if(!wallet || !wallet.account) return ctx.forbidden('You must set and activated your wallet before use "online_payment"');
       }
@@ -238,12 +242,17 @@ export default factories.createCoreController('api::outlet.outlet',({strapi})=>{
     async getPayment(ctx) {
       const outlet = ctx.state.outlet as Outlet;
   
-      let payment: IChannelPayment[] = [];
+      let payment: IChannelPayment[] = [],config: Config = {online_payment:false};
+      
       if(!outlet.self_order) payment = [];
       else {
-        payment = await strapi.service('api::transaction.transaction').payment.getPaymentChannel();
+        [payment,config] = await Promise.all([
+          strapi.service('api::transaction.transaction').payment.getPaymentChannel(),
+          strapi.service('api::config.config').find({}),
+        ])
+
         if(!outlet.cod) payment = payment.filter(p=>p.channel_category!=='COD');
-        if(!outlet.online_payment) payment = payment.filter(p=>p.channel_category==='COD');
+        if(!outlet.online_payment || !config.online_payment) payment = payment.filter(p=>p.channel_category==='COD');
       }
   
       return this.transformResponse(payment);

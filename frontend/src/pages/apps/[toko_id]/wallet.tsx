@@ -129,7 +129,7 @@ export default function WalletPage({meta}: IPages<Toko>) {
     let err: string[]=[];
     const max = (data?.data?.balance||0)-6500;
     if(wd < 50000) err.push(t('error_min'));
-    if(wd > (max)) err.push(t('error_max',{amount:`IDR ${numberFormat(`${max}`)}`}))
+    if(wd > (max)) err.push(t('error_max',{amount:`Rp${numberFormat(`${max}`)}`}))
     return err;
   },[data,wd,t])
 
@@ -288,7 +288,7 @@ export default function WalletPage({meta}: IPages<Toko>) {
                               <Card sx={{minWidth:300}}>
                                 <CardContent>
                                   <Typography>{t("balance")}</Typography>
-                                  <Typography variant='h4' component='h4'>{`IDR ${numberFormat(`${data.data.balance}`)}`}</Typography>
+                                  <Typography variant='h4' component='h4'>{`Rp${numberFormat(`${data.data.balance}`)}`}</Typography>
                                 </CardContent>
                               </Card>
                             </Grid>
@@ -387,8 +387,8 @@ export default function WalletPage({meta}: IPages<Toko>) {
                               <TableCell align='left'>{d.id}</TableCell>
                               <TableCell align='left'>{d?.outlet?.name ? d.outlet.name : `-`}</TableCell>
                               <TableCell align='left'>{getDayJs(d.datetime).pn_format('full')}</TableCell>
-                              <TableCell align='right'>{`IDR ${numberFormat(`${d.total}`)}`}</TableCell>
-                              <TableCell align='right'>{`IDR ${numberFormat(`${d.platform_fees}`)}`}</TableCell>
+                              <TableCell align='right'>{`Rp${numberFormat(`${d.total}`)}`}</TableCell>
+                              <TableCell align='right'>{`Rp${numberFormat(`${d.platform_fees}`)}`}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>

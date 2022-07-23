@@ -92,6 +92,9 @@ export default factories.createCoreController('api::product.product',({strapi}) 
             $eq: category
           })
         },
+        show_in_menu:{
+          $eq:true
+        },
         outlet:{
           id:{
             $eq: `${outlet?.id}`
@@ -100,7 +103,7 @@ export default factories.createCoreController('api::product.product',({strapi}) 
       }
       const pr = await strapi.entityService.findPage('api::product.product',{filters,populate})
       
-      return {data:pr.results,meta:{pagination:pr.pagination}};
+      return {data:[{category:category,data:pr.results}],meta:{pagination:pr.pagination}};
     } else if(typeof category === 'undefined') {
       const data: {category: string,data: Product[]}[] = []
 
@@ -115,6 +118,10 @@ export default factories.createCoreController('api::product.product',({strapi}) 
             id:{
               $eq: `${outlet?.id}`
             }
+          }
+        },{
+          show_in_menu:{
+            $eq:true
           }
         }],
       },populate})
@@ -141,6 +148,10 @@ export default factories.createCoreController('api::product.product',({strapi}) 
               id:{
                 $eq: `${outlet?.id}`
               }
+            }
+          },{
+            show_in_menu:{
+              $eq:true
             }
           }]
         }
@@ -214,6 +225,9 @@ export default factories.createCoreController('api::product.product',({strapi}) 
         image:{
           populate:'*',
           fields:['id','url']
+        },
+        recipes:{
+          populate:'*'
         }
       }
     }
@@ -234,17 +248,31 @@ export default factories.createCoreController('api::product.product',({strapi}) 
     const outlet = ctx.state.outlet as Outlet;
     const filter = ctx.request.body?.data?.filters;
     if(!Array.isArray(filter)) return ctx.badRequest('Invalid "filters" parameter');
-    
-    const filters = {
-      $and: filter
-    }
 
-    const data = strapi.db.query('api::product.product').delete({
-      where:{
-        filters
+    filter.forEach(f=>{
+      if(typeof f !== 'number') {
+        return ctx.badRequest('Invalid "filters" parameter');
       }
     })
+    
+    const where = {
+      $and:[{
+        id:{
+          $in: filter
+        }
+      },{
+        outlet:{
+          id:{
+            $eq: outlet.id
+          }
+        }
+      }]
+    }
 
-    return this.transformResponse(data);
+    await strapi.db.query('api::product.product').delete({
+      where
+    })
+
+    return this.transformResponse({ok:true});
   }
 }));

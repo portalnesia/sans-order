@@ -1,3 +1,5 @@
+import {env} from '@strapi/utils'
+
 export default [
   'strapi::errors',
   {
@@ -11,7 +13,7 @@ export default [
     config: {
       enabled: true,
       headers: '*',
-      origin: ['http://localhost:3503']
+      origin: env.array('CORS','*')
     }
   },
   'global::firebase',

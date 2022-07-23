@@ -4,6 +4,7 @@
   "back":"Back",
   "error":"Something went wrong",
   "error_500":"Something went wrong",
+  "error_empty":"{{what}} cannot be empty",
   "theme":{
     "theme":"Theme",
     "dark":"Dark Theme",
@@ -41,10 +42,12 @@
   "update":"Update",
   "notification":{
     "new":"Transactions Created",
-    "updated":"You get a new transaction #{{id}}",
-    "new_desc":"Transactions Paid",
+    "updated":"Update transaction #{{id}}",
+    "new_desc":"You get a new pending transaction",
     "updated_desc":"Transaction #{{id}} has been paid with the {{method}} payment method"
   },
   "maintenance_subs":"The online subscription is currently under maintenance. Please contact our sales if you want to subscribe to the package",
-  "type":"Type"
+  "type":"Type",
+  "send":"Send",
+  "success":"Success"
 }

@@ -3,6 +3,7 @@ import type { User } from './User'
 import type { Outlet } from './Outlet';
 import type { Toko } from './Toko';
 import { Subcribe } from './Subcribe';
+import { Support } from './Support';
 
 module 'koa' {
   declare interface ContextDelegatedRequest {
@@ -20,6 +21,7 @@ module 'koa' {
       outlet?: Outlet
       toko?: Toko
       subs?: Subcribe
+      support?: Support
     }
     interface BaseRequest extends ContextDelegatedRequest {}
     interface BaseContext extends ContextDelegatedRequest, ContextDelegatedResponse {}

@@ -1,6 +1,7 @@
 import type { Strapi } from "@strapi/strapi";
 import type { Context } from "koa";
 import type { Outlet } from "../../../../../types/Outlet";import { ORDER_STATUS } from "../../../../../types/Payment";
+import { getDayJs } from "../../../../../utils/Main";
 ;
 import { sanitisizedPopulate } from "../../../../utils/ctx";
 
@@ -12,8 +13,12 @@ export async function getPendingTransaction(strapi: Strapi,ctx: Context) {
   const {filters} = service.getFilteredTransaction('pending')
   const populate = sanitisizedPopulate(ctx);
   populate.user = '*'
+  populate.cashier = '*'
   populate.items = {
     populate:'item'
+  }
+  populate.toko = {
+    populate:'user'
   }
 
   ctx.query = {
@@ -62,16 +67,17 @@ export async function getPendingTransaction(strapi: Strapi,ctx: Context) {
 export async function updateTransactionOrderStatus(strapi: Strapi,ctx: Context) {
   const outlet = ctx.state.outlet as Outlet;
   const id = ctx.params.id;
-  const status = typeof ctx.request.body.status === 'string' ? ctx.request.body.status.toUpperCase() : undefined;
+  const order_status = typeof ctx.request.body?.data?.status === 'string' ? ctx.request.body.data.status.toUpperCase() : undefined;
 
-  if(!status) return ctx.badRequest('Invalid status parameters');
+  if(!order_status) return ctx.badRequest('Invalid status parameters');
   
-  const orderStatus = Object.keys(ORDER_STATUS);
-  if(!orderStatus.includes(status)) return ctx.badRequest('Invalid status parameters');
+  const orderStatus = Object.values(ORDER_STATUS);
+  if(!orderStatus.includes(order_status)) return ctx.badRequest('Invalid status parameters');
 
   const tr = await strapi.entityService.update('api::transaction.transaction',id,{
     data:{
-      status
+      order_status,
+      updated:getDayJs().toDate()
     },
     filters:{
       outlet:{
@@ -81,11 +87,32 @@ export async function updateTransactionOrderStatus(strapi: Strapi,ctx: Context) 
       }
     },
     populate:{
-      items:"*"
+      outlet:{
+        populate:{
+          toko:{
+            populate:'user'
+          }
+        }
+      },
+      items:{
+        populate:{
+          item:{
+            populate:{
+              recipes:{
+                populate:'*'
+              }
+            }
+          }
+        }
+      },
+      cashier:'*',
+      user:'*'
     }
   })
 
-  strapi.$io.raw('toko transactions',tr,{room:`outlet::${outlet?.toko?.id}::${outlet.id}`})
+  const dt = strapi.service('api::transaction.transaction').parseUser(tr);
+
+  strapi.$io.raw('toko transactions',dt,{room:`outlet::${outlet?.toko?.id}::${outlet.id}`})
 
   return tr;
 }

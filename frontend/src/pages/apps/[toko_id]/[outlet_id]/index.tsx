@@ -263,7 +263,7 @@ export default function OutletIndex({meta}: IPages<Outlet>) {
         formatter: function(): any {
           // @ts-ignore
           return ['<p style="font-weight: 600;font-size:16px;color:#000">' + Highcharts.dateFormat("%e %B %Y", getDayJs(this.x).utc(true).toDate()) + "</p>"].concat(this.points ? this.points.map(function(t) {
-              return '<span style="margin-right:2px;font-size:15px;color:#000">' + t.series.name + ':</span>  <span style="font-weight: 600;margin-right:2px;font-size:15px;color:#000">IDR ' + numberFormat(t.y,".") + "</span>"
+              return '<span style="margin-right:2px;font-size:15px;color:#000">' + t.series.name + ':</span>  <span style="font-weight: 600;margin-right:2px;font-size:15px;color:#000">Rp' + numberFormat(t.y,".") + "</span>"
           }) : [])
         }
       },
@@ -297,7 +297,7 @@ export default function OutletIndex({meta}: IPages<Outlet>) {
             }
           },
           crosshair: {
-            width: Math.round(width / graph.transactions.time.length),
+            width: Math.round(width / graph?.transactions?.time?.length),
             color: "rgba(204,214,235,0.25)"
           }
         },
@@ -459,7 +459,7 @@ export default function OutletIndex({meta}: IPages<Outlet>) {
                         <Card sx={{...cardSx[i],height:'100%',display:'flex',flexGrow:1,justifyContent:'center',alignItems:'center'}}>
                           <CardContent>
                             <Div sx={{textAlign:'center'}}>
-                              <Typography variant='h4' component='h4'>{iData?.[dt] != 0 ? (['income','income_today'].includes(dt) ? `${`IDR ${numberFormat(`${iData?.[dt]}`)}`}` : iData[dt]) : (['income','income_today'].includes(dt) ? 'IDR 0' : '0')}</Typography>
+                              <Typography variant='h4' component='h4'>{iData?.[dt] != 0 ? (['income','income_today'].includes(dt) ? `${`Rp${numberFormat(`${iData?.[dt]}`)}`}` : iData[dt]) : (['income','income_today'].includes(dt) ? 'Rp0' : '0')}</Typography>
                               <Typography variant='subtitle2'>{cardDataTitle[i]}</Typography>
                             </Div>
                           </CardContent>

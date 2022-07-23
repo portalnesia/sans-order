@@ -10,22 +10,6 @@ const nextConfig = {
       ignoreBuildErrors:true
     },
     i18n,
-    env: {
-      URL: process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : process.env.NODE_ENV === 'test' ? 'https://sans-stagging.portalnesia.com' : 'https://portalnesia.com',
-      APP_URL: 'https://datas.portalnesia.com',
-      SHORT_URL: 'http://kakek.c1.biz',
-      CONTENT_URL:'https://content.portalnesia.com',
-      API_URL:'https://api.portalnesia.com',
-      ACCOUNT_URL:'https://accounts.portalnesia.com',
-      LINK_URL:'https://link.portalnesia.com',
-      PORTAL_URL:"https://portalnesia.com"
-      /**
-       * NEXT_PUBLIC_APP_TOKEN
-       * NEXT_PUBLIC_RECAPTCHA
-       * NEXT_PUBLIC_CLIENT_ID
-       * NEXT_PUBLIC_X_DEBUG
-       */
-    },
     images: {
       domains: ['portalnesia.com','content.portalnesia.com'],
     },
@@ -245,6 +229,9 @@ const nextConfig = {
         }
         config.externals['node-fetch'] = 'fetch';
         config.externals['fetch'] = 'fetch';
+      }
+      if (dev) {
+        config.devtool = 'cheap-module-source-map';
       }
       config.plugins.push(
         new webpack.ProvidePlugin({

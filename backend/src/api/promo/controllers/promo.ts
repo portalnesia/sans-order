@@ -49,32 +49,50 @@ export default factories.createCoreController('api::promo.promo',({strapi}) => (
   },
   async update(ctx) {
     const outlet = ctx.state.outlet as Outlet;
-    
-    (ctx.request.body.data||{}).outlet = outlet.id;
+    const {id} = ctx.params
 
-    return await super.update(ctx);
+    const data = ctx.request.body.data;
+    data.outlet = outlet.id;
+
+    const results = await strapi.entityService.update('api::promo.promo',id,{
+      data,
+      populate:{
+        image:'*',
+        products:'*'
+      }
+    })
+
+    return this.transformResponse(results);
   },
   async bulkDelete(ctx) {
     const outlet = ctx.state.outlet as Outlet;
     const filter = ctx.request.body?.data?.filters;
     if(!Array.isArray(filter)) return ctx.badRequest('Invalid "filters" parameter');
+
+    filter.forEach(f=>{
+      if(typeof f !== 'number') {
+        return ctx.badRequest('Invalid "filters" parameter');
+      }
+    })
     
-    const filters = {
-      $and: filter.concat({
+    const where = {
+      $and:[{
+        id:{
+          $in: filter
+        }
+      },{
         outlet:{
           id:{
             $eq: outlet.id
           }
         }
-      })
+      }]
     }
 
-    const data = strapi.db.query('api::promo.promo').delete({
-      where:{
-        filters
-      }
+    await strapi.db.query('api::promo.promo').delete({
+      where
     })
 
-    return this.transformResponse(data);
+    return this.transformResponse({ok:true});
   }
 }))

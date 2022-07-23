@@ -12,6 +12,7 @@ import find from './utils/find';
 import { getPendingTransaction, updateTransactionOrderStatus } from './utils/cashier';
 import { getKitchenTransaction, updateTransactionKitchen } from './utils/kitchen';
 import simulatePayment from './utils/simulate';
+import { callbackEwallet, callbackQr, callbackSendMoney, callbackVA } from './callback/callback';
 
 export default factories.createCoreController('api::transaction.transaction',({strapi}) => ({
   async findOne(ctx) {
@@ -123,5 +124,19 @@ export default factories.createCoreController('api::transaction.transaction',({s
   },
   payTransaction(ctx) {
     return payTransactionByCahier.apply(this,[strapi,ctx])
-  }
+  },
+
+  // CALLBACK
+  callbackVA(ctx) {
+    return callbackVA.apply(this,[strapi,ctx])
+  },
+  callbackEwallet(ctx) {
+    return callbackEwallet.apply(this,[strapi,ctx])
+  },
+  callbackQr(ctx) {
+    return callbackQr.apply(this,[strapi,ctx])
+  },
+  callbackSendMoney(ctx) {
+    return callbackSendMoney.apply(this,[strapi,ctx])
+  },
 }));

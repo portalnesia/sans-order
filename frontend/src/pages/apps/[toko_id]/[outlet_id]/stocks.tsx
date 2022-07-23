@@ -30,17 +30,16 @@ import dynamic from 'next/dynamic'
 import { numberFormat } from '@portalnesia/utils';
 import { getDayJs, getOutletAccess } from '@utils/Main';
 import { Dayjs } from 'dayjs';
+import { State,useSelector } from '@redux/index';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
 const DialogContent=dynamic(()=>import('@mui/material/DialogContent'))
 const DialogActions=dynamic(()=>import('@mui/material/DialogActions'))
-const SimpleMDE = dynamic(()=>import('@comp/SimpleMDE'))
-const Browser = dynamic(()=>import('@comp/Browser'),{ssr:false})
 
 export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true,onlyAccess:['Stock']},translation:'dash_product'})
 
-type IInputStocks = Nullable<Without<Stock,'item'|'outlet'|'id'|'timestamp'>> & ({item: string|number,timestamp?:Date})
+type IInputStocks = Nullable<Without<Stock,'outlet'|'id'|'timestamp'>> & ({timestamp?:Date})
 
 interface FormProps {
   input: IInputStocks,
@@ -49,20 +48,25 @@ interface FormProps {
   autoFocus?:boolean
   ingOptions: Ingredient[],
   ingLoading: boolean,
+  outlet?: Outlet,
+  edit?: boolean
   handleAutocompleteInputChange(e: React.SyntheticEvent<Element, Event>, value: string,reason: AutocompleteInputChangeReason): void
 }
 
-function Form({input,setInput,loading,autoFocus,ingOptions,ingLoading,handleAutocompleteInputChange}: FormProps) {
+function Form({input,setInput,loading,ingOptions,ingLoading,edit,outlet,handleAutocompleteInputChange}: FormProps) {
   const {t} = useTranslation('dash_product');
   const {t:tMenu} = useTranslation('menu');
-  const {t:tCom} = useTranslation('common');
-  const [edit,setEdit] = React.useState<number | null>(null);
+  const user = useSelector<State['user']>(s=>s.user);
   const [openAutocomplete,setOpenAutocomplete] = React.useState(false)
 
   const timestamp = React.useMemo(()=>{
     if(input.timestamp) return getDayJs(input.timestamp);
     return getDayJs();
   },[input])
+
+  const canEdit = React.useMemo(()=>{
+    return !!(!edit || user && outlet && outlet?.toko?.user?.id == user?.id)
+  },[outlet,user,edit])
 
   const handleChange=React.useCallback((name: keyof IInputStocks)=>(e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement> | string)=>{
     const val = typeof e === 'string' ? e : e?.target?.value;
@@ -76,9 +80,9 @@ function Form({input,setInput,loading,autoFocus,ingOptions,ingLoading,handleAuto
     setInput({...input,[name]:val||null});
   },[input])
 
-  const handleAutocomplete=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: Ingredient | null,reason: AutocompleteChangeReason)=>{
+  const handleAutocomplete=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: Ingredient | null)=>{
     if(value) {
-      setInput({...input,item:value.id})
+      setInput({...input,item:value})
     }
   },[input])
 
@@ -88,21 +92,12 @@ function Form({input,setInput,loading,autoFocus,ingOptions,ingLoading,handleAuto
     }
   },[input])
 
-  const valueAutoComplete = React.useMemo(()=>{
-    let val: Ingredient|null = null;
-    if(input.item) {
-      const a = ingOptions.find(s=>s.id === input.item)
-      if(a) val = a;
-    }
-    return val;
-  },[ingOptions,input])
-
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
           <Autocomplete
-            value={valueAutoComplete}
+            value={input?.item}
             clearOnBlur
             clearOnEscape
             onChange={handleAutocomplete}
@@ -111,7 +106,7 @@ function Form({input,setInput,loading,autoFocus,ingOptions,ingLoading,handleAuto
             getOptionLabel={o=>o.name}
             loading={ingLoading}
             open={openAutocomplete}
-            disabled={loading}
+            disabled={loading||!canEdit}
             onOpen={()=>setOpenAutocomplete(true)}
             onClose={()=>setOpenAutocomplete(false)}
             renderInput={(params) => (
@@ -133,9 +128,9 @@ function Form({input,setInput,loading,autoFocus,ingOptions,ingLoading,handleAuto
             required
             fullWidth
             type='number'
-            disabled={loading}
+            disabled={loading||!canEdit}
             placeholder='10000'
-            helperText={`IDR ${numberFormat(`${input.price||0}`)}`}
+            helperText={`Rp${numberFormat(`${input.price||0}`)}`}
             inputProps={{min:0}}
           />
         </Grid>
@@ -148,11 +143,11 @@ function Form({input,setInput,loading,autoFocus,ingOptions,ingLoading,handleAuto
               type='number'
               placeholder='5'
               onChange={handleChange('stocks')}
-              value={input.stocks}
+              value={input.stocks||!canEdit}
               inputProps={{min:0,step:'any'}}
-              endAdornment={ valueAutoComplete ?
+              endAdornment={ input?.item ?
                 <InputAdornment position='end'>
-                  <Typography>{valueAutoComplete?.unit}</Typography>
+                  <Typography>{input?.item?.unit}</Typography>
                 </InputAdornment>
                 : undefined
               }
@@ -168,7 +163,7 @@ function Form({input,setInput,loading,autoFocus,ingOptions,ingLoading,handleAuto
             onChange={handleDateChange}
             disableFuture
             disabled={loading}
-            renderInput={params=><TextField fullWidth {...params} />}
+            renderInput={params=><TextField required fullWidth {...params} />}
           />
         </Grid>
       </Grid>
@@ -210,7 +205,7 @@ function UserMenu({onEdit,editDisabled,allDisabled}: UserMenu) {
 }
 
 const DEFAULT_INPUT_IN: IInputStocks = {
-  item:'',
+  item:null,
   price:0,
   stocks: 0,
   type:'in',
@@ -221,7 +216,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
   const {t:tMenu} = useTranslation('menu');
   const {t:tCom} = useTranslation('common');
   const router = useRouter();
-  const {post,del,put,get} = useAPI();
+  const {post,put,get} = useAPI();
   const setNotif = useNotif();
   const {toko_id,outlet_id} = router.query;
   const locale = router.locale||'en';
@@ -230,9 +225,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
   const [input,setInput] = React.useState<IInputStocks>(DEFAULT_INPUT_IN);
   const [dCreate,setDCreate] = React.useState(false);
   const [dEdit,setDEdit] = React.useState<Stock|null>(null);
-  const [dDelete,setDDelete] = React.useState<Stock|null|boolean>(null);
   const [loading,setLoading] = React.useState(false);
-  const [selected, setSelected] = React.useState<Stock[]>([]);
   const {data,error,mutate} = useSWR<Stock,true>(`/stocks/${outlet_id}?page=${page}&pageSize=${rowsPerPage}`);
   const [ingOptions,setIngOption]=React.useState<Ingredient[]>([]);
   const [ingLoading,setIngLoading] = React.useState(false);
@@ -244,7 +237,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
 
   const buttonEdit=React.useCallback((d: Stock)=>()=>{
     const {id:_,item,outlet:_a,...rest} = d;
-    setInput({item:item?.id||0,...rest});
+    setInput({item,...rest});
     setDEdit(d);
   },[])
 
@@ -252,7 +245,8 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
     if(e?.preventDefault) e.preventDefault();
     setLoading(true);
     try {
-      await post(`/stocks/${outlet_id}`,{...input,item:Number(input.item)});
+      if(!input?.item) return setNotif(tCom("error_empty",{what:tMenu('ingredient')}),true);
+      await post(`/stocks/${outlet_id}`,{...input,item:input.item?.id});
       mutate();
       setNotif(tCom("saved"),false)
       setDCreate(false)
@@ -261,13 +255,14 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
     } finally {
       setLoading(false);
     }
-  },[input,setNotif,post,toko_id,outlet_id,mutate,tCom])
+  },[input,setNotif,post,toko_id,outlet_id,mutate,tCom,tMenu])
 
   const handleEdit=React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
     setLoading(true);
     try {
-      await put(`/stocks/${outlet_id}/${dEdit?.id}`,{...input,item:Number(input.item)});
+      if(!input?.item) return setNotif(tCom("error_empty",{what:tMenu('ingredient')}),true);
+      await put(`/stocks/${outlet_id}/${dEdit?.id}`,{...input,item:input.item?.id});
       mutate();
       setNotif(tCom("saved"),false)
       setDEdit(null)
@@ -276,7 +271,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
     } finally {
       setLoading(false);
     }
-  },[dEdit,input,setNotif,put,toko_id,outlet_id,mutate])
+  },[dEdit,input,setNotif,put,toko_id,outlet_id,mutate,tCom,tMenu])
 
   const handleAutocompleteInputChange=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: string,reason: AutocompleteInputChangeReason)=>{
     if(reason==='input') {
@@ -300,13 +295,13 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
             if(prevOption.indexOf(rs.id)===-1) b=b.concat(rs)
           })
           setIngOption(res.data);
-        }).catch((err)=>{
+        }).catch(()=>{
             
         }).finally(()=>setIngLoading(false))
       }
     }
     else if(reason==='clear') {
-      setInput({...input,item:''})
+      setInput({...input,item:null})
     }
   },[ingOptions,input])
 
@@ -320,7 +315,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
       })
       .then((res)=>{
         setIngOption(res.data);
-      }).catch((err)=>{
+      }).catch(()=>{
           
       }).finally(()=>setIngLoading(false))
     }
@@ -376,7 +371,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
                         <TableCell>{d?.item?.name}</TableCell>
                         <TableCell>{getDayJs(d?.timestamp).locale(locale).pn_format('full')}</TableCell>
                         <TableCell>{d?.type === 'in' ? t('stock_in') : d?.type === 'out' ? t('stock_out') : ''}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}}>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}}>{`Rp${numberFormat(`${d.price}`)}`}</TableCell>
                         <TableCell>{`${d?.stocks} ${d?.item?.unit}`}</TableCell>
                         <TableCell>
                           {d?.type === 'in' && <UserMenu onEdit={buttonEdit(d)} allDisabled={!getOutletAccess(outlet?.data,'Stock')} />}
@@ -401,7 +396,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
         <form onSubmit={handleCreate}>
           <DialogTitle>{tCom("add_ctx",{what:tMenu("stock")})}</DialogTitle>
           <DialogContent dividers>
-            <Form input={input} setInput={setInput} loading={loading} ingOptions={ingOptions} ingLoading={ingLoading} handleAutocompleteInputChange={handleAutocompleteInputChange} />
+            <Form outlet={outlet?.data} input={input} setInput={setInput} loading={loading} ingOptions={ingOptions} ingLoading={ingLoading} handleAutocompleteInputChange={handleAutocompleteInputChange} />
           </DialogContent>
           <DialogActions>
             <Button text color='inherit' disabled={loading} onClick={()=>setDCreate(false)}>{tCom("cancel")}</Button>
@@ -414,7 +409,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
         <form onSubmit={handleEdit}>
           <DialogTitle>{`Edit ${tMenu("stock")}`}</DialogTitle>
           <DialogContent dividers>
-            <Form input={input} setInput={setInput} loading={loading} ingOptions={ingOptions} ingLoading={ingLoading} handleAutocompleteInputChange={handleAutocompleteInputChange} />
+            <Form edit outlet={outlet?.data} input={input} setInput={setInput} loading={loading} ingOptions={ingOptions} ingLoading={ingLoading} handleAutocompleteInputChange={handleAutocompleteInputChange} />
           </DialogContent>
           <DialogActions>
             <Button text color='inherit' disabled={loading} onClick={()=>setDEdit(null)}>{tCom("cancel")}</Button>

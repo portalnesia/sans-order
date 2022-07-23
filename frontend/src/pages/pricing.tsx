@@ -16,56 +16,14 @@ import Label from '@comp/Label'
 import Iconify from '@comp/Iconify'
 import ExpandMore from '@comp/ExpandMore';
 import useNotification from '@utils/notification';
+import { PriceList } from '@type/PriceList';
+import qs from 'qs'
+import { useRouter } from 'next/router';
 
 export const getStaticProps = staticProps({translation:'subcribe'});
 
-const FEATURES = (t: TFunction,tCom:TFunction)=>([
-  `${t("feature.free",{qty:1})}*`,
-  t("feature.order_system"),
-  `${tCom("table_number")}**`,
-  t("feature.banner"),
-  t("feature.cashier_system"),
-  t("feature.media_promotion")
-])
-
-const PACKAGES = [
-  {
-    id:"toko_1",
-    name:"Advanced",
-    features:[
-      true,
-      true,
-      true,
-      true,
-      true,
-      false
-    ]
-  },{
-    id:"toko_2",
-    name:"Enterprise",
-    recommend:false,
-    features:[
-      true,
-      true,
-      true,
-      true,
-      true,
-      true
-    ]
-  }
-]
-
-type IProduct = {
-  price: number,
-  disscount: number,
-  metadata: {
-    id: string,
-    qty: number
-  }
-}
-
 interface SectionProps {
-  item: IProduct
+  item: PriceList
 }
 
 function PricingSection({item}: SectionProps) {
@@ -73,16 +31,11 @@ function PricingSection({item}: SectionProps) {
   const {t:tCom} = useTranslation('common');
   const [expand,setExpand] = React.useState(false)
   const setNotif = useNotification();
-  const {price,disscount,metadata:{id,qty}} = item
-  const packages = React.useMemo(()=>PACKAGES.find(p=>p.id === id),[id])
-  const fitur = React.useMemo(()=>FEATURES(t,tCom),[t,tCom])
+  const {name,price,discount,qty,features,recommend} = item
 
   const onSubs = React.useCallback(()=>{
     setNotif(tCom("maintenance_subs"),'info')
   },[tCom])
-
-  if(!packages) return null;
-  const {name,features,recommend}=packages;
 
   return (
     <Grid item xs={12} md={6}>
@@ -112,10 +65,10 @@ function PricingSection({item}: SectionProps) {
 
         <CardContent>
           <Box textAlign='center'>
-            {disscount ? (
+            {discount > 0 ? (
               <>
                 <Box alignItems='center' justifyContent='center' position='relative' display='flex'>
-                  <Typography variant='h6' component='h6' sx={{color: 'text.disabled',textDecoration: 'line-through'}}>{`IDR ${numberFormat(`${price}`)}`}</Typography>
+                  <Typography variant='h6' component='h6' sx={{color: 'text.disabled',textDecoration: 'line-through'}}>{`Rp${numberFormat(`${Math.round((price/qty)/30)}`)}`}</Typography>
                   <Label
                     variant="filled"
                     color={'error'}
@@ -125,17 +78,17 @@ function PricingSection({item}: SectionProps) {
                       textTransform: 'uppercase'
                     }}
                   >
-                    {`${((price/qty)/((price/qty)-(disscount/qty))).toFixed(2)}% OFF`}
+                    {`${((price/qty)/30/((price/qty)/30-(discount/qty)/30)).toFixed(2)}% OFF`}
                   </Label>
                 </Box>
                 <Box display='flex' justifyContent='center' alignItems='flex-start'>
-                  <Typography component='span' sx={{fontWeight:'bold',mr:1}}>IDR </Typography>
-                  <Typography variant='h4' component='h4'>{`${numberFormat(`${Math.round(((price/qty)/30)-((disscount/qty)/30))}`)}`}<Typography component='span' variant='body2'>{`/${t("day")}`}</Typography></Typography>
+                  <Typography component='span' sx={{fontWeight:'bold',mr:1}}>Rp</Typography>
+                  <Typography variant='h4' component='h4'>{`${numberFormat(`${Math.round(((price/qty)/30)-((discount/qty)/30))}`)}`}<Typography component='span' variant='body2'>{`/${t("day")}`}</Typography></Typography>
                 </Box>
               </>
             ) : (
               <Box display='flex' justifyContent='center' alignItems='flex-start'>
-                <Typography component='span' sx={{fontWeight:'bold',mr:1}}>IDR </Typography>
+                <Typography component='span' sx={{fontWeight:'bold',mr:1}}>Rp</Typography>
                 <Typography variant='h4' component='h4'>{`${numberFormat(`${Math.round((price/qty)/30)}`)}`}<Typography component='span' variant='body2'>{`/${t("day")}`}</Typography></Typography>
               </Box>
             )}
@@ -150,7 +103,7 @@ function PricingSection({item}: SectionProps) {
         <Divider />
 
         <CardActions disableSpacing sx={{mx:3}}>
-          <Typography variant='h5' component='h5'>{t("feature.title")}</Typography>
+          <Typography variant='h5' component='h5'>{t("feature")}</Typography>
           <ExpandMore expand={expand} onClick={()=>setExpand(!expand)} aria-expanded={expand} aria-label='Features'>
             <ExpandMoreIcon />
           </ExpandMore>
@@ -160,11 +113,11 @@ function PricingSection({item}: SectionProps) {
           <Box pl={3} pr={3}>
             <List>
               {features.map((f,i)=>(
-                <ListItem key={`features-${i}`}>
+                <ListItem key={`features-${f.id}`}>
                   <ListItemIcon>
-                    <Iconify icon={f ? 'akar-icons:circle-check':'akar-icons:circle-x'} sx={{color:f ? 'primary.main' : 'error.main'}} />
+                    <Iconify icon={f ? 'akar-icons:circle-check':'akar-icons:circle-x'} sx={{color:f.enabled ? 'primary.main' : 'error.main'}} />
                   </ListItemIcon>
-                  <ListItemText primary={fitur[i]} />
+                  <ListItemText primary={f.feature?.description} />
                 </ListItem>
               ))}
             </List>
@@ -188,8 +141,17 @@ function PricingSection({item}: SectionProps) {
 export default function PricingApp() {
   const {t} = useTranslation('subcribe');
   const {t:tMenu} = useTranslation('menu');
-  const data: any[]=[],error=undefined;
-  //const {data,error} = useSWR<IProduct[]>(`/subscription/all/toko`);
+  const router = useRouter();
+  const locale = router?.locale||'en'
+  const query = React.useMemo(()=>qs.stringify({
+    locale:locale,
+    populate:{
+      features:{
+        populate:'feature'
+      }
+    }
+  }),[locale])
+  const {data,error} = useSWR<PriceList,true>(`/price-lists?${query}`);
 
   return (
     <Header title={tMenu("pricing")}>
@@ -208,14 +170,14 @@ export default function PricingApp() {
           ) : (
             <>
               <Grid container spacing={2}>
-                {data?.map(d=>(
-                  <PricingSection key={`pricing-${d.metadata.id}`} item={d} />
+                {data?.data?.map(d=>(
+                  <PricingSection key={`pricing-${d.id}`} item={d} />
                 ))}
               </Grid>
               <Divider sx={{mt:7}} />
               <Box mt={7}>
-                <Typography sx={{color:'text.disabled'}}>{`* ${t("feature.first_free")}`}</Typography>
-                <Typography sx={{color:'text.disabled'}}>{`** ${t("feature.max_table_number")}`}</Typography>
+                <Typography sx={{color:'text.disabled'}}>{`* ${t("feature_first_free")}`}</Typography>
+                <Typography sx={{color:'text.disabled'}}>{`** ${t("feature_max_table_number")}`}</Typography>
               </Box>
             </>
           )}

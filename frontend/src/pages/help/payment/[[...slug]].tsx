@@ -27,7 +27,7 @@ const CAArea = styled(CardActionArea)<{component?: string}>(()=>({}))
 
 async function getData(slug: string) {
   try {
-    const github = await fs.promises.readFile(`../data/help/${slug}.md`);
+    const github = await fs.promises.readFile(path.resolve(`../data/help/${slug}.md`));
     return github.toString();
     /*if(process.env.NODE_ENV === 'development') {
       console.log(slug)
@@ -48,7 +48,7 @@ type PaymentCode = BANK_CODES | 'EWALLET' | 'QRIS' | 'COD'
 type IIndex = {title: string,link: string,key: PaymentCode}
 
 async function getIndex() {
-  const file = await fs.promises.readFile(path.resolve('./data/help/payment/index.json'));
+  const file = await fs.promises.readFile(path.resolve('../data/help/payment/index.json'));
   const index = Buffer.from(file).toString();
   const json = JSON.parse(index) as IIndex[];
   return json;
@@ -76,9 +76,9 @@ type StaticPathsResult = {
 }
 
 export async function getStaticPaths() {
-  const dir = await getDir('./data/help/payment/**/*.md');
-  const id = dir.map(s=>({locale:'id',params:{slug:s.replace('.md','').replace('./data/help/payment/','').split("/")}})) as StaticPathsResult[];
-  const en = dir.map(s=>({locale:'en',params:{slug:s.replace('.md','').replace('./data/help/payment/','').split("/")}})) as StaticPathsResult[];
+  const dir = await getDir('../data/help/payment/**/*.md');
+  const id = dir.map(s=>({locale:'id',params:{slug:s.replace('.md','').replace('../data/help/payment/','').split("/")}})) as StaticPathsResult[];
+  const en = dir.map(s=>({locale:'en',params:{slug:s.replace('.md','').replace('../data/help/payment/','').split("/")}})) as StaticPathsResult[];
   const paths = id.concat(en);
   paths.push({locale:'id',params:{slug:undefined}},{locale:'en',params:{slug:undefined}})
 

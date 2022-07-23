@@ -1,6 +1,7 @@
 import type { Strapi } from "@strapi/strapi";
 import type { Context } from "koa";
 import type { Outlet } from "../../../../../types/Outlet";
+import { getDayJs } from "../../../../../utils/Main";
 import { sanitisizedPopulate } from "../../../../utils/ctx";
 import { PaymentError } from "../../../../utils/payment";
 import getFilter from "./get-filter";
@@ -28,7 +29,13 @@ export async function getKitchenTransaction(strapi: Strapi,ctx: Context) {
               $eq: outlet?.id||''
             }
           }
-        },
+        },{
+          items:{
+            done:{
+              $eq: false
+            }
+          }
+        }
       ]
     },
     orderBy:{datetime:'desc'},
@@ -71,14 +78,29 @@ export async function updateTransactionKitchen(strapi: Strapi,ctx: Context) {
     }
   }
 
-  if(items_arr.length > 0) {
-    if(typeof items_arr[0]?.id !== 'number') return ctx.badRequest('Invalid items.id parameters');
-    if(typeof items_arr[0]?.done !== 'boolean') return ctx.badRequest('Invalid items.done parameters');
+  if(items_arr.length < 1) return ctx.badRequest('Items less than 1');
 
-    await Promise.all(items_arr.map(async(item)=>strapi.entityService.update('api::transaction-item.transaction-item',item.id,{filters,data:{done:!!item.done}})));
-  }
+  const check = await strapi.entityService.findOne('api::transaction.transaction',id,{
+    filters:{
+      outlet:{
+        id:{
+          $eq: outlet.id
+        }
+      }
+    }
+  })
+  if(!check) return ctx.notFound();
 
-  const tr = await strapi.entityService.findOne('api::transaction.transaction',id,{
+  const now = getDayJs();
+  if(typeof items_arr[0]?.id !== 'number') return ctx.badRequest('Invalid items.id parameters');
+  if(typeof items_arr[0]?.done !== 'boolean') return ctx.badRequest('Invalid items.done parameters');
+  
+  await Promise.all(items_arr.map(async(item)=>{
+    await strapi.entityService.update('api::transaction-item.transaction-item',item.id,{filters,data:{done:!!item.done}})
+  }));
+
+  const tr = await strapi.entityService.update('api::transaction.transaction',id,{
+    data:{updated:now.toDate()},
     filters:{
       outlet:{
         id:{
@@ -90,9 +112,10 @@ export async function updateTransactionKitchen(strapi: Strapi,ctx: Context) {
       items:"*"
     }
   })
-  if(!tr) return ctx.notFound();
+
+  const dt = strapi.service('api::transaction.transaction').parseUser(tr);
   
-  strapi.$io.raw('toko transactions',tr,{room:`outlet::${outlet?.toko?.id}::${outlet.id}`})
+  strapi.$io.raw('toko transactions items',dt,{room:`outlet::${outlet?.toko?.id}::${outlet.id}`})
 
   return tr;
 }

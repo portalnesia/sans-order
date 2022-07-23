@@ -37,7 +37,8 @@ const Browser = dynamic(()=>import('@comp/Browser'),{ssr:false})
 
 export const getServerSideProps = wrapper({name:'check_outlet',outlet:{onlyMyToko:true,onlyAccess:['Product']},translation:'dash_product'})
 
-type IInputProduct = Nullable<Without<Product,'id'|'outlet'|'metadata'|'recipes'>> & ({recipes: {item: number,consume: number}[] | null})
+type IRecipes = {item: Ingredient,consume: number}
+type IInputProduct = Nullable<Without<Product,'id'|'outlet'|'metadata'|'recipes'>> & ({recipes: IRecipes[] | null})
 
 interface FormProps {
   input: IInputProduct,
@@ -54,13 +55,14 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
   const {t} = useTranslation('dash_product');
   const {t:tMenu} = useTranslation('menu');
   const {t:tCom} = useTranslation('common');
-  const [edit,setEdit] = React.useState<{item: number, consume: number} | null>(null);
+  const [edit,setEdit] = React.useState<{item: Ingredient|null, consume: number} | null>(null);
+  const [dEdit,setDEdit] = React.useState(false)
   const [openAutocomplete,setOpenAutocomplete] = React.useState(false)
   const setNotif = useNotif();
 
   const handleChange=React.useCallback((name: keyof IInputProduct)=>(e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement> | string)=>{
     const val = typeof e === 'string' ? e : e?.target?.value;
-    const isNum = ['price','disscount','stock','stock_per_items','hpp'].includes(name);
+    const isNum = ['price','discount','stock','stock_per_items','hpp'].includes(name);
     const isNull = ['description','category','unit'].includes(name)
     if(isNum||isNull) {
       const value = val?.length > 0 ? (isNum ? Number(val) : val) : null;
@@ -74,7 +76,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
     if(reason==='input') return handleAutocompleteInputChange(e,value,reason);
     else if(reason==='clear') {
       if(edit) {
-        setEdit({...edit,item:0})
+        setEdit({...edit,item:null})
       }
     }
   },[handleAutocompleteInputChange,edit])
@@ -85,7 +87,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
 
   const handleAutocomplete=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: Ingredient | null,reason: AutocompleteChangeReason)=>{
     if(value) {
-      setEdit({consume:(edit?.consume||0),item:value.id})
+      setEdit({consume:(edit?.consume||0),item:value})
     }
   },[edit])
 
@@ -93,53 +95,34 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
     if(e?.preventDefault) e.preventDefault();
     if(e?.stopPropagation) e?.stopPropagation();
     if(edit === null) return setNotif("Invalid stock",true);
-    if(edit.item === 0) return setNotif("Invalid stock",true);
+    if(edit.item === null) return setNotif("Invalid stock",true);
     if(edit.consume === 0) return setNotif("Invalid stock consume",true);
 
     const recipes = input.recipes||[];
-    const i = recipes.findIndex(s=>s.item === edit.item);
+    const i = recipes.findIndex(s=>s.item?.id === edit.item?.id);
     if(i >= 0) {
-      recipes[i] = edit;
+      recipes[i] = edit as IRecipes;
     } else {
-      recipes.push(edit)
+      recipes.push(edit as IRecipes)
     }
     setInput({...input,recipes})
     setEdit(null);
+    setDEdit(false)
   },[edit,input])
 
-  const handleDeleteStocks = React.useCallback((item: Ingredient)=>()=>{
+  const handleDeleteStocks = React.useCallback((item: IRecipes)=>()=>{
     const recipes = input.recipes||[];
-    const i = recipes.findIndex(s=>s.item === item.id);
+    const i = recipes.findIndex(s=>s.item?.id === item.item?.id);
     if(i >= 0) {
       recipes.splice(i,1);
       setInput({...input,recipes})
     }
   },[input])
 
-  const handleEditStock = React.useCallback((item: Ingredient & ({consume: number}))=>()=>{
-    setEdit({item: item.id,consume: item.consume})
+  const handleEditStock = React.useCallback((item: IRecipes)=>()=>{
+    setEdit({item: item.item,consume: item.consume})
+    setDEdit(true)
   },[])
-
-  const valueAutoComplete = React.useMemo(()=>{
-    let val = null;
-    if(edit) {
-      const a = ingOptions.find(s=>s.id === edit.item)
-      if(a) val = a;
-    }
-    return val;
-  },[ingOptions,edit])
-
-  const ing_arr = React.useMemo(()=>{
-    if(input.recipes) {
-      let arr: (Ingredient & {consume: number})[]=[];
-      for(const stock of input.recipes) {
-        const s = ingOptions.find(s=>s.id === stock.item);
-        if(s) arr.push({...s,consume:stock.consume});
-      }
-      return arr;
-    }
-    return null;
-  },[input,ingOptions])
 
   return (
     <>
@@ -191,7 +174,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
           onChange={handleChange('price')}
           required
           fullWidth
-          helperText={`IDR ${numberFormat(`${input.price||0}`)}`}
+          helperText={`Rp${numberFormat(`${input.price||0}`)}`}
           type='number'
           inputProps={{min:0}}
           disabled={loading}
@@ -205,7 +188,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
           onChange={handleChange('hpp')}
           required
           fullWidth
-          helperText={`IDR ${numberFormat(`${input.hpp||0}`)}`}
+          helperText={`Rp${numberFormat(`${input.hpp||0}`)}`}
           type='number'
           inputProps={{min:0}}
           disabled={loading}
@@ -215,7 +198,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
       <Grid item xs={12}>
         <div className='flex-header'>
           <FormLabel>{tMenu('recipes')}</FormLabel>
-          <Button disabled={loading} size='small' color='inherit' onClick={()=>setEdit({item:0,consume:0})}>{tCom("add_ctx",{what:tMenu("ingredient")})}</Button>
+          <Button disabled={loading} size='small' color='inherit' onClick={()=>setDEdit(true)}>{tCom("add_ctx",{what:tMenu("ingredient")})}</Button>
         </div>
         
         <Scrollbar>
@@ -228,10 +211,10 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
               </TableRow>
             </TableHead>
             <TableBody>
-              {ing_arr && ing_arr.length > 0 ? ing_arr.map(s=>(
-                <TableRow key={`table-stock-${s.id}`}>
-                  <TableCell align="left">{s.name}</TableCell>
-                  <TableCell>{`${s.consume} ${s.unit}`}</TableCell>
+              {input?.recipes && input?.recipes.length > 0 ? input?.recipes.map(s=>(
+                <TableRow key={`table-stock-${s.item?.id}`}>
+                  <TableCell align="left">{s.item?.name}</TableCell>
+                  <TableCell>{`${s.consume} ${s.item?.unit}`}</TableCell>
                   <TableCell align='right'>
                     <Stack direction='row' spacing={2}>
                       <IconButton sx={{mr:1}} onClick={handleEditStock(s)}>
@@ -274,14 +257,14 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
     </Grid>
 
     <Portal>
-      <Dialog maxWidth='sm' open={edit !== null} handleClose={()=>setEdit(null)}>
+      <Dialog maxWidth='sm' open={dEdit} handleClose={()=>{setDEdit(false),setEdit(null)}}>
         <form onSubmit={handleAddStocks}>
-          <DialogTitle>{tCom("add_ctx",{what:tMenu("stock")})}</DialogTitle>
+          <DialogTitle>{tMenu("stock")}</DialogTitle>
           <DialogContent dividers>
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <Autocomplete
-                  value={valueAutoComplete}
+                  value={edit?.item}
                   clearOnBlur
                   clearOnEscape
                   onChange={handleAutocomplete}
@@ -311,12 +294,12 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
                     id='ingredient-consume'
                     type='number'
                     value={edit?.consume||0}
-                    onChange={(e)=>setEdit({item:edit?.item||0,consume:Number.parseFloat(e.target.value)})}
+                    onChange={(e)=>setEdit({item:edit?.item||null,consume:Number.parseFloat(e.target.value)})}
                     placeholder='5'
                     inputProps={{min:0,step:'any'}}
-                    endAdornment={ valueAutoComplete ?
+                    endAdornment={ edit?.item ?
                       <InputAdornment position='end'>
-                        <Typography>{valueAutoComplete?.unit}</Typography>
+                        <Typography>{edit?.item?.unit}</Typography>
                       </InputAdornment>
                       : undefined
                     }
@@ -326,7 +309,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
             </Grid>
           </DialogContent>
           <DialogActions>
-            <Button text color='inherit' disabled={loading} onClick={()=>setEdit(null)}>{tCom("cancel")}</Button>
+            <Button text color='inherit' disabled={loading} onClick={()=>{setDEdit(false),setEdit(null)}}>{tCom("cancel")}</Button>
             <Button icon='add' type='submit'>{tCom("add")}</Button>
           </DialogActions>
         </form>
@@ -344,6 +327,7 @@ interface UserMenu {
 }
 
 function UserMenu({onEdit,onDelete,editDisabled,allDisabled}: UserMenu) {
+  const {t:tCom} = useTranslation('common');
   const ref=React.useRef(null);
   const [open,setOpen] = React.useState(false);
 
@@ -370,7 +354,7 @@ function UserMenu({onEdit,onDelete,editDisabled,allDisabled}: UserMenu) {
           <ListItemIcon>
             <Iconify icon="eva:trash-2-outline" width={24} height={24} />
           </ListItemIcon>
-          <ListItemText primary="Delete" primaryTypographyProps={{ variant: 'body2' }} />
+          <ListItemText primary={tCom("del")} primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
       </MenuPopover>
     </>
@@ -453,11 +437,8 @@ export default function OutletProducts({meta}: IPages<Outlet>) {
 
   const buttonEdit=React.useCallback((d: Product)=>()=>{
     const {id:_,outlet:__,metadata:_m,recipes:r,...rest} = d;
-    const recipes = r.map(r=>({
-      item:(r?.item?.id||0),
-      consume:r.consume
-    }))
-    setInput({...rest,recipes});
+    const recipes = r.map(r=>({item:r.item as Ingredient,consume:r.consume}))
+    setInput({recipes,...rest});
     setDEdit(d);
   },[])
 
@@ -465,7 +446,12 @@ export default function OutletProducts({meta}: IPages<Outlet>) {
     if(e?.preventDefault) e.preventDefault();
     setLoading(true);
     try {
-      await post(`/products/${outlet_id}`,{...input,image:input?.image?.id});
+      const data = {
+        ...input,
+        recipes:input?.recipes ? input?.recipes?.map(p=>({...p,item:p.item.id})) : [],
+        image: input?.image ? input?.image?.id : null
+      }
+      await post(`/products/${outlet_id}`,data);
       mutate();
       setNotif(tCom("saved"),false)
       setDCreate(false)
@@ -480,7 +466,12 @@ export default function OutletProducts({meta}: IPages<Outlet>) {
     if(e?.preventDefault) e.preventDefault();
     setLoading(true);
     try {
-      await put(`/products/${outlet_id}/${dEdit?.id}`,{...input,image:input?.image?.id});
+      const data = {
+        ...input,
+        recipes:input?.recipes ? input?.recipes?.map(p=>({...p,item:p.item.id})) : [],
+        image: input?.image ? input?.image?.id : null
+      }
+      await put(`/products/${outlet_id}/${dEdit?.id}`,data);
       mutate();
       setNotif(tCom("saved"),false)
       setDEdit(null)
@@ -489,7 +480,7 @@ export default function OutletProducts({meta}: IPages<Outlet>) {
     } finally {
       setLoading(false);
     }
-  },[dEdit,input,setNotif,put,outlet_id,mutate])
+  },[dEdit,input,setNotif,put,outlet_id,mutate,tCom])
 
   const handleDelete=React.useCallback(async()=>{
     if(typeof dDelete !== 'boolean' && dDelete && 'id' in dDelete) {
@@ -511,22 +502,19 @@ export default function OutletProducts({meta}: IPages<Outlet>) {
     if(typeof dDelete === 'boolean') {
       setLoading(true);
       try {
-        const filters = selected.map(s=>({
-          id:{
-            $eq:s.id
-          }
-        }));
+        const filters = selected.map(s=>s.id);
         await post(`/products/${outlet_id}/bulk-delete`,{filters});
         mutate();
-        setNotif(tCom("General.deleted"),false)
+        setNotif(tCom("deleted"),false)
         setDDelete(null)
+        setSelected([]);
       } catch(e: any) {
         setNotif(e?.error?.message||tCom("error_500"),true);
       } finally {
         setLoading(false);
       }
     }
-  },[selected,post,setNotif,outlet_id,mutate,tCom])
+  },[selected,post,setNotif,outlet_id,mutate,tCom,dDelete])
 
   const handleAutocompleteInputChange=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: string,reason: AutocompleteInputChangeReason)=>{
     if(reason==='input') {
@@ -643,8 +631,8 @@ export default function OutletProducts({meta}: IPages<Outlet>) {
                           />
                         </TableCell>
                         <TableCell>{d?.name}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}}>{`IDR ${numberFormat(`${d.price}`)}`}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}}>{`IDR ${numberFormat(`${d.hpp}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}}>{`Rp${numberFormat(`${d.price}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}}>{`Rp${numberFormat(`${d.hpp}`)}`}</TableCell>
                         <TableCell>
                           {d?.recipes?.map(s=>(
                             <Typography variant='body2' sx={{fontSize:13}} >{`${s?.item?.name||''}: ${s?.consume||''} ${s?.item?.unit||''}`}</Typography>
@@ -705,9 +693,9 @@ export default function OutletProducts({meta}: IPages<Outlet>) {
         <DialogActions>
           <Button disabled={loading} text color='inherit' onClick={()=>setDDelete(null)}>{tCom("cancel")}</Button>
           {typeof dDelete === 'boolean' ? (
-            <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDeleteAll}>{tCom("delete")}</Button>
+            <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDeleteAll}>{tCom("del")}</Button>
           ) : (
-            <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{tCom("delete")}</Button>
+            <Button disabled={loading} loading={loading} icon='delete' color='error' onClick={handleDelete}>{tCom("del")}</Button>
           )}
         </DialogActions>
       </Dialog>

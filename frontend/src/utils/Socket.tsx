@@ -12,22 +12,30 @@ export default function useSocket() {
   const {appToken,socket} = useSelector<Pick<State,'appToken'|'socket'>>(s=>({appToken:s.appToken,socket:s.socket}));
 
   useEffect(()=>{
+    function onConnection() {
+      loading=false;
+    }
+    function onDisconnect() {
+      loading=false;
+    }
     async function getSocket() {
       if(!socket && typeof window !== 'undefined' && !loading && appToken) {
         loading=true;
         try {
           const token = portalnesia.getToken()?.jwt;
-          const socket = io(process.env.NEXT_PUBLIC_API_URL as string,{transports: ['websocket'],auth:{token}});
-          dispatch({type:"CUSTOM",payload:{socket}});
+          const sockets = io(process.env.NEXT_PUBLIC_API_URL as string,{transports: ['websocket'],auth:{token}});
+          sockets.once('connect',onConnection);
+          sockets.once('disconnect',onDisconnect);
 
-          loading=false;
+          dispatch({type:"CUSTOM",payload:{socket:sockets}});
         } catch {
-            
+          loading=false;
         }
       }
     }
+    
     getSocket();
-  },[appToken,dispatch])
+  },[appToken,dispatch,socket])
 
   return socket;
 }
@@ -38,8 +46,14 @@ export function Socket({dashboard=false,view,onRef}: {dashboard?:boolean,view?:s
   const socket = useSocket();
 
   useEffect(()=>{
-    if(typeof toko_id==='string' && typeof outlet_id==='string' && socket) {
-      socket.emit('outlet connection',{toko_id,outlet_id:Number(outlet_id),dashboard,view,debug:process.env.NEXT_PUBLIC_PN_ENV==='test'})
+    function onReconnect() {
+      if(typeof toko_id==='string' && typeof outlet_id==='string') socket?.emit('outlet connection',{toko_id,outlet_id:Number(outlet_id),dashboard,view,debug:process.env.NEXT_PUBLIC_PN_ENV==='test'})
+    }
+    socket?.on('reconnect',onReconnect)
+    socket?.on('connect',onReconnect)
+    return ()=>{
+      socket?.off('reconnect',onReconnect)
+      socket?.off('connect',onReconnect)
     }
   },[toko_id,outlet_id,socket,dashboard,view])
 
@@ -64,10 +78,15 @@ export function withSocket<P extends object>(Component: React.ComponentType<P>,d
     const dashboard = !!data?.dashboard;
 
     useEffect(()=>{
-      
-      if(typeof toko_id==='string' && typeof outlet_id==='string' && socket) {
-        const input = {toko_id,outlet_id:Number(outlet_id),dashboard,view:data?.view,debug:process.env.NEXT_PUBLIC_PN_ENV==='test'};
-        socket.emit('outlet connection',input)
+      function onReconnect() {
+        if(typeof toko_id==='string' && typeof outlet_id==='string') socket?.emit('outlet connection',{toko_id,outlet_id:Number(outlet_id),dashboard,view:data?.view,debug:process.env.NEXT_PUBLIC_PN_ENV==='test'})
+      }
+      socket?.on('reconnect',onReconnect)
+      socket?.on('connect',onReconnect)
+
+      return ()=>{
+        socket?.off('reconnect',onReconnect)
+        socket?.off('connect',onReconnect)
       }
     },[toko_id,outlet_id,socket,dashboard,data])
 

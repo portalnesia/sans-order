@@ -62,17 +62,17 @@ export default function Cart({table_number,enabled}: {table_number?:string,enabl
   const [open,setOpen] = React.useState(false);
   const [pay,setPay] = React.useState(false);
 
-  const {total,subtotal,disscount} = React.useMemo(()=>{
-    const {price,disscount} = cart.reduce((p,n)=>{
+  const {total,subtotal,discount} = React.useMemo(()=>{
+    const {price,discount} = cart.reduce((p,n)=>{
       const price = n.price * n.qty;
-      const disscount = n.disscount * n.qty;
+      const discount = n.discount * n.qty;
       p.price = p.price + price;
-      p.disscount = p.disscount + disscount;
+      p.discount = p.discount + discount;
       return p;
-    },{price:0,disscount:0})
+    },{price:0,discount:0})
 
-    const total = price - disscount
-    return {total,subtotal:price,disscount};
+    const total = price - discount
+    return {total,subtotal:price,discount};
   },[cart])
 
   const handlePayBtn = React.useCallback(()=>{
@@ -83,7 +83,7 @@ export default function Cart({table_number,enabled}: {table_number?:string,enabl
       items:cart.map(i=>({
         item_id: `${i.item.id}`,
         item_name: i.item.name,
-        discount: i.disscount,
+        discount: i.discount,
         price: i.price,
         quantity: i.qty
       }))
@@ -101,7 +101,7 @@ export default function Cart({table_number,enabled}: {table_number?:string,enabl
         items:cart.map(i=>({
           item_id: `${i.item.id}`,
           item_name: i.item.name,
-          discount: i.disscount,
+          discount: i.discount,
           price: i.price,
           quantity: i.qty
         }))
@@ -125,7 +125,8 @@ export default function Cart({table_number,enabled}: {table_number?:string,enabl
                 <ListItem>
                   <ListItemText primary={c.item.name} secondary={
                     <>
-                      <Typography>{`IDR ${numberFormat(`${(c.price*c.qty)-(c.disscount*c.qty)}`)}`}</Typography>
+                      <Typography>{`Rp${numberFormat(`${(c.price*c.qty)-(c.discount*c.qty)}`)}`}</Typography>
+                      {c.discount > 0 && <Typography variant='caption'>{`disc. Rp${numberFormat(`${(c.discount*c.qty)}`)}`}</Typography>}
                       {c?.notes && <Typography variant='caption'>{`${t('notes')}: ${c?.notes}`}</Typography>}
                     </>
                   } />
@@ -142,19 +143,19 @@ export default function Cart({table_number,enabled}: {table_number?:string,enabl
               <ListItem>
                 <ListItemText primary="Subtotal" />
                 <ListItemSecondaryAction>
-                  <Typography variant='body2'>{`IDR ${numberFormat(`${subtotal}`)}`}</Typography>
+                  <Typography variant='body2'>{`Rp${numberFormat(`${subtotal}`)}`}</Typography>
                 </ListItemSecondaryAction>
               </ListItem>
               <ListItem>
-                <ListItemText primary={t("disscount")} />
+                <ListItemText primary={t("discount")} />
                 <ListItemSecondaryAction>
-                  <Typography variant='body2'>{`IDR ${numberFormat(`${disscount}`)}`}</Typography>
+                  <Typography variant='body2'>{`Rp${numberFormat(`${discount}`)}`}</Typography>
                 </ListItemSecondaryAction>
               </ListItem>
               <ListItem>
                 <ListItemText primary="Total" />
                 <ListItemSecondaryAction>
-                  <Typography variant='body2'>{`IDR ${numberFormat(`${total}`)}`}</Typography>
+                  <Typography variant='body2'>{`Rp${numberFormat(`${total}`)}`}</Typography>
                 </ListItemSecondaryAction>
               </ListItem>
             </List>

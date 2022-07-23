@@ -82,7 +82,7 @@
       "required": true,
       "min": 0
     },
-    "disscount": {
+    "discount": {
       "type": "float",
       "min": 0,
       "required": true,

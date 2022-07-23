@@ -21,7 +21,7 @@ import Button from '@comp/Button';
 import CartContext from '@redux/cart'
 import Cart from '@comp/Cart';
 import SessionStorage from '@utils/session-storage';
-import { ISocket, withSocket } from '@utils/Socket';
+import { ISocket, Socket } from '@utils/Socket';
 
 export const getServerSideProps = wrapper(async({checkOutlet,params,redirect})=>{
   const slug = params?.slug;
@@ -45,7 +45,7 @@ function Carousel({data,enabled}: CarouselProps) {
       <Stack mb={4} direction='row' justifyContent={'space-between'} alignItems='center' spacing={2} sx={{pb:1,mb:4,borderBottom:(theme)=>`1px solid ${theme.palette.divider}`}}>
         <Typography variant='h3' component='h3'>{data.category}</Typography>
         {!slug && data.data.length >= 5 && (
-          <Button size='small' onClick={()=>router.push(`/merchant/[toko_id]/[outlet_id]/[[...slug]]`,`/merchant/${toko_id}/${outlet_id}/${data.category.toLowerCase()}`,{shallow:true})}>{t("view_more")}</Button>
+          <Button size='small' onClick={()=>router.push(`/merchant/[toko_id]/[outlet_id]/[[...slug]]`,`/merchant/${toko_id}/${outlet_id}/${encodeURIComponent(data.category)}`,{shallow:true})}>{t("view_more")}</Button>
         )}
       </Stack>
       <Box>
@@ -98,14 +98,15 @@ function GridData({data,page,setPage,count,onBack,enabled}: GridDataProps) {
   )
 }
 
-function MerchantOutlet({meta,socket}: IPages<Outlet>  & ({socket:ISocket|null})) {
+function MerchantOutlet({meta}: IPages<Outlet>) {
 	const router = useRouter();
   const {t} = useTranslation('catalogue')
 	const {toko_id,outlet_id,slug,table_number} = router.query;
   const locale = router.locale;
   const [page,setPage] = usePagination(true);
-  const {data,error} = useSWR<ProductMenu,true>(typeof slug?.[0] === 'undefined' ? `/products/${outlet_id}/menu` : `/products/${outlet_id}/menu/${slug?.[0]?.toLowerCase()}?page=${page}&pageSize=25`)
+  const {data,error} = useSWR<ProductMenu,true>(typeof slug?.[0] === 'undefined' ? `/products/${outlet_id}/menu?page=1&pageSize=5` : `/products/${outlet_id}/menu/${encodeURIComponent(slug?.[0])}?page=${page}&pageSize=25`)
   const [table,setTable] = React.useState<string|undefined>();
+  const [socket,setSocket]=React.useState<ISocket>();
   const [openSocket,setOpenSocket] = React.useState(false);
   let sudah = React.useRef(false);
 
@@ -147,32 +148,36 @@ function MerchantOutlet({meta,socket}: IPages<Outlet>  & ({socket:ISocket|null})
   },[slug])
 
   React.useEffect(()=>{
-    function handleOpened(outlet?: Outlet) {
+    function handleOpened(outlet?: Outlet|any) {
+      if(outlet === true) setOpenSocket(false);
       if(outlet?.id === Number(outlet_id)) setOpenSocket(true)
     }
-    function handleClosed(outlet?: Outlet) {
+    function handleClosed(outlet?: Outlet|any) {
+      if(outlet === true) setOpenSocket(false);
       if(outlet?.id === Number(outlet_id)) setOpenSocket(false);
     }
     function handleRegistered({opened}: {opened?: any}) {
       setOpenSocket(!!opened)
     }
     
-    socket?.on('toko registered',handleRegistered)
+    socket?.on('outlet registered',handleRegistered)
     socket?.on('toko open',handleOpened);
     socket?.on('toko closed',handleClosed);
-
+    socket?.on('disconnect',()=>handleClosed(true));
     return ()=>{
-      socket?.off('toko registered',handleRegistered)
+      socket?.off('outlet registered',handleRegistered)
       socket?.off('toko open',handleOpened);
       socket?.off('toko closed',handleClosed);
+      socket?.off('disconnect',()=>handleClosed(true));
     }
   },[socket,outlet_id])
 
   return (
     <Header title={meta?.data?.name} desc={meta?.data?.description} image={meta?.data?.toko?.logo?.url}>
       <CartContext>
+        <Socket dashboard={false} view={'outlet menu'} onRef={setSocket} />
         <Dashboard withDashboard={false} withNavbar={false} logoProps={{href:!meta?.data ? false : `merchant/${meta?.data?.toko?.slug}/${meta?.data.id}`}}
-        whatsappWidget={{enabled:false}} >
+        whatsappWidget={{enabled:false}}>
           <Container maxWidth='lg' sx={{mt:2}}>
             <Box textAlign='center' mb={4}>
               {meta?.data?.toko?.logo?.url && <Box mb={2} display='flex' justifyContent={'center'}><Image src={meta?.data?.toko?.logo?.url} style={{maxHeight:300}} fancybox /></Box>}
@@ -213,7 +218,7 @@ function MerchantOutlet({meta,socket}: IPages<Outlet>  & ({socket:ISocket|null})
                 </Box>
               ) : typeof slug?.[0] === 'undefined' ? data?.data.map((d,i)=>(
                 <Carousel enabled={isEnabled.enabled} key={d.category} data={d} />
-              )) : typeof slug?.[0] === 'undefined' && data?.data ? (
+              )) : typeof slug?.[0] !== 'undefined' && data?.data ? (
                 <GridData enabled={isEnabled.enabled} data={data?.data[0]} page={page} setPage={setPage} count={data?.meta?.pagination?.pageCount||0} onBack={onBack} />
               ) : null}
             </Box>
@@ -225,5 +230,4 @@ function MerchantOutlet({meta,socket}: IPages<Outlet>  & ({socket:ISocket|null})
   )
 }
 
-const MerchantOutletSocket = withSocket(MerchantOutlet,{dashboard:false,view:'outlet menu'});
-export default MerchantOutletSocket;
+export default MerchantOutlet;

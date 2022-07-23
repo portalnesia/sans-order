@@ -17,10 +17,11 @@ import { Markdown,usePageContent } from '@comp/Parser';
 import { useRouter } from 'next/router';
 import useTableContent,{HtmlLgDown,HtmlLgUp} from '@comp/TableContent'
 import Sidebar from '@comp/Sidebar'
+import path from 'path';
 
 async function getData(slug: string) {
   try {
-    const github = await fs.promises.readFile(`../data/pages/${slug}.md`);
+    const github = await fs.promises.readFile(path.resolve(`../data/pages/${slug}.md`));
     return github.toString();
     /*if(process.env.NODE_ENV === 'development') {
       const github = await fs.promises.readFile(`./data/pages/${slug}.md`);
@@ -31,7 +32,7 @@ async function getData(slug: string) {
       const r = await axios.get<string>(github);
       return r?.data||undefined;
     }*/
-  } catch {
+  } catch(err) {
     return undefined;
   }
 }
@@ -50,13 +51,13 @@ type IPages = {
 }
 
 export async function getStaticPaths() {
-  const dir = await getDir('./data/pages/*.md');
-  const id = dir.map(s=>({locale:'id',params:{slug:s.replace('.md','').replace('./data/pages/','')}}));
-  const en = dir.map(s=>({locale:'en',params:{slug:s.replace('.md','').replace('./data/pages/','')}}));
+  const dir = await getDir('../data/pages/*.md');
+  const id = dir.map(s=>({locale:'id',params:{slug:s.replace('.md','').replace('../data/pages/','')}}));
+  const en = dir.map(s=>({locale:'en',params:{slug:s.replace('.md','').replace('../data/pages/','')}}));
   const paths = id.concat(en);
   return {
     paths,
-    fallback:false
+    fallback:true
   }
 }
 

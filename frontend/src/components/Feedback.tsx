@@ -7,8 +7,10 @@ import {ArrowBack,Close} from '@mui/icons-material'
 import {IconButton} from '@mui/material'
 import {connect} from 'react-redux'
 import {version} from '@root/src/version'
-import { State,PortalnesiaUser } from '@redux/index';
+import { State,PortalnesiaUser, ActionType } from '@redux/index';
 import { Without } from '@type/index';
+import { Dispatch } from 'redux';
+import { TFunction,Trans } from 'react-i18next';
 
 const funcs = {
   support_canvas: () => {
@@ -138,7 +140,7 @@ export const defaultSysInfo={
   support_geolocation: false,
   plugins: '' as any,
   version:'' as any,
-  Accounts: undefined as Pick<PortalnesiaUser,'name'|'username'|'email'>|null|undefined
+  Accounts: undefined as Pick<PortalnesiaUser,'name'|'username'|'email'|'id'>|null|undefined
 }
 
 type ISysInfo = typeof defaultSysInfo;
@@ -179,11 +181,13 @@ export const getSysInfo=(string?: boolean)=>{
 
 const hightLightEl = ['button','td','th','code','pre','blockquote','li', 'a', 'span','em','i', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'strong', 'small', 'sub', 'sup', 'b', 'time', 'img', 'video', 'input', 'label', 'select', 'textarea', 'article', 'summary', 'section'];
 
-const LegalComponent=({onclick}:{onclick?:React.MouseEventHandler<HTMLSpanElement>})=>{
+const LegalComponent=({onclick,t}: {onclick?: React.MouseEventHandler<HTMLSpanElement>,t: TFunction<'report',any>}) => {
   return (
-      <p style={{fontSize:12}}>
-          Some <span onClick={onclick} style={{fontSize:12,color:'#3986FF',cursor:'pointer'}}>system information</span> may be sent to Portalnesia. We will use the information that give us to help address technical issues and to improve our services.
-      </p>
+    <p style={{fontSize:12}}>
+      <Trans t={t} i18nKey='legal'>
+      Some <span onClick={onclick} style={{fontSize:12,color:'#3986FF',cursor:'pointer'}}>system information</span> may be sent to SansOrder. We will use the information that give us to help address technical issues and to improve our services.
+      </Trans>
+    </p>
   )
 }
 
@@ -193,30 +197,22 @@ export interface FeedbackProps {
   disabled?:boolean,
   loading?:boolean,
   proxy?:string,
-  loadingTip?:string
   required?:boolean,
   rating?: string,
   onSend?(data: IData): void,
   onCancel?(): void,
   title?: string
   placeholder?:string,
-  checkboxLabel?: string,
-  cancelLabel?: string
-  confirmLabel?: string,
-  hightlightTip?: string,
-  hideTip?: string,
-  editDoneLabel?: string,
-  license?: string,
-  editTip?: string,
-  requiredTip?: string
+  license?: React.ReactNode,
+  t: TFunction<"report", any>
 }
 
 interface FeedbackClassProps {  
   enqueueSnackbar(message: SnackbarMessage, options?: OptionsObject | undefined): SnackbarKey
   closeSnackbar(key?: SnackbarKey | undefined): void,
   theme?: any
-  user: Pick<PortalnesiaUser,'name'|'username'|'email'>|null,
-  dispatch: any
+  user: Pick<PortalnesiaUser,'name'|'username'|'email'|'id'>|null,
+  dispatch: Dispatch<ActionType>
 }
 
 interface FeedbackState {
@@ -248,19 +244,24 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
   dragRect: boolean
   startX: number
   startY: number
-  shadowCanvas?: any
-  canvas?: any
-  hightlight?: any
-  black?: any
+  shadowCanvas = React.createRef<HTMLCanvasElement>()
+  canvas = React.createRef<HTMLCanvasElement>()
+  hightlight = React.createRef<HTMLDivElement>()
+  black = React.createRef<HTMLDivElement>()
   hasHelper=false;
-  sctx?: any
-  toolBar?: any
-  screenshotPrev?: any
-  textarea?: any
+  sctx: CanvasRenderingContext2D|null=null
+  toolBar = React.createRef<HTMLDivElement>()
+  screenshotPrev = React.createRef<HTMLImageElement>()
+  textarea = React.createRef<HTMLTextAreaElement>()
   canvasMD=false
   timer?: NodeJS.Timeout
 
   constructor(props: FeedbackAllProps) {
+    props = {
+      ...props,
+      title: props.title||props.t('title_feedback'),
+      placeholder:props.placeholder||props.t('placeholder'),
+    }
     super(props);
     this.state= {
       docWidth: document.body.clientWidth,
@@ -287,19 +288,11 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
     this.dragRect = false;
     this.startX = 0;
     this.startY = 0;
+    this.documentMouseMove = this.documentMouseMove.bind(this);
+    this.elementHelperClick = this.elementHelperClick.bind(this);
+    this.windowResize = this.windowResize.bind(this);
   }
   static defaultProps: Partial<FeedbackAllProps>={
-    title:'Send Feedback',
-    placeholder:'Please explain your problem or share your thoughts',
-    checkboxLabel:'Include screenshots',
-    loadingTip:'Loading screenshots...',
-    editTip:'Highlight or hide information',
-    cancelLabel:'Cancel',
-    confirmLabel:'Send',
-    hightlightTip:'Highlight the problem',
-    hideTip:'Hide sensitive information',
-    requiredTip:'Description must be added',
-    editDoneLabel:'Done',
     disabled:false,
     required : false,
     proxy:`${process.env.NEXT_PUBLIC_URL}/canvas-proxy`
@@ -318,9 +311,9 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
   }
   switchCanvasVisible(visible?: boolean) {
     if (visible) {
-      this.shadowCanvas?.current.removeAttribute('data-html2canvas-ignore');
+      this.shadowCanvas?.current?.removeAttribute('data-html2canvas-ignore');
     } else {
-      this.shadowCanvas?.current.setAttribute('data-html2canvas-ignore', 'true');
+      this.shadowCanvas?.current?.setAttribute('data-html2canvas-ignore', 'true');
     }
   }
 
@@ -328,7 +321,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
     let x = e.clientX,
         y = e.clientY;
     let el = document.elementsFromPoint(x, y)[3];
-    this.canvas.current.style.cursor = 'crosshair';
+    if(this.canvas?.current) this.canvas.current.style.cursor = 'crosshair';
     if (el && hightLightEl.indexOf(el.nodeName.toLocaleLowerCase()) > -1 || el && el?.classList.contains("MuiInputBase-root") || el && el?.classList.contains("MuiSelect-root") || el && el?.classList.contains("pn-sort")) {
         let rect = el.getBoundingClientRect();
         let rectInfo = {
@@ -346,7 +339,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
   elementHelper(e: any) {
     let rectInfo = this.inElement(e);
     if (rectInfo) {
-      this.canvas.current.style.cursor = 'pointer';
+      if(this.canvas?.current) this.canvas.current.style.cursor = 'pointer';
       this.drawElementHelper(rectInfo);
       this.hasHelper = true;
     } else {
@@ -393,7 +386,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
       this.drawHightlightBorder();
       this.drawHightlightArea();
       this.ctx.clearRect(info.sx, info.sy, info.width, info.height);
-      this.sctx.clearRect(info.sx, info.sy, info.width, info.height);
+      this.sctx?.clearRect(info.sx, info.sy, info.width, info.height);
     } else if (toolBarType == 'black') {
       this.drawHightlightBorder();
       this.drawHightlightArea();
@@ -421,7 +414,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
             this.ctx.stroke();
             this.drawHightlightArea();
             this.ctx.clearRect(clientX, clientY, width, height);
-            this.sctx.clearRect(clientX, clientY, width, height);
+            this.sctx?.clearRect(clientX, clientY, width, height);
         } else if (toolBarType == 'black') {
             this.drawHightlightArea();
             this.ctx.fillStyle = 'rgba(0,0,0,.4)';
@@ -483,28 +476,32 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
 
   initCanvas(init?: boolean) {
     this.calcHeight(false);
-    let canvas = this.canvas.current;
-    let shadowCanvas = this.shadowCanvas.current;
-    let docWidth = this.state.docWidth,
-        docHeight = this.state.docHeight;
-    if (!this.ctx) {
-        this.ctx = canvas.getContext('2d');
+    let canvas = this.canvas?.current;
+    if(canvas) {
+      let shadowCanvas = this.shadowCanvas.current;
+      if(shadowCanvas) {
+        let docWidth = this.state.docWidth,
+          docHeight = this.state.docHeight;
+        if (!this.ctx) {
+            this.ctx = canvas.getContext('2d');
+        }
+        if(!this.sctx) {
+            this.sctx = shadowCanvas.getContext('2d');
+        }
+        if(init) {
+            canvas.style.width = `${docWidth}px`;
+            canvas.style.height = `${docHeight}px`;
+            shadowCanvas.style.width = `${docWidth}px`;
+            shadowCanvas.style.height = `${docHeight}px`;
+        }
+        canvas.width = docWidth;
+        canvas.height = docHeight;
+        shadowCanvas.width = docWidth;
+        shadowCanvas.height = docHeight;
+        if(this.sctx) this.sctx.fillStyle = 'rgba(0,0,0,0.38)';
+        this.sctx?.fillRect(0, 0, docWidth, docHeight);
+      }
     }
-    if(!this.sctx) {
-        this.sctx = shadowCanvas.getContext('2d');
-    }
-    if(init) {
-        canvas.style.width = docWidth;
-        canvas.style.height = docHeight;
-        shadowCanvas.style.width = docWidth;
-        shadowCanvas.style.height = docHeight;
-    }
-    canvas.width = docWidth;
-    canvas.height = docHeight;
-    shadowCanvas.width = docWidth;
-    shadowCanvas.height = docHeight;
-    this.sctx.fillStyle = 'rgba(0,0,0,0.38)';
-    this.sctx.fillRect(0, 0, docWidth, docHeight);
   }
 
   drawHightlightBorder() {
@@ -520,7 +517,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
   drawHightlightArea() {
       let hightlightItem = this.state.hightlightItem;
       hightlightItem.map((data, k) => {
-        this.sctx.clearRect(data.sx, data.sy, data.width, data.height);
+        this.sctx?.clearRect(data.sx, data.sy, data.width, data.height);
         this.ctx.clearRect(data.sx, data.sy, data.width, data.height);
       });
   }
@@ -549,8 +546,8 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
       let toolBar = this.toolBar.current,
       windowWidth = window.innerWidth,
       windowHeight = window.innerHeight;
-      toolBar.style.left = `${windowWidth * 0.5}px`;
-      toolBar.style.top = `${windowHeight * 0.6}px`;
+      if(toolBar) toolBar.style.left = `${windowWidth * 0.5}px`;
+      if(toolBar) toolBar.style.top = `${windowHeight * 0.6}px`;
     });
   }
 
@@ -624,10 +621,10 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
     let newEY = e.clientY + window.scrollY;
     let oX = newEX - eX;
     let oY = newEY - eY;
-    let curL = parseFloat(toolBar.style.left);
-    let curT = parseFloat(toolBar.style.top);
-    toolBar.style.left = `${curL + oX}px`;
-    toolBar.style.top = `${curT + oY}px`;
+    let curL = parseFloat(toolBar?.style.left||'0');
+    let curT = parseFloat(toolBar?.style.top||'0');
+    if(toolBar) toolBar.style.left = `${curL + oX}px`;
+    if(toolBar) toolBar.style.top = `${curT + oY}px`;
     this.eX = newEX;
     this.eY = newEY;
   }
@@ -698,13 +695,15 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
         }
       }).then((canvas) => {
         let src = canvas.toDataURL('image/png');
-        this.screenshotPrev.current.src = src;
-        this.screenshotPrev.current.onload = () => {
-          this.setState({
-            screenshotEdit: true,
-          })
-        };
-        this.loadingState(false);
+        if(this.screenshotPrev.current) {
+          this.screenshotPrev.current.src = src;
+          this.screenshotPrev.current.onload = () => {
+            this.setState({
+              screenshotEdit: true,
+            })
+          };
+          this.loadingState(false);
+        }
       }).catch((e) => {
         this.setState({
           screenshotEdit: false,
@@ -745,7 +744,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
   send() {
     if(this.props.disabled) return;
     if(this.state.loading && this.state.shotOpen) {
-        this.props.enqueueSnackbar(this.props.loadingTip,{
+        this.props.enqueueSnackbar(this.props.t('loadingTip'),{
             variant:'error',
             action:(key)=>(
                 <IconButton
@@ -761,9 +760,9 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
     const text = this.state.text;
     if(this.props.required && text.length === 0) {
         this.setState({
-          textError: this.props.requiredTip||FeedbackClass.defaultProps.requiredTip||'',
+          textError: this.props.t('requiredTip'),
         });
-        this.textarea.current.focus();
+        this.textarea.current?.focus();
         return;
     }
     if(this.props.rating && this.state.feedbackVal===null) {
@@ -786,12 +785,13 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
         sysInfo: {...this.inputSysInfo,...this.sysInfo},
         text: text,
       };
-      if(this.state.shotOpen) {
+      if(this.state.shotOpen && this.screenshotPrev.current) {
         data.screenshot = this.screenshotPrev.current.src || '';
       }
       if(this.props.rating) {
         data.rating = this.state.feedbackVal
       }
+      console.log(data);
       this.props.onSend(data);
     }
   }
@@ -812,7 +812,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
     props = this.props;
     return(
       <div id="googleFeedback" style={{height: `${state.docHeight}px`}} onMouseMove={this.handleMouseMove.bind(this)} onMouseUp={this.handleMoveMouseUp.bind(this)}>
-        {isMobile ? (
+        {!isMobile ? (
           <div className="feedback-window">
             {!state.editMode ? <div className="dialog-mask"></div> : null }
             {!state.editMode ? (
@@ -892,7 +892,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
                               d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
                         </svg>
                       </div>
-                      <label>{`${props.checkboxLabel} (beta)`}</label>
+                      <label>{`${props.t('checkboxLabel')} (beta)`}</label>
                     </div>
                     {state.shotOpen ? (
                       <div className="screenshot-area">
@@ -914,7 +914,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
                                   }}></circle>
                               </svg>
                             </div>
-                            <span className="loading-text">{this.props.loadingTip}</span> 
+                            <span className="loading-text">{this.props.t('loadingTip')}</span> 
                           </div>
                         )}
                         <div className="screenshot">
@@ -927,17 +927,17 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
                                           d="M21 17h-2.58l2.51 2.56c-.18.69-.73 1.26-1.41 1.44L17 18.5V21h-2v-6h6v2zM19 7h2v2h-2V7zm2-2h-2V3.08c1.1 0 2 .92 2 1.92zm-6-2h2v2h-2V3zm4 8h2v2h-2v-2zM9 21H7v-2h2v2zM5 9H3V7h2v2zm0-5.92V5H3c0-1 1-1.92 2-1.92zM5 17H3v-2h2v2zM9 5H7V3h2v2zm4 0h-2V3h2v2zm0 16h-2v-2h2v2zm-8-8H3v-2h2v2zm0 8.08C3.9 21.08 3 20 3 19h2v2.08z"></path>
                                   </svg>
                               </div>
-                              <span className="edit-label">{props.editTip}</span>
+                              <span className="edit-label">{props.t('editTip')}</span>
                             </div>
                           )}
                           <img id="screenshotPrev" ref={this.screenshotPrev} src=""/>
                         </div>
                       </div>
                     ) : null}
-                    <div className="legal">{this.props.license || <LegalComponent onclick={this.showInformation.bind(this)} />}</div>
+                    <div className="legal">{this.props.license || <LegalComponent onclick={this.showInformation.bind(this)} t={props.t} />}</div>
                   </div>
                   <div className="actions">
-                    <div className={`flatbutton cancel${props.disabled ? ' disabled':''}`} style={{color: '#757575'}} onClick={this.cancel.bind(this)}>{props.cancelLabel}</div>
+                    <div className={`flatbutton cancel${props.disabled ? ' disabled':''}`} style={{color: '#757575'}} onClick={this.cancel.bind(this)}>{props.t('cancelLabel')}</div>
                     <div className={`flatbutton confirm${props.disabled ? ' disabled':''}`}
                       style={{color: this.props.theme || '#3986FF',position:'relative'}}
                       onClick={this.send.bind(this)}
@@ -951,7 +951,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
                           </svg>
                         </div>
                       )}
-                      {props.confirmLabel}
+                      {props.t('confirmLabel')}
                     </div>
                   </div>
                 </div>
@@ -970,7 +970,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
                 </div>
                 <div
                   className={`tool ${(this.state.toolBarType == 'hightlight') ? 'tool-active' : ''} hight-light`}
-                  data-label={props.hightlightTip}
+                  data-label={props.t('hightlightTip')}
                   onClick={() => {
                     this.setState({
                       toolBarType: 'hightlight',
@@ -1006,7 +1006,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
                   </span>
                 </div>
                 <div className={`tool ${(this.state.toolBarType == 'black') ? 'tool-active' : ''} hide`}
-                  data-label={props.hideTip}
+                  data-label={props.t('hideTip')}
                   onClick={() => {
                   this.setState({
                       toolBarType: 'black',
@@ -1043,7 +1043,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
                   </span>
                 </div>
                 <div className="button">
-                  <span className="flatbutton" draggable="false" onClick={this.editCancel.bind(this)}>{props.editDoneLabel}</span>
+                  <span className="flatbutton" draggable="false" onClick={this.editCancel.bind(this)}>{props.t('editDoneLabel')}</span>
                 </div>
               </div>
             )}
@@ -1171,7 +1171,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
                       <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
                     </svg>
                   </div>
-                  <label>{`${props.checkboxLabel} (beta)`}</label>
+                  <label>{`${props.t('checkboxLabel')} (beta)`}</label>
                 </div>
                 {state.shotOpen && (
                   <div className="screenshot-area">
@@ -1191,7 +1191,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
                 )}
               </div>
             </div>
-            <div className="legal">{this.props.license || <LegalComponent onclick={this.showInformation.bind(this)} />}</div>
+            <div className="legal">{this.props.license || <LegalComponent onclick={this.showInformation.bind(this)} t={props.t} />}</div>
           </div>
         )}
         <canvas ref={this.canvas} id="feedbackCanvas" data-html2canvas-ignore="true" onMouseDown={this.canvasMouseDown.bind(this)}></canvas>
@@ -1794,6 +1794,7 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
 
 const mapToProps=(state: State)=>({
   user:!state.user || state.user===null ? null : {
+      id:state.user.id,
       username:`@${state.user.username}`,
       name:state.user.name,
       email:state.user.email

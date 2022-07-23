@@ -17,33 +17,33 @@ export function getDayJs(date?: string | number | Date | dayjs.Dayjs,defaultNow=
   let dt = date;
   if(typeof date === 'undefined') return dayjs();
   if(typeof date === 'string') {
-      const parse = Number(date);
-      if(!Number.isNaN(parse)) {
-          if(parse.toString().length === 10 || parse.toString().length === 13) dt = parse;
-      }
+    const parse = Number(date);
+    if(!Number.isNaN(parse)) {
+      if(parse.toString().length === 10 || parse.toString().length === 13) dt = parse;
+    }
   }
   if(typeof dt === 'number' && dt.toString().length === 10) {
-      datetime = dayjs.unix(dt);
+    datetime = dayjs.unix(dt);
   } else {
-      datetime = dayjs(dt);
+    datetime = dayjs(dt);
   }
   if(!datetime.isValid()) {
-      if(defaultNow) return dayjs();
-      throw new Error('invalid date');
+    if(defaultNow) return dayjs();
+    throw new Error('invalid date');
   }
   return datetime;
 }
 
 export function staticUrl(path?: string) {
-  return process.env.CONTENT_URL + (path ? "/" + path : '');
+  return process.env.NEXT_PUBLIC_CONTENT_URL + (path ? "/" + path : '');
 }
 
 export function href(path?: string) {
   return process.env.NEXT_PUBLIC_URL + (path ? "/" + path : '');
 }
 
-export function photoUrl(path?: string|null) {
-  return (!path) ? staticUrl(`img/content?image=${encodeURIComponent("notfound.png")}`) : path; 
+export function photoUrl(path?: string|null,content: boolean = false) {
+  return (!path) ? staticUrl(`img/content?image=${encodeURIComponent("notfound.png")}&watermark=no`) : content ? staticUrl(path) : path; 
 }
 
 export function getDayList(t: TFunction) {
@@ -72,7 +72,7 @@ export function isOutletOpen(outlet?: Pick<Outlet,'business_hour'|'self_order'|'
     const day = daysArray[i];
     const now = outlet.business_hour.find(d=>d.day === day);
     if(now) {
-      const [hour1,hour2] = [now.from,now.to];
+      const [hour1,hour2] = [`1997-01-01 ${now.from}`,`1997-01-01 ${now.to}`];
       const h1 = getDayJs(hour1),h2 = getDayJs(hour2);
       if(isBetweenHour(h1,h2)) status.opened = true;
     }
@@ -191,4 +191,9 @@ export function sortBusinessHour(businessHour?: Outlet['business_hour']) {
     return bh;
   }
   return [] as Outlet['business_hour'];
+}
+
+export function toFixed(num: number) {
+  const fixed = num.toFixed(2).replace(/[.,]00$/,"");
+  return fixed.replace('.',',');
 }

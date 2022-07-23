@@ -2,7 +2,8 @@ export interface User {
   id: number;
   name: string
   username: string;
-  picture: string
+  picture: string;
+  admin: boolean;
   email: string;
   telephone?: string;
   provider: string;

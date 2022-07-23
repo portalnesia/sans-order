@@ -16,6 +16,9 @@ import { SSRConfig } from 'next-i18next';
 import { IUserAccess, Outlet, Toko, Transaction } from '@type/index';
 import portalnesia from '@utils/api';
 import qs from 'qs'
+import { issueJwt } from '@utils/jwt';
+import { StrapiAuthenticationResponse, StrapiResponse } from '@portalnesia/portalnesia-strapi';
+import { AxiosRequestConfig, Method } from 'axios';
 
 export const useDispatch = ()=>originalUseDispatch<Dispatch<ActionType>>()
 export const useSelector = <D=State>(selector: (state: State)=>D)=>originalUseSelector<State,D>(selector)
@@ -76,12 +79,14 @@ type CallbackParams<P> = GetServerSidePropsContext<ParsedUrlQuery,any> & ({store
     redirect(urlOrNotFound?:string): GetServerSidePropsResult<P>,
     checkToko(data?:IOutlet,translation?:string|string[]): Promise<GetServerSidePropsResult<P>>,
     checkOutlet(data?:IOutlet,translation?:string|string[]): Promise<GetServerSidePropsResult<P>>,
-    getTranslation(translation?: string|string[],locale?: string): Promise<SSRConfig>
+    getTranslation(translation?: string|string[],locale?: string): Promise<SSRConfig>,
+    token?: StrapiAuthenticationResponse,
+    request<D>(method: Method, url: string, opt?: AxiosRequestConfig): Promise<StrapiResponse<D, false, any>>
 })
 type Callback<P=IPages<any,false>> = (params: CallbackParams<P>)=>Promise<GetServerSidePropsResult<P>>
 
 async function getTranslation(translation?: string|string[],locale: string='en') {
-  const translations = translation ? ['menu','common'].concat(typeof translation === 'string' ? [translation] : translation) : ['menu','common'];
+  const translations = translation ? ['menu','common','report'].concat(typeof translation === 'string' ? [translation] : translation) : ['menu','common','report'];
   return await serverSideTranslations(locale,translations,nextI18nextConfig)
 }
 
@@ -89,9 +94,15 @@ export default function wrapper<P=IPages<any,false>>(callback?: Callback<P>|IQue
   // @ts-ignore
   return wrapperRoot.getServerSideProps((store)=>async(ctx)=>{
     const token = portalnesia.getToken(ctx.req.cookies?.[portalnesia.options.store.key]);
+    const fjwt = issueJwt({apps:'sansorder-web'});
+    const headers = {'x-backend-token':fjwt}
     let props: IPages<any,false> = {}
     try {
       const userid = token?.user?.id;
+
+      async function request<D>(method: Method,url: string,opt?: AxiosRequestConfig) {
+        return portalnesia.request<D>(method,url,{...opt,headers:{...headers,...opt?.headers,...(token?.jwt ? {Authorization: `Bearer ${token.jwt}`} : {})}});
+      }
       
       async function checkOutlet(dt: IOutlet = {},translation?:string|string[]): Promise<GetServerSidePropsResult<P>> {
         dt.notfound=dt.notfound||true;
@@ -100,7 +111,7 @@ export default function wrapper<P=IPages<any,false>>(callback?: Callback<P>|IQue
         const outlet_id = ctx.params?.outlet_id;
         if(typeof toko_id !== 'string' || typeof outlet_id !== 'string') return redirect<P>(!dt.notfound ? "/apps" : undefined);
 
-        const data = await portalnesia.request<Outlet>('get',`/outlets/${outlet_id}${dt.withWallet ? '?with_wallet=true':''}`);
+        const data = await request<Outlet>('get',`/outlets/${outlet_id}${dt.withWallet ? '?with_wallet=true':''}`);
         if(data.error) return redirect<P>(!dt.notfound ? "/apps" : undefined);
         const outlet = data.data;
         if(!outlet) return redirect<P>(!dt.notfound ? "/apps" : undefined);
@@ -115,7 +126,7 @@ export default function wrapper<P=IPages<any,false>>(callback?: Callback<P>|IQue
           if(!users) return redirect<P>(!dt.notfound ? "/apps" : undefined);
 
           if(dt.onlyAccess) {
-            const access = users.roles.map(d=>d.name);
+            const access = (users?.roles||[])?.map(d=>d?.name||'');
             if(!getUserAccess(access as IUserAccess[],dt.onlyAccess)) return redirect<P>(!dt.notfound ? "/apps" : undefined); 
           }
         }
@@ -133,7 +144,7 @@ export default function wrapper<P=IPages<any,false>>(callback?: Callback<P>|IQue
         const toko_id = ctx.params?.toko_id;
         if(typeof toko_id !== 'string') return redirect();
 
-        const data = await portalnesia.request<Toko>('get',`/tokos/${toko_id}`);
+        const data = await request<Toko>('get',`/tokos/${toko_id}`);
         if(data.error  || !data.data) return redirect<P>(!dt.notfound ? "/apps" : undefined);
         const toko = data.data;
 
@@ -154,7 +165,7 @@ export default function wrapper<P=IPages<any,false>>(callback?: Callback<P>|IQue
         const slug = ctx.params?.slug;
         if(typeof slug !== 'string') return redirect();
         
-        const data = await portalnesia.request<Transaction>('get',`/transactions/${slug}`);
+        const data = await request<Transaction>('get',`/transactions/${slug}`);
         if(!data.data || data.error) return redirect();
 
         return {
@@ -179,13 +190,18 @@ export default function wrapper<P=IPages<any,false>>(callback?: Callback<P>|IQue
         }
         return {props}
       }
-      const result = await callback({store,redirect:redirect,checkToko,checkOutlet,getTranslation,...ctx})
+      const result = await callback({store,redirect:redirect,checkToko,checkOutlet,getTranslation,token,request,...ctx})
       return result
     } catch(err: any) {
-      console.log(err)
+      if(process.env.NEXT_PUBLIC_PN_ENV !== 'production') console.log(err)
       if(ctx.res) {
-          ctx.res.statusCode=err?.error?.status||503;
+        if(err?.error?.status) {
+          ctx.res.statusCode=err?.error?.status;
+          if(err?.error?.status === 404) return redirect();
+        } else {
+          ctx.res.statusCode=503;
           ctx.res.setHeader('Retry-After',3600);
+        }
       }
       throw err;
     }

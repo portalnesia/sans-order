@@ -100,7 +100,7 @@ index 726b910..96ea888 100644
  
    update(params: any): Promise<any>;
 diff --git a/node_modules/@strapi/database/lib/query/query-builder.js b/node_modules/@strapi/database/lib/query/query-builder.js
-index 0d0bc1d..f778796 100644
+index 0d0bc1d..58dcb18 100644
 --- a/node_modules/@strapi/database/lib/query/query-builder.js
 +++ b/node_modules/@strapi/database/lib/query/query-builder.js
 @@ -12,6 +12,7 @@ const createQueryBuilder = (uid, db) => {
@@ -130,7 +130,7 @@ index 0d0bc1d..f778796 100644
  
      mustUseAlias() {
 -      return ['select', 'count'].includes(state.type);
-+      return ['select', 'count','sum','delete'].includes(state.type);
++      return ['select', 'count','sum'].includes(state.type);
      },
  
      aliasColumn(key, alias) {

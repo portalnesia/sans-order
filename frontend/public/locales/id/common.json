@@ -4,6 +4,7 @@
   "back":"Kembali",
   "error":"Kesalahan",
   "error_500":"Kesalahan",
+  "error_empty":"{{what}} tidak boleh kosong",
   "theme":{
     "theme":"Tema",
     "dark":"Tema Gelap",
@@ -41,10 +42,12 @@
   "update":"Perbarui",
   "notification":{
     "new":"Transaksi Baru",
-    "updated":"Anda mendapatkan transaksi baru #{{id}}",
-    "new_desc":"Transaksi Dibayarkan",
+    "updated":"Update transaksi #{{id}}",
+    "new_desc":"Anda mendapatkan transaksi tertunda baru",
     "updated_desc":"Transaksi #{{id}} sudah dibayar dengan metode pembayaran {{method}}"
   },
   "maintenance_subs":"Berlangganan secara online sedang dalam pemeliharaan. Silakan hubungi sales kami jika Anda ingin berlangganan paket",
-  "type":"Jenis"
+  "type":"Jenis",
+  "send":"Kirim",
+  "success":"Sukses"
 }

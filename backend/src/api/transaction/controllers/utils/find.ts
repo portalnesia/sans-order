@@ -16,8 +16,12 @@ export default async function find(strapi: Strapi,ctx: Context) {
     const {filters} = service.getFilteredTransaction(filter)
     const populate = sanitisizedPopulate(ctx);
     populate.user = '*'
+    populate.cashier = '*'
     populate.items = {
       populate:'item'
+    }
+    populate.toko = {
+      populate:'user'
     }
 
     ctx.query = {

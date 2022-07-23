@@ -15,7 +15,7 @@ export interface Transaction<M=any,D=any> {
   status: 'PAID' | 'PENDING' | 'EXPIRED' | 'FAILED' | 'REFUNDED';
   order_status: 'FINISHED' | 'PENDING' | 'PROCESSING' | 'CANCELED';
   subtotal: number;
-  disscount: number;
+  discount: number;
   total: number;
   cash: number;
   platform_fees: number;

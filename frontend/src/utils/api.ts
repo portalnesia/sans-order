@@ -39,6 +39,7 @@ export function useAPI(useCache=true) {
     if(err?.response?.status) {
       const e = err as AxiosError
       if([500,503].includes(e.response?.status||0)) {
+        url = `${portalnesia.url}${url}`;
         dispatch({type:'CUSTOM',payload:{report:{type:'url',url:window?.location?.href,endpoint:url}}})
       }
     }

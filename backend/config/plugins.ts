@@ -1,7 +1,11 @@
 import { socketEvents } from "../src/utils/socket";
 
 export default ({env}) => ({
+  'i18n':{
+    enabled: true,
+  },
   'users-permissions': {
+    enabled: true,
     config: {
       jwtSecret: env('JWT_SECRET',''),
       jwt: {

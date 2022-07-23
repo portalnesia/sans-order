@@ -2,7 +2,7 @@ import { Dayjs } from "dayjs";
 import { Context } from "koa";
 import { ChannelProps } from "xendit-node/src/ewallet/ewallet_charge";
 import { Outlet } from "../../../../../types/Outlet";
-import { PAYMENT_TYPE, BANK_CODES, EWALLET_CODE, PAYMENT_STATUS, ORDER_STATUS } from "../../../../../types/Payment";
+import { PAYMENT_TYPE, BANK_CODES, EWALLET_CODE, PAYMENT_STATUS, ORDER_STATUS, EWalletOpts, ICreatePayment, QrCodeOpts, VirtualAccOpts } from "../../../../../types/Payment";
 import { PaymentError } from "../../../../utils/payment";
 import * as Main from '../../../../../utils/Main';
 import type {Strapi} from '@strapi/strapi'
@@ -17,8 +17,6 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
 
     // @ts-ignore
     let data = ctx.request?.body?.data||{};
-    data = await this.sanitizeInput(data, ctx);
-    
 
     if(!data.items) return ctx.badRequest('Missing "items" parameters');
     if(!Array.isArray(data.items)) return ctx.badRequest('Invalid "items" parameters');
@@ -41,7 +39,7 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
       if(data.type !== 'cashier') return ctx.badRequest('Invalid type parameters');
       payment = PAYMENT_TYPE.COD;
     }
-    const status = payment === PAYMENT_TYPE.COD || type === 'cashier' ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.PENDING;
+    const status = type === 'cashier' ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.PENDING;
 
     if(type === 'cashier') {
       if(!cash) return ctx.badRequest('Missingn "cash" parameters');
@@ -74,7 +72,10 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
       console.log("CHECK5")
     }
 
-    const {total,subtotal,disscount,items,items_stock} = await service.checkItemForTransaction(data.items,outlet);
+    const [{total,subtotal,discount,items,items_stock},config] = await Promise.all([
+      service.checkItemForTransaction(data.items,outlet),
+      strapi.service('api::config.config').find({})
+    ]);
     const changes = (cash||total)-total;
     if(changes < 0) throw new PaymentError("Cash is less than the total transaction price",400);
 
@@ -83,9 +84,8 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
     let payload: {expired: Dayjs|null,payload:any}|undefined=undefined;
 
     if(type !== 'cashier') {
-      
-      throw new PaymentError("Missing payment parameters",400);
-      /*if(!payment_req) throw new PaymentError("Missing payment parameters",400);
+      //throw new PaymentError("Missing payment parameters",400);
+      if(!payment_req) throw new PaymentError("Missing payment parameters",400);
       const user_email = user ? user.email : email as string;
       const user_name = user ? user.name : name as string;
       const user_telephone = user ? user.telephone : telephone;
@@ -94,7 +94,7 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
         uid,
         datetime:date,
         updated:date,
-        payment: type,
+        payment,
         items,
         email:user_email,
         name:user_name,
@@ -103,7 +103,7 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
         total,
         cash:total,
         outlet,
-        disscount,
+        discount,
         platform_fees:0,
       }
 
@@ -115,6 +115,7 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
       }
       // ONLINE PAYMENT
       else {
+        if(!config.online_payment) throw new PaymentError("Transactions failed. `online_payment` is under maintenance",403);
         if(!outlet.online_payment) throw new PaymentError("Transactions failed. This toko not implemented `online_payment`",403);
 
         // VA
@@ -154,7 +155,7 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
             ewallet
           })
         }
-      }*/
+      }
     }
 
     const insert = {
@@ -162,7 +163,7 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
       outlet: outlet.id,
       subtotal,
       total,
-      disscount,
+      discount,
       cash:(cash||total),
       datetime:date.pn_format(),
       updated:date.pn_format(),
@@ -178,15 +179,36 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
         telephone
       }),
       cashier: type === 'cashier' && user ? user.id : null,
-      //...(payload?.payload ? {payload:JSON.stringify(payload.payload)} : {}),
-      //...(payload?.expired ? {expired:payload.expired.pn_format()} : {}),
+      ...(payload?.payload ? {payload:JSON.stringify(payload.payload)} : {}),
+      ...(payload?.expired ? {expired:payload.expired.pn_format()} : {}),
       ...(name ? {name} : {}),
       ...(email ? {email} : {}),
-      ...(metadata ? {metadata:JSON.stringify(metadata)} : {}),
+      ...(metadata ? {metadata} : {}),
     }
 
     const [entry,_] = await Promise.all([
-      strapi.entityService.create('api::transaction.transaction',{data:insert}),
+      strapi.entityService.create('api::transaction.transaction',{data:insert,populate:{
+        outlet:{
+          populate:{
+            toko:{
+              populate:'user'
+            }
+          }
+        },
+        items:{
+          populate:{
+            item:{
+              populate:{
+                recipes:{
+                  populate:'*'
+                }
+              }
+            }
+          }
+        },
+        cashier:'*',
+        user:'*'
+      }}),
       strapi.entityService.update('api::outlet.outlet',outlet.id,{data:{idcounter:counter}}),
     ]);
     const iitems = await Promise.all(items.map(async(i)=>{
@@ -201,22 +223,7 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
     }))
 
     if(type === 'cashier') {
-      await Promise.all(items_stock.map(async(i)=>{
-        const r = i.recipes.find(r=>r.item?.id === i.item?.id);
-        if(r) {
-          return strapi.entityService.create('api::stock.stock',{
-            data:{
-              outlet:outlet.id,
-              item: i.item?.id,
-              price:i.price,
-              type:'out',
-              stocks:r.consume,
-              timestamp:date.toDate()
-            }
-          })
-        }
-        return Promise.resolve();
-      }))
+      await service.updateStock(entry,date)
     }
 
     const [token] = await Promise.all([
@@ -240,23 +247,25 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
       }
     })
 
+    const {name:names,email:emails,telephone:telephones,user:dUser,...rest} = entry;
     const output = {
-      ...entry,
+      ...rest,
       items:iitems,
       user: type === 'self_order' && user ? {
         name: user.name,
         email: user.email,
         telephone: user.telephone
       } : {
-        name,
-        email,
-        telephone
+        name:names,
+        email:emails,
+        telephone:telephones
       },
       token
     }
+
+    strapi.$io.raw('toko transactions',output,{room:`outlet::${outlet?.toko?.id}::${outlet?.id}`})
     
-    const sanitizedEntity = await this.sanitizeOutput(output, ctx);
-    return this.transformResponse(sanitizedEntity);
+    return this.transformResponse(output);
   } catch(e) {
     if(e instanceof PaymentError) {
       ctx.throw(e.code,e.message);
@@ -268,55 +277,86 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
 }
 
 export async function payTransactionByCahier(strapi: Strapi,ctx: Context) {
-  const outlet = ctx.state.outlet as Outlet;
-  const user = ctx.state.user;
-  const id = ctx.params?.id
+  try {
+    const outlet = ctx.state.outlet as Outlet;
+    const user = ctx.state.user;
+    const id = ctx.params?.id
 
-  if(!user) return ctx.forbidden(`You are forbidden to add transaction`);
+    if(!user) return ctx.forbidden(`You are forbidden to add transaction`);
 
-  if(outlet?.toko?.user?.id != user?.id) {
-    const users = outlet?.users?.find(u=>u?.user?.id == user?.id && !u.pending && u.roles.find(r=>r.name === 'Transaction') !== undefined);
-    if(!users) return ctx.forbidden("You are forbidden to add transaction for this outlet");
-  }
-  
-  const service = strapi.service('api::transaction.transaction')?.payment;
-  if(!service) return ctx.throw(503,"Service Unavailable");
+    if(outlet?.toko?.user?.id != user?.id) {
+      const users = outlet?.users?.find(u=>u?.user?.id == user?.id && !u.pending && u.roles.find(r=>r.name === 'Transaction') !== undefined);
+      if(!users) return ctx.forbidden("You are forbidden to add transaction for this outlet");
+    }
+    
+    const service = strapi.service('api::transaction.transaction')?.payment;
+    if(!service) return ctx.throw(503,"Service Unavailable");
 
-  // @ts-ignore
-  let dt = ctx.request?.body?.data||{};
-  dt = await this.sanitizeInput(dt, ctx);
-  const cash = dt?.cash;
+    // @ts-ignore
+    let dt = ctx.request?.body?.data||{};
+    const cash = dt?.cash;
 
-  if(cash) return ctx.badRequest('Missing "Cash" parameters');
-  if(typeof cash !== 'number') return ctx.badRequest('Invalid "Cash" parameters');
-  
-  const tr = await strapi.entityService.findOne('api::transaction.transaction',id,{
-    populate:{
+    if(typeof cash === 'undefined') return ctx.badRequest('Missing "Cash" parameters');
+    if(typeof cash !== 'number') return ctx.badRequest('Invalid "Cash" parameters');
+    
+    const tr = await strapi.entityService.findOne('api::transaction.transaction',id,{})
+    if(!tr) return ctx.notFound('Transaction not found');
+
+    const changes = cash - tr.total;
+    if(changes < 0) return ctx.badRequest("Cash is less than the total transaction price");
+
+    const data = {
+      cash,
+      status: PAYMENT_STATUS.PAID,
+      order_status:ORDER_STATUS.PROCESSING,
+      updated: Main.getDayJs().toDate(),
+      cashier: user.id
+    }
+
+    const result = await strapi.entityService.update('api::transaction.transaction',id,{data,populate:{
+      outlet:{
+        populate:{
+          toko:{
+            populate:'user'
+          }
+        }
+      },
       items:{
-        populate:'item'
-      }
+        populate:{
+          item:{
+            populate:{
+              recipes:{
+                populate:'*'
+              }
+            }
+          }
+        }
+      },
+      cashier:'*',
+      user:'*'
+    }});
+
+    const tanggal = Main.getDayJs();
+    const opt = service.getOptionsFromDb(result);
+
+    try {
+      await Promise.all([
+        service.updateStock(result,tanggal),
+        opt.email.length > 0 ? service.sendPaymentEmail('success',opt) : Promise.resolve(),
+        service.sendWhatsapp('success',opt)
+      ])
+    } catch(e) {
+      console.log(e)
     }
-  })
-  if(!tr) return ctx.notFound('Transaction not found');
 
-  const changes = cash - tr.total;
-  if(changes < 0) return ctx.badRequest("Cash is less than the total transaction price");
+    const datas = strapi.service('api::transaction.transaction').parseUser(result);
 
-  const data = {
-    cash,
-    status: PAYMENT_STATUS.PAID,
-    order_status:ORDER_STATUS.PROCESSING,
-    updated: Main.getDayJs().toDate(),
-    cashier: user.id
+    strapi.$io.raw('toko transactions',datas,{room:`outlet::${outlet?.toko?.id}::${outlet?.id}`})
+
+    return {data:datas,meta:{}}
+  } catch(e) {
+    console.log(e)
   }
-
-  const result = await strapi.entityService.update('api::transaction.transaction',id,{data,populate:{
-    items:{
-      populate:'item'
-    }
-  }});
-
-  return {result,meta:{}}
 }
 
 export default createTransaction;

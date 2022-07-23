@@ -28,11 +28,11 @@
       ]
     },
     "from": {
-      "type": "date",
+      "type": "datetime",
       "required": true
     },
     "to": {
-      "type": "date",
+      "type": "datetime",
       "required": true
     },
     "active": {

@@ -1,0 +1,9 @@
+{
+  "apps": [{
+    "name":"sans-back-stag",
+    "script": "server.js",
+    "env":{
+      "NODE_ENV":"production"
+    }
+  }]
+}

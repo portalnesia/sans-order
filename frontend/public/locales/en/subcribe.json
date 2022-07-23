@@ -4,14 +4,7 @@
   "day":"Day",
   "subcribe_now":"Subcribe Now",
   "subcribe":"Subcribe",
-  "feature":{
-    "title":"Features",
-    "free":"{{qty}} month free",
-    "order_system":"Order system",
-    "cashier_system":"Cashier system",
-    "banner":"Banner",
-    "media_promotion":"Media promotion ( tiktok/instagram )",
-    "first_free":"For first time purchase",
-    "max_table_number":"Maximum 12 pcs"
-  }
+  "feature":"Features",
+  "feature_first_free":"For first time purchase",
+  "feature_max_table_number":"Maximum 12 pcs"
 }

@@ -1,0 +1,8 @@
+{
+  "amount":"Promotion Price",
+  "from":"From",
+  "to":"To",
+  "active":"Active",
+  "active_not":"Not Active",
+  "type":"Kind of Discount"
+}

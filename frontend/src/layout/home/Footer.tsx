@@ -6,6 +6,7 @@ import { useTranslation } from 'next-i18next'
 import Link from 'next/link'
 import config from '@root/web.config.json'
 import useResponsive from '@comp/useResponsive'
+import {version} from '@root/src/version'
 
 const BoxStyle = styled(Box)(({theme})=>({
   backgroundColor:theme.palette.background.default,
@@ -53,7 +54,7 @@ function FooterCopyright({xs}: {xs?:boolean}) {
         <FooterMenu sx={{p:0,px:0}}>
           <FooterChild {...(xs ? {} : {sx:{textAlign:'center'}})}>
             <span {...({"xmlns:cc":"http://creativecommons.org/ns#","xmlns:dct":"http://purl.org/dc/terms/"})}>
-              <Link href='/' passHref><a property="dct:title" rel="cc:attributionURL">SansOrder</a></Link> © {(new Date().getFullYear())}
+              <Link href='/' passHref><a property="dct:title" rel="cc:attributionURL">SansOrder</a></Link> © {(new Date().getFullYear())}. v{version}
             </span>
           </FooterChild>
           <FooterChild {...(xs ? {} : {sx:{textAlign:'center'}})}><span>Powered by <a target='_blank' href={process.env.PORTAL_URL}>Portalnesia</a></span></FooterChild>

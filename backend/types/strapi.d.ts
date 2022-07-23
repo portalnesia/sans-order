@@ -50,8 +50,8 @@ interface CollectionTypeService<K extends keyof AllTypes,T extends AllTypes[K]> 
   delete?(entityId: string|number,params: Params<T>): Promise<T>;
 }
 
-type ServiceEntity<K,T> = CollectionTypeService<K,T> | SingleTypeService<K,T>;
-type CoreService<K,P> = CollectionTypeService<K,P>
+type ServiceEntity<K,P> = CollectionTypeService<K,P> | SingleTypeService<K,P>;
+type CoreService<K,P> = K extends keyof GlobalSingleService ? SingleTypeService<K,P> : CollectionTypeService<K,P>
 
 interface CustomEntityService {
   uploadFiles<K extends keyof AllTypes, T extends AllTypes[K]>(uid: K, entity, files);

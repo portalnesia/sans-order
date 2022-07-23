@@ -66,14 +66,14 @@ export default function DashboardLayout({children,title,subtitle,view,dashboard=
     function onError() {
       setForb(true);
     }
-    socket?.on('toko errors',onError);
+    socket?.on('outlet errors',onError);
 
     /*async function configNotification() {
       await Notification.requestPermission();
     }
     configNotification();*/
     return ()=>{
-      socket?.off('toko errors',onError)
+      socket?.off('outlet errors',onError)
     }
   },[socket])
 
@@ -86,7 +86,7 @@ export default function DashboardLayout({children,title,subtitle,view,dashboard=
           notification.close();
         }
       } else if(dt.status === PAYMENT_STATUS.PAID && dt.order_status===ORDER_STATUS.PROCESSING) {
-        const notification = new Notification(t('notification.updated'),{body:t('notification.updated_desc',{id:dt?.id,method:dt?.payment}),lang:locale.toUpperCase()});
+        const notification = new Notification(t('notification.updated',{id:dt?.uid}),{body:t('notification.updated_desc',{id:dt?.uid,method:dt?.payment}),lang:locale.toUpperCase()});
         notification.onclick = ()=>{
           window.open(`/apps/${toko_id}/${outlet_id}/order/self-order` , '_blank');
           notification.close();
@@ -97,20 +97,20 @@ export default function DashboardLayout({children,title,subtitle,view,dashboard=
     function onDisconnect() {
       setSocketError(true)
     }
-    function onReconnect() {
+    function onRegistered() {
       setSocketError(false)
     }
 
     socket?.on('toko transactions',onTransactions);
     //socket?.on('toko cashier',onCashier);
     socket?.on('disconnect',onDisconnect);
-    socket?.on('reconnect',onReconnect)
+    socket?.on('outlet registered',onRegistered)
 
     return ()=>{
       socket?.off('toko transactions',onTransactions);
       //socket?.off('toko cashier',onCashier);
       socket?.off('disconnect',onDisconnect);
-      socket?.off('reconnect',onReconnect)
+      socket?.off('outlet registered',onRegistered)
     }
   },[socket,t,locale,toko_id,outlet_id])
 

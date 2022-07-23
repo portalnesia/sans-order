@@ -329,7 +329,7 @@ export function Markdown({source,skipHtml,preview,...other}: MarkdrownProps) {
       return hhtm;
     }
     return html;
-  },[preview])
+  },[preview,html])
 
   if(!finalHtml) return <Loading />
   return <Parser preview={preview} html={finalHtml} {...other} />

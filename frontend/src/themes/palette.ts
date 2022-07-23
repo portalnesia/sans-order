@@ -9,9 +9,9 @@ function createGradient(color1: string, color2: string) {
 // SETUP COLORS
 const GREY = {
   0: '#FFFFFF',
-  100: '#F9FAFB',
-  200: '#F4F6F8',
-  300: '#DFE3E8',
+  100: '#F4F6F8',
+  200: '#DFE3E8',
+  300: '#d8dee3',
   400: '#C4CDD5',
   500: '#919EAB',
   600: '#637381',
@@ -105,18 +105,19 @@ const palette: PaletteOptions = {
   grey: GREY,
   gradients: GRADIENTS,
   chart: CHART_COLORS,
-  divider: GREY[500_24],
+  divider: alpha(GREY[500], 0.45),
   text: { primary: GREY[800], secondary: GREY[600], disabled: GREY[500] },
-  background: { paper: '#fff', default: GREY[100], neutral: GREY[200] },
+  background: { paper: '#fff', default: '#dddee1', neutral: GREY[300] },
   action: {
     active: GREY[600],
-    hover: GREY[500_8],
-    selected: GREY[500_16],
+    hover: alpha('#919EAB', 0.36),
+    selected: GREY[500_32],
     disabled: GREY[500_80],
     disabledBackground: GREY[500_24],
-    focus: GREY[500_24],
-    hoverOpacity: 0.08,
-    disabledOpacity: 0.48
+    focus: GREY[500_48],
+    hoverOpacity: 0.36,
+    selectedOpacity: 0.32,
+    disabledOpacity: 0.80
   }
 };
 

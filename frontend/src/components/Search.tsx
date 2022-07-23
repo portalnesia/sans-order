@@ -14,10 +14,10 @@ const Popover = styled(Popov)(()=>({
 const Wrapper = styled('div')<{autoresize?:boolean}>(({theme,autoresize})=>({
   position: 'relative',
   borderRadius: 10,
-  background: alpha(theme.palette.text.primary, 0.05),
+  background: alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.08 : 0.15),
   display: 'inline-block',
   '&:hover': {
-      background: alpha(theme.palette.text.primary, 0.15),
+      background: alpha(theme.palette.text.primary, theme.palette.mode === 'dark' ? 0.15 : 0.18),
   },
   ...(autoresize ? {
       marginRight: theme.spacing(1),

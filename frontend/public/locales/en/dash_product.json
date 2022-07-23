@@ -1,7 +1,7 @@
 {
   "price":"Price",
   "price_ctx": "{{what}} Price",
-  "disscount":"Disscount",
+  "disscount":"Discount",
   "stock":"Stock",
   "purchase":"Purchase",
   "stock_in":"Stock In",

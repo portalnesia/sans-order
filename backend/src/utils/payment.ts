@@ -69,11 +69,11 @@ export default class Payment {
     if(busy) return false;
     const dayIndex = Main.getDayJs().day();
     const dayNow = this.bussinessHourToIndex[dayIndex];
-    const today = business_hour.find(b=>b.day === dayNow);
+    const today = business_hour?.find(b=>b.day === dayNow);
     if(!today) return false;
 
-    const d1 = Main.getDayJs(today.from);
-    const d2 = Main.getDayJs(today.to);
+    const d1 = Main.getDayJs(`1997-01-01 ${today.from}`);
+    const d2 = Main.getDayJs(`1997-01-01 ${today.to}`);
 
     return Main.isBetweenHour(d1,d2);
   }
@@ -117,32 +117,32 @@ export default class Payment {
   }
 
   getEmailOptions(type:'reminder'|'success'|'cod'|'created',data: Pick<ICreatePayment,'total'|'items'|'expiration'|'payment'|'ewallet'|'va'|'uid'|'datetime'|'updated'|'outlet'>,footers: {[key: string]: number},va_number?:string) {
-    const total = `IDR ${numberFormat(`${data.total}`)}`;
+    const total = `Rp${numberFormat(`${data.total}`)}`;
     let footer: {[key: string]: string} = {};
     Object.keys(footers).forEach(key=>{
-      footer[key] =  `IDR ${numberFormat(`${footers[key]}`)}`
+      footer[key] =  `Rp${numberFormat(`${footers[key]}`)}`
     })
     const items: PaymentItems[] = data.items.map(d=>{
       return {
         name:d.item?.name||'',
         item:[
           {
-            name:`${d?.qty} x IDR ${(numberFormat(`${d.price}`))}`,
-            price:`IDR ${(numberFormat(`${(d.price||0)*d.qty}`))}`,
+            name:`${d?.qty} x Rp${(numberFormat(`${d.price}`))}`,
+            price:`Rp${(numberFormat(`${(d.price||0)*d.qty}`))}`,
             raw:{
               qty:d.qty,
               price:d.price||0
             },
             inv_name:d.item?.name||''
           },
-          ...(d.disscount && d.disscount !== 0  ? [
+          ...(d.discount && d.discount !== 0  ? [
             {
-              name:`disc. ${d.qty} x IDR ${(numberFormat(`${d.disscount*-1}`))}`,
-              price: `IDR ${numberFormat(`${d.disscount*d.qty*-1}`)}`,
-              inv_name:"Disscount",
+              name:`disc. ${d.qty} x Rp${(numberFormat(`${d.discount*-1}`))}`,
+              price: `Rp${numberFormat(`${d.discount*d.qty*-1}`)}`,
+              inv_name:"Discount",
               raw:{
                 qty:d.qty,
-                price:d.disscount*-1
+                price:d.discount*-1
               }
             }
           ] : [])
@@ -170,7 +170,7 @@ export default class Payment {
   async sendPaymentEmail(type:'reminder'|'success'|'cod'|'created',opt: ICreatePayment,va_number?:string) {
     const footer = {
       "Subtotal":opt.subtotal,
-      ...(opt.disscount !== 0 ? {"Disscount":opt.disscount*-1} : {}),
+      ...(opt.discount !== 0 ? {"Discount":opt.discount*-1} : {}),
       ...(opt.cash !== opt.total ? {
         "Cash":opt.cash,
         "Changes":opt.cash - opt.total
@@ -182,14 +182,14 @@ export default class Payment {
     if(['cod','success'].includes(type)) {
       const pdf = await this.getEmailPdf(opt,emailOpt,{type:'accept'});
       attachments=[{
-        content:pdf,
+        content:pdf.toString('binary'),
         filename:`[Portalnesia] E-Receipt #${opt.uid}.pdf`,
         contentType:'application/pdf',
       }]
     }
     await sendEmail({
-      email:'noreply',
-      replyTo:'support',
+      email:'noreply-sansorder',
+      replyTo:'support-sansorder',
       to:opt.email,
       subject,
       attachments,
@@ -207,7 +207,7 @@ export default class Payment {
     if(!opt.telephone) return Promise.resolve();
     const footer = {
       "Subtotal":opt.subtotal,
-      ...(opt.disscount !== 0 ? {"Disscount":opt.disscount*-1} : {}),
+      ...(opt.discount !== 0 ? {"Discount":opt.discount*-1} : {}),
       ...(opt.cash !== opt.total ? {
         "Cash":opt.cash,
         "Changes":opt.cash - opt.total
@@ -245,7 +245,7 @@ export default class Payment {
       text,
       ...(attachments ? {
         document:{
-          buffer: attachments.toString('utf-8'),
+          buffer: attachments.toString('binary'),
           fileName:`[Portalnesia] E-Receipt #${opt.uid}.pdf`,
           mimeType: 'application/pdf'
         }
@@ -296,9 +296,9 @@ export default class Payment {
         payload:null as unknown as D
       }
     }
-    else throw new PaymentError("Invalid payment method",400);
+    else throw new PaymentError("Invalid payment method, received "+opt.payment,400);
     
-    if(result.va_number) this.sendPaymentEmail('created',opt,result.va_number);
+    //if(result.va_number) this.sendPaymentEmail('created',opt,result.va_number);
 
     return result;
   }
@@ -329,7 +329,7 @@ export default class Payment {
     const expired = Main.getDayJs().add(2,'h')
     const channelProperties: ChannelProps = data.ewallet.channelCode !== EWALLET_CODE.OVO ? {
       ...data.ewallet.channelProperties,
-      successRedirectURL:Main.url(`/api/payment/redirect/${data.ewallet.referenceID}`),
+      successRedirectURL:Main.webUrl(`/transactions/${data.ewallet.referenceID}`),
     } : data.ewallet.channelProperties
     const options: XenditEWalletOpts = {
       ...data,
@@ -350,7 +350,7 @@ export default class Payment {
     const expired = Main.getDayJs().add(2,'h')
     const options: XenditQrCodeOpts = {
       ...data.qr,
-      callbackURL:`${process.env.API_PUBLIC_URL}/payment/callback/qr`,
+      callbackURL:`${process.env.URL}/api/callback/callback-qr`,
       // @ts-ignore
       type: (data?.qr?.type==="STATIC" ? "STATIC" : "DYNAMIC")
     }
@@ -380,13 +380,13 @@ export default class Payment {
       }
     }
     
-    const opt: ICreatePayment<false> = {
+    const opt: ICreatePayment = {
       uid:transaksi.uid||'',
       payment: payment as ICreatePayment['payment'],
       items:transaksi?.items,
       total:transaksi?.total,
       subtotal:transaksi?.subtotal,
-      disscount:transaksi?.disscount||0,
+      discount:transaksi?.discount||0,
       datetime:Main.getDayJs(transaksi?.datetime),
       name,
       email,
@@ -483,18 +483,18 @@ export default class Payment {
     return {}
   }
 
-  getSendEmailOptions(type:'send_money'|'send_money_created',data: Pick<ICreatePayment,'total'|'expiration'|'uid'|'datetime'|'subtotal'|'disscount'|'updated'|'outlet'> & ({bank_code: string,item_name:string}),footers: {[key: string]: number}) {
-    const total = `IDR ${numberFormat(`${data.total}`)}`;
+  getSendEmailOptions(type:'send_money'|'send_money_created',data: Pick<ICreatePayment,'total'|'expiration'|'uid'|'datetime'|'subtotal'|'discount'|'updated'|'outlet'> & ({bank_code: string,item_name:string}),footers: {[key: string]: number}) {
+    const total = `Rp${numberFormat(`${data.total}`)}`;
     let footer: {[key: string]: string} = {};
     Object.keys(footers).forEach(key=>{
-      footer[key] =  `IDR ${numberFormat(`${footers[key]}`)}`
+      footer[key] =  `Rp${numberFormat(`${footers[key]}`)}`
     })
     const items: PaymentItems[] = [
       {
         name:data.item_name,
         item:[{
           name:"Amount",
-          price:`IDR ${numberFormat(`${data.subtotal}`)}`,
+          price:`Rp${numberFormat(`${data.subtotal}`)}`,
           raw:{
             qty:1,
             price:data.subtotal
@@ -519,10 +519,10 @@ export default class Payment {
     return opts;
   }
 
-  async sendSendMoneyEmail(type:'send_money'|'send_money_created',opt: Pick<ICreatePayment,'disscount'|'subtotal'|'total'|'expiration'|'uid'|'datetime'|'name'|'email'|'updated'|'outlet'|'platform_fees'> & ({bank_code: string,item_name:string})) {
+  async sendSendMoneyEmail(type:'send_money'|'send_money_created',opt: Pick<ICreatePayment,'discount'|'subtotal'|'total'|'expiration'|'uid'|'datetime'|'name'|'email'|'updated'|'outlet'|'platform_fees'> & ({bank_code: string,item_name:string})) {
     const footer = {
       "Subtotal":opt.subtotal,
-      ...(opt.disscount !== 0 ? {"Disscount":opt.disscount*-1} : {}),
+      ...(opt.discount !== 0 ? {"Discount":opt.discount*-1} : {}),
       ...(opt.platform_fees !== 0 ? {"Fees":opt.platform_fees*-1}:{})
     }
     const emailOpt = this.getSendEmailOptions(type,opt,footer);
@@ -537,8 +537,8 @@ export default class Payment {
       }]
     }
     await sendEmail({
-      email:'noreply',
-      replyTo:'support',
+      email:'noreply-sansorder',
+      replyTo:'support-sansorder',
       to:opt.email,
       subject,
       attachments,
@@ -585,7 +585,7 @@ export default class Payment {
       const subtotal = money; // UPDATE MONEY
       const total = money-this.fees.WITHDRAW;
       const items: (CopyPartial<Without<TransactionItem,'item'>,'metadata'|'id'|'notes'|'outlet'|'transaction'|'datetime'> & ({item: number}))[] = [
-        {item:1,price:money,qty:1,disscount:0,metadata:null,done:true,hpp:0}
+        {item:1,price:money,qty:1,discount:0,metadata:null,done:true,hpp:0}
       ]
 
       const payload = await this.xendit.send.create({
@@ -602,7 +602,7 @@ export default class Payment {
         outlet: outlet.id,
         subtotal,
         total,
-        disscount:0,
+        discount:0,
         cash:total,
         items: items,
         datetime:date.pn_format(),
@@ -693,7 +693,7 @@ export default class Payment {
         transaction.status = "COMPLETED" as PAYMENT_STATUS
         transaction.order_status = "PROCESSING" as ORDER_STATUS
 
-        strapi.$io.raw('toko transactions',transaction,{room:`toko::${transaction.outlet?.toko?.id}::${transaction.outlet?.id}`})
+        strapi.$io.raw('toko transactions',transaction,{room:`outlet::${transaction.outlet?.toko?.id}::${transaction.outlet?.id}`})
 
         return transaction;
     } catch(e) {
@@ -763,18 +763,18 @@ export default class Payment {
     for(const i of items_db) {
       if(!item.includes(i.id)) throw new PaymentError("Invalid items parameters",400)
       const it = items.find(t=>t.item == i.id);
-      let disscount = 0;
+      let discount = 0;
       if(i.promo) {
         if(i.promo.type === 'fixed') {
-          disscount = i.promo.amount
+          discount = i.promo.amount
         } else {
-          disscount = (i.promo.amount * i.price)/100
+          discount = (i.promo.amount * i.price)/100
         }
       }
       const ite: ICreateItems = {
         item: i,
         price: i.price,
-        disscount,
+        discount,
         qty: it?.qty || 0,
         hpp: i.hpp || 0,
         metadata: i.metadata,
@@ -788,14 +788,14 @@ export default class Payment {
       new_item.push(ite)
     }
 
-    const {price:subtotal,disscount} = new_item.reduce((prev,item,_)=>({
+    const {price:subtotal,discount} = new_item.reduce((prev,item,_)=>({
       ...item,
       price:prev.price + (item.price * item.qty),
-      disscount: prev?.disscount + (item.disscount * item.qty)
+      discount: prev?.discount + (item.discount * item.qty)
     }),{
       item:undefined,
       price:0,
-      disscount:0,
+      discount:0,
       qty:0,
       hpp:0,
       metadata:null,
@@ -803,8 +803,8 @@ export default class Payment {
       done:false
     } as (ICreateItems))
 
-    const total = (subtotal||0)-(disscount||0);
-    return {items: new_item,total,subtotal:subtotal||0,disscount:disscount||0,items_stock}
+    const total = (subtotal||0)-(discount||0);
+    return {items: new_item,total,subtotal:subtotal||0,discount:discount||0,items_stock}
   }
 
   async printTransactionByCashier(tr: Transaction,desktop?:boolean) {
@@ -812,10 +812,10 @@ export default class Payment {
 
     const items = tr.items.map(i=>({
       ...i,
-      price: `IDR ${numberFormat(`${i.price}`)}`,
-      disscount: i.disscount > 0 ? `IDR ${numberFormat(`${i.disscount}`)}` : undefined,
-      total: `IDR ${numberFormat(`${i.price * i.qty}`)}`,
-      diss_total: i.disscount > 0 ? `IDR ${numberFormat(`${i?.disscount*i?.qty}`)}` : undefined
+      price: `Rp${numberFormat(`${i.price}`)}`,
+      discount: i.discount > 0 ? `Rp${numberFormat(`${i.discount}`)}` : undefined,
+      total: `Rp${numberFormat(`${i.price * i.qty}`)}`,
+      diss_total: i.discount > 0 ? `Rp${numberFormat(`${i?.discount*i?.qty}`)}` : undefined
     }))
 
     const transaction = {
@@ -823,16 +823,16 @@ export default class Payment {
       items,
       date:date.pn_format('fulldate'),
       time:date.pn_format('time'),
-      ...(tr.disscount > 0 ? {disscount:`IDR ${numberFormat(`${tr.disscount}`)}`} : {}),
-      subtotal:`IDR ${numberFormat(`${tr.subtotal}`)}`,
-      total:`IDR ${numberFormat(`${tr.total}`)}`,
-      cash:`IDR ${numberFormat(`${tr.cash}`)}`,
-      changes:`IDR ${numberFormat(`${tr.cash-tr.total}`)}`,
+      ...(tr.discount > 0 ? {discount:`Rp${numberFormat(`${tr.discount}`)}`} : {}),
+      subtotal:`Rp${numberFormat(`${tr.subtotal}`)}`,
+      total:`Rp${numberFormat(`${tr.total}`)}`,
+      cash:`Rp${numberFormat(`${tr.cash}`)}`,
+      changes:`Rp${numberFormat(`${tr.cash-tr.total}`)}`,
       cashier:tr.cashier?.name||''
     }
 
     const filePath = path.resolve(`./src/templates/print_transaction.ejs`);
-    const html = await renderFile(filePath,{outlet:tr.outlet,tr:transaction,desktop,sans_url:urlToDomain(process.env.URL as string).toLowerCase()},{rmWhitespace:true})
+    const html = await renderFile(filePath,{outlet:tr.outlet,tr:transaction,desktop,sans_url:urlToDomain(process.env.WEB_URL as string).toLowerCase()},{rmWhitespace:true})
 
     return html;
   }
@@ -1048,7 +1048,9 @@ export default class Payment {
       })
     ])
 
-    const grafik: any = {};
+    const grafik: any = {
+      items:null
+    };
 
     tr.map((t)=>{
       if(t.items) {
@@ -1097,6 +1099,264 @@ export default class Payment {
         income: sum,
         total_transactions:total
       }
+    }
+  }
+
+  private async getTransactionByUid(uid: string) {
+    const strapi = await this.strapi.entityService.findMany('api::transaction.transaction',{
+      filters:{
+        uid:{
+          $eq: uid
+        }
+      },
+      limit:1,
+      populate:{
+        outlet:{
+          populate:{
+            toko:{
+              populate:'user'
+            }
+          }
+        },
+        items:{
+          populate:{
+            item:{
+              populate:{
+                recipes:{
+                  populate:'*'
+                }
+              }
+            }
+          }
+        },
+        cashier:'*',
+        user:'*'
+      }
+    })
+
+    if(!strapi) return undefined;
+    return strapi[0];
+  }
+
+  async updateStock(tr: Transaction,tanggal: Dayjs) {
+    // Extract all items 
+    return await Promise.all(tr.items?.map(async(i)=>{
+      // i.item = PRODUCT
+      const r = i.item?.recipes.find(r=>r.item?.id === i.item?.id);
+      if(r) {
+        return strapi.entityService.create('api::stock.stock',{
+          data:{
+            outlet:tr.outlet?.id,
+            item: i.item?.id,
+            price:i.price,
+            type:'out',
+            stocks:r.consume,
+            timestamp:tanggal.toDate()
+          }
+        })
+      }
+      return Promise.resolve(null);
+    }))
+  }
+
+  async callbackVA(type:'paid'|'status',body: Record<string,any>) {
+    try {
+      console.log("VIRTUAL ACCOUNT",type,body);
+      const id = body?.external_id;
+      const tr = await this.getTransactionByUid(id);
+      if(tr && tr.outlet?.toko) {
+        const tanggal = Main.getDayJs().utcOffset(7);
+        const status = type === 'paid' || body?.status==='INACTIVE' && tr.status===PAYMENT_STATUS.PAID ? PAYMENT_STATUS.PAID : (body.status==='INACTIVE' && tr.status != PAYMENT_STATUS.PAID ? PAYMENT_STATUS.EXPIRED : (body.status==='PENDING' ? PAYMENT_STATUS.PENDING : undefined))
+
+        const order_status = type === 'paid' || body?.status==='INACTIVE' && tr.status===PAYMENT_STATUS.PAID ? ORDER_STATUS.PROCESSING : (body.status==='INACTIVE' && tr.status != PAYMENT_STATUS.PAID ? ORDER_STATUS.CANCELED : (body.status==='PENDING' ? ORDER_STATUS.PENDING : undefined))
+
+        const payload = type === 'status' ? body : tr?.payload;
+        let platform_fees: number|undefined;
+        if(type === 'paid') {
+          payload.status = 'PAID';
+          platform_fees=this.fees.VIRTUAL_ACCOUNT
+        }
+
+        const data: Partial<Transaction> = {
+          updated: tanggal.toDate(),
+          platform_fees,
+          status,
+          order_status,
+          payload
+        }
+        await strapi.entityService.update('api::transaction.transaction',tr.id,{data});
+
+        const result = {
+          ...tr,
+          ...data
+        }
+
+        const opt = this.getOptionsFromDb(result);
+
+        await Promise.all([
+          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'add',opt.total - this.fees.VIRTUAL_ACCOUNT),
+          this.updateStock(tr,tanggal),
+          opt.email.length > 0 ? this.sendPaymentEmail('success',opt) : Promise.resolve(),
+          this.sendWhatsapp('success',opt)
+        ])
+
+        strapi.$io.raw('toko transactions',result,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
+      }
+    } catch(e) {
+      console.log("CALLBACK VA ERROR",e)
+      throw e
+    }
+  }
+
+  async callbackEwallet(body: Record<string,any>) {
+    try {
+      console.log("Ewallet",body);
+      const id = body?.data?.reference_id;
+      const tr = await this.getTransactionByUid(id);
+      if(tr && tr.outlet?.toko) {
+        const tanggal = Main.getDayJs().utcOffset(7);
+
+        const status = body?.data?.status === 'SUCCEEDED' ? PAYMENT_STATUS.PAID : (body?.data?.status==='FAILED' ? PAYMENT_STATUS.FAILED : (body?.data?.status==='VOIDED' ? PAYMENT_STATUS.FAILED : (body?.data?.status === 'REFUNDED' ? PAYMENT_STATUS.REFUNDED : undefined)))
+
+        const order_status = body?.data?.status === 'SUCCEEDED' ? ORDER_STATUS.PROCESSING : (body?.data?.status==='FAILED' ? ORDER_STATUS.CANCELED : (body?.data?.status==='VOIDED' ? ORDER_STATUS.CANCELED : (body?.data?.status === 'REFUNDED' ? ORDER_STATUS.CANCELED : undefined)))
+
+        let platform_fees: number|undefined;
+        if(status === PAYMENT_STATUS.PAID) {
+          platform_fees = Math.round(tr?.total*this.fees.EWALLET);
+        }
+
+        const payload = body?.data;
+
+        const data: Partial<Transaction> = {
+          updated: tanggal.toDate(),
+          platform_fees,
+          status,
+          order_status,
+          payload
+        }
+
+        await strapi.entityService.update('api::transaction.transaction',tr.id,{data});
+
+        const result = {
+          ...tr,
+          ...data
+        }
+
+        const opt = this.getOptionsFromDb(result);
+
+        await Promise.all([
+          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'add',opt.total - this.fees.VIRTUAL_ACCOUNT),
+          this.updateStock(tr,tanggal),
+          opt.email.length > 0 ? this.sendPaymentEmail('success',opt) : Promise.resolve(),
+          this.sendWhatsapp('success',opt)
+        ])
+
+        strapi.$io.raw('toko transactions',result,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
+      }
+    } catch(e) {
+      console.log("CALLBACK VA ERROR",e)
+      throw e
+    }
+  }
+
+  async callbackQrCode(body: Record<string,any>) {
+    try {
+      console.log("QR",body);
+      const id = body?.qr_code?.external_id;
+      const tr = await this.getTransactionByUid(id);
+      if(tr && tr.outlet?.toko) {
+        const tanggal = Main.getDayJs().utcOffset(7);
+
+        const status = body?.status === 'COMPLETED' ? PAYMENT_STATUS.PAID : undefined
+
+        const order_status = body?.status === 'COMPLETED' ? ORDER_STATUS.PROCESSING : undefined
+
+        let platform_fees: number|undefined;
+        if(status === PAYMENT_STATUS.PAID) {
+          platform_fees = Math.round(tr?.total*this.fees.QRIS);
+        }
+
+        const payload = body?.data;
+
+        const data: Partial<Transaction> = {
+          updated: tanggal.toDate(),
+          platform_fees,
+          status,
+          order_status,
+          payload
+        }
+
+        const result = {
+          ...tr,
+          ...data
+        }
+
+        const opt = this.getOptionsFromDb(result);
+
+        await Promise.all([
+          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'add',opt.total - this.fees.VIRTUAL_ACCOUNT),
+          this.updateStock(tr,tanggal),
+          opt.email.length > 0 ? this.sendPaymentEmail('success',opt) : Promise.resolve(),
+          this.sendWhatsapp('success',opt)
+        ])
+
+        strapi.$io.raw('toko transactions',result,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
+      }
+    } catch(e) {
+      console.log("CALLBACK VA ERROR",e)
+      throw e
+    }
+  }
+
+  async callbackSendMoney(body: Record<string,any>) {
+    try {
+      console.log("SEND MONEY",body);
+      const id = body?.external_id;
+      const tr = await this.getTransactionByUid(id);
+      if(tr && tr.outlet?.toko) {
+        const tanggal = Main.getDayJs().utcOffset(7);
+
+        const status = body?.status === 'COMPLETED' ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.FAILED
+        const order_status = body?.status === 'COMPLETED' ? ORDER_STATUS.FINISHED : ORDER_STATUS.CANCELED
+
+        let platform_fees: number|undefined;
+        if(status === PAYMENT_STATUS.PAID) {
+          platform_fees = Math.round(tr?.total*this.fees.WITHDRAW);
+        }
+
+        const payload = body;
+
+        const data: Partial<Transaction> = {
+          updated: tanggal.toDate(),
+          platform_fees,
+          status,
+          order_status,
+          payload
+        }
+
+        await strapi.entityService.update('api::transaction.transaction',tr.id,{data});
+
+        const result = {
+          ...tr,
+          ...data
+        }
+
+        const opt = this.getOptionsFromDb(result);
+
+        await Promise.all([
+          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'sub',opt.subtotal + this.fees.VIRTUAL_ACCOUNT),
+          this.sendSendMoneyEmail('send_money',{
+            ...opt,
+            bank_code:body.bank_code,
+            item_name:"Withdrawal Payment",
+          })
+        ])
+
+        strapi.$io.raw('toko withdraw',result,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
+      }
+    } catch(e) {
+      console.log("CALLBACK VA ERROR",e)
+      throw e
     }
   }
 }

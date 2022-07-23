@@ -77,7 +77,7 @@ export default async function print(strapi: Strapi,ctx: Context) {
       const opt = service.payment.getOptionsFromDb(tr);
       const footer = {
         "Subtotal":opt.subtotal,
-        ...(tr?.type === 'withdraw' && opt.platform_fees > 0 ? {"Fees":opt.platform_fees} : opt.disscount > 0 ? {"Disscount":opt.disscount} : {})
+        ...(tr?.type === 'withdraw' && opt.platform_fees > 0 ? {"Fees":opt.platform_fees} : opt.discount > 0 ? {"Discount":opt.discount} : {})
       }
       let emailOpt: IPaymentTemplateOptions
       const subject = service.payment.getEmailSubject('cod',opt);

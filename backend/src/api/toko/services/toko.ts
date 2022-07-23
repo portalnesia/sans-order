@@ -34,8 +34,12 @@ export default factories.createCoreService('api::toko.toko',({strapi}) => ({
     }))
     task.concat(files?.map(f=>strapi.service('plugin::upload.upload').remove(f)))
 
-    await Promise.all(task)
-
+    try {
+      await Promise.all(task)
+    } catch(e){
+      console.log(e)
+    }
+    
     const result = await strapi.entityService.delete('api::toko.toko',id,params)
     return result;
   }

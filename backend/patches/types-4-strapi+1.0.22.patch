@@ -33,7 +33,7 @@ index 7675ad2..6595ef5 100644
      // -------------------------------------------------
      // Enumeration
 diff --git a/node_modules/types-4-strapi/src/createInterface.js b/node_modules/types-4-strapi/src/createInterface.js
-index 4dfb032..4f32e1a 100644
+index 4dfb032..345ad09 100644
 --- a/node_modules/types-4-strapi/src/createInterface.js
 +++ b/node_modules/types-4-strapi/src/createInterface.js
 @@ -6,7 +6,6 @@ module.exports = (schemaPath, interfaceName) => {
@@ -124,7 +124,7 @@ index 4dfb032..4f32e1a 100644
      }
      // -------------------------------------------------
      // Date
-@@ -135,32 +134,32 @@ module.exports = (schemaPath, interfaceName) => {
+@@ -135,21 +134,21 @@ module.exports = (schemaPath, interfaceName) => {
        attributeValue.type === 'time'
      ) {
        tsPropertyType = 'Date';
@@ -148,9 +148,8 @@ index 4dfb032..4f32e1a 100644
 +      tsProperty = `  ${attributeName}: ${tsPropertyType};\n`;
      }
      tsInterface += tsProperty;
-+    console.log(tsInterface)
    }
-   // -------------------------------------------------
+@@ -157,10 +156,9 @@ module.exports = (schemaPath, interfaceName) => {
    // Localization
    // -------------------------------------------------
    if (schema.pluginOptions?.i18n?.localized) {
@@ -164,7 +163,7 @@ index 4dfb032..4f32e1a 100644
    for (const tsImport of tsImports) {
      tsInterface =
 diff --git a/node_modules/types-4-strapi/src/index.js b/node_modules/types-4-strapi/src/index.js
-index 9e2d0ae..7c3eb39 100644
+index 9e2d0ae..b2e7f05 100644
 --- a/node_modules/types-4-strapi/src/index.js
 +++ b/node_modules/types-4-strapi/src/index.js
 @@ -13,7 +13,7 @@ if (!fs.existsSync(typesDir)) fs.mkdirSync(typesDir);
@@ -189,7 +188,7 @@ index 9e2d0ae..7c3eb39 100644
  }
  `;
  
-@@ -34,15 +40,16 @@ fs.writeFileSync(`${typesDir}/Payload.ts`, payloadTsInterface);
+@@ -34,15 +40,17 @@ fs.writeFileSync(`${typesDir}/Payload.ts`, payloadTsInterface);
  
  const userTsInterface = `export interface User {
    id: number;
@@ -204,7 +203,8 @@ index 9e2d0ae..7c3eb39 100644
 -  }
 +  name: string
 +  username: string;
-+  picture: string
++  picture: string;
++  admin: boolean;
 +  email: string;
 +  telephone?: string;
 +  provider: string;
@@ -215,7 +215,7 @@ index 9e2d0ae..7c3eb39 100644
  }
  `;
  
-@@ -72,30 +79,30 @@ fs.writeFileSync(`${typesDir}/MediaFormat.ts`, mediaFormatTsInterface);
+@@ -72,30 +80,30 @@ fs.writeFileSync(`${typesDir}/MediaFormat.ts`, mediaFormatTsInterface);
  // --------------------------------------------
  
  var mediaTsInterface = `import { MediaFormat } from './MediaFormat';

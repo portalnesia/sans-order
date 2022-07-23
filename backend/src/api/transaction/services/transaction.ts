@@ -4,12 +4,14 @@
 
 import { factories } from '@strapi/strapi';
 import { Service } from '@strapi/strapi/lib/core-api/service';
+import { Transaction } from '../../../../types/Transaction';
 import { getDayJs } from '../../../../utils/Main';
 import Payment from '../../../utils/payment';
 import paymentServices from './payment';
 
 export type TrServices = {
-  payment: Payment
+  payment: Payment,
+  parseUser(tr: Transaction): Transaction
 }
 
 export default factories.createCoreService('api::transaction.transaction', ({strapi}) => {
@@ -17,10 +19,30 @@ export default factories.createCoreService('api::transaction.transaction', ({str
 
   return {
     payment,
+    parseUser(tr: Transaction) {
+      const {name,email,telephone,user:dUser,...rest} = tr;
+      const datas = {
+        ...rest,
+        user: dUser ? {
+          name: dUser.name,
+          email: dUser.email,
+          telephone: dUser.telephone
+        } : {
+          name,
+          email,
+          telephone
+        }
+      }
+      return datas;
+    },
     async findOne(id,params={}) {
       params.populate = {
         ...params.populate,
-        user:'*'
+        user:'*',
+        cashier:'*',
+        toko:{
+          populate:'user'
+        }
       }
 
       const d = await strapi.entityService.findOne('api::transaction.transaction',id,params);
@@ -45,6 +67,25 @@ export default factories.createCoreService('api::transaction.transaction', ({str
     async find(params={}) {
       params.populate = {
         ...params.populate,
+        outlet:{
+          populate:{
+            toko:{
+              populate:'user'
+            }
+          }
+        },
+        items:{
+          populate:{
+            item:{
+              populate:{
+                recipes:{
+                  populate:'*'
+                }
+              }
+            }
+          }
+        },
+        cashier:'*',
         user:'*'
       }
       const {results,pagination} = await super.find(params);

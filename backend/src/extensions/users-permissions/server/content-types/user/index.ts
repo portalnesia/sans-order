@@ -73,6 +73,12 @@ export default {
       default: false,
       configurable: false,
     },
+    admin: {
+      type: 'boolean',
+      default: false,
+      configurable: false,
+      private: true,
+    },
     role: {
       type: 'relation',
       relation: 'manyToOne',

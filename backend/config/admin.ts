@@ -1,6 +1,9 @@
 export default ({ env }) => ({
+  apiToken: {
+    salt: env('API_TOKEN_SALT', 'someRandomLongString'),
+  },
   auth: {
-    secret: env('ADMIN_JWT_SECRET', '3d66fb33e19206b684b24f6a9ec019f6'),
+    secret: env('ADMIN_JWT_SECRET', ''),
     options:{
       expiresIn: '7d',
       issuer:'portalnesia.com'

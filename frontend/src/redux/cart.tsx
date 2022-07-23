@@ -62,11 +62,11 @@ export default function Cart({children}: {children: ReactNode}) {
       } else {
         logEvent(analytics,'remove_from_cart',{
           currency:"IDR",
-          value: item.price-item.disscount,
+          value: item.price-item.discount,
           items:[{
             item_id: `${item.item.id}`,
             item_name: item.item.name,
-            discount: item.disscount,
+            discount: item.discount,
             price: item.price,
             quantity: qty
           }]
@@ -76,11 +76,11 @@ export default function Cart({children}: {children: ReactNode}) {
     } else {
       logEvent(analytics,'add_to_cart',{
         currency:"IDR",
-        value: item.price-item.disscount,
+        value: item.price-item.discount,
         items:[{
           item_id: `${item.item.id}`,
           item_name: item.item.name,
-          discount: item.disscount,
+          discount: item.discount,
           price: item.price,
           quantity: qty
         }]
@@ -132,7 +132,7 @@ export default function Cart({children}: {children: ReactNode}) {
         removeQty,
         addQty,
         manualQty,
-        cart
+        cart:cart.filter(c=>c.qty > 0)
       }}
     >
       {children}

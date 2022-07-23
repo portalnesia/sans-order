@@ -47,7 +47,7 @@ export default function Products({ items,maxWidth,enabled }: ProductsProps) {
   const [notes,setNotes] = useState<string|undefined>(undefined);
   const [open,setOpen] = useState(false);
 
-  const disscount = useMemo(()=>{
+  const discount = useMemo(()=>{
     if(promo) {
       if(promo.type === 'fixed') return promo.amount;
       if(promo.type === 'percentage') return Number.parseFloat((price * promo.amount).toFixed(2));
@@ -55,17 +55,17 @@ export default function Products({ items,maxWidth,enabled }: ProductsProps) {
     return 0;
   },[promo,price])
 
-  const finalPrice = useMemo(()=>price - disscount,[price,disscount]);
+  const finalPrice = useMemo(()=>price - discount,[price,discount]);
 
   const handleUpdateCart = useCallback((e: MouseEvent<HTMLButtonElement>)=>{
     if(e.stopPropagation) e.stopPropagation();
     const item: Items = {
       item: items,
       price:items.price,
-      disscount
+      discount
     }
-    //if(type === 'add') addQty({...item,disscount:0});
-    //else if(type === 'remove') removeQty({...item,disscount:0})
+    //if(type === 'add') addQty({...item,discount:0});
+    //else if(type === 'remove') removeQty({...item,discount:0})
     manualQty({...item},qty,notes);
     setOpen(false);
   },[items,,manualQty,qty,notes])
@@ -91,13 +91,13 @@ export default function Products({ items,maxWidth,enabled }: ProductsProps) {
       items:[{
         item_id: `${id}`,
         item_name: name,
-        discount: disscount,
+        discount: discount,
         item_category: category,
         price: finalPrice
       }]
     })
     setOpen(true)
-  },[name, image, finalPrice, id, metadata, disscount,category])
+  },[name, image, finalPrice, id, metadata, discount,category])
 
   return (
     <Card {...(maxWidth ? {sx:{width:{xs:200,md:250,lg:300}}} : {})}>
@@ -113,22 +113,23 @@ export default function Products({ items,maxWidth,enabled }: ProductsProps) {
 
             <Stack direction="row" alignItems="center" justifyContent="space-between">
               <Typography variant="subtitle1">
-                {((disscount||0) > 0) && (
+                {((discount||0) > 0) && (
                   <>
                     <Typography
                       component="span"
                       variant="body1"
                       sx={{
                         color: 'text.disabled',
-                        textDecoration: 'line-through'
+                        textDecoration: 'line-through',
+                        fontSize:13
                       }}
                     >
-                      {`IDR ${numberFormat(`${price}`)}`}
+                      {numberFormat(`${price}`)}
                     </Typography>
                     &nbsp;
                   </>
                 )}
-                {`IDR ${numberFormat(`${finalPrice}`)}`}
+                {`Rp${numberFormat(`${finalPrice}`)}`}
               </Typography>
               {cartQty > 0 && (
                 <Box sx={{px:{xs:2,lg:3}}}>
@@ -168,7 +169,7 @@ export default function Products({ items,maxWidth,enabled }: ProductsProps) {
                 {description ? <Markdown source={description} /> : <Typography>{tCom('no_what',{what:tCom('description').toLowerCase()})}</Typography>}
               </Grid>
               <Grid item xs={12}>
-                <Typography>{`IDR ${numberFormat(`${price}`)}`}</Typography>
+                <Typography>{`Rp${numberFormat(`${price}`)}`}</Typography>
               </Grid>
               <Grid item xs={12}>
                 <TextField

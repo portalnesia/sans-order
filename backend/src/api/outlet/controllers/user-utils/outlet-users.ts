@@ -112,7 +112,7 @@ const OutletUsersControllers = ({strapi}: {strapi: Strapi}) => ({
       const [data,_] = await Promise.all([
         strapi.controller('api::outlet-user.outlet-user').create(ctx),
         sendEmail({
-          email:'noreply',
+          email:'noreply-sansorder',
           subject:'[SansOrder] Merchant Invitation',
           to: us[0].email,
           template:{

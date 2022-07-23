@@ -16,9 +16,11 @@ export default (config: any, { strapi }: {strapi: Strapi})=> {
         },
         users:{
           populate:{
-            user:'*'
+            user:'*',
+            roles:'*'
           }
         },
+        business_hour:'*',
         ...(config?.populate||{})
       }});
       if(!outlet) return ctx.notFound(`"Outlet" not found`);

@@ -10,11 +10,12 @@ import { useTranslation } from 'next-i18next';
 import useNotification from '@utils/notification';
 import {Portal} from '@mui/material'
 import { AxiosRequestConfig } from 'axios';
-import { uuid } from '@portalnesia/utils';
+import { nanoid } from '@portalnesia/utils';
 import { useTheme } from '@mui/material';
 import { getMessaging,isSupported,onMessage,getToken } from '@utils/firebase';
 import LocalStorage from '@utils/local-storage';
 import { MessagePayload, NextFn, Observer, Unsubscribe } from 'firebase/messaging';
+import { getDayJs } from '@utils/Main';
 // material
 // ----------------------------------------------------------------------
 
@@ -28,21 +29,28 @@ export interface HeaderProps {
 let sudah=false;
 export default function Header({ children, title,desc }: HeaderProps) {
   const {t} = useTranslation('common')
+  const {t:tReport} = useTranslation('report')
   const titles = useMemo(()=>title ? `${title} | ${config.title}` : config.title,[title]);
   const description = useMemo(()=>typeof desc === 'string' && desc.length > 0 ? `${desc} - ${config.description}` : config.description,[desc]);
   const dispatch = useDispatch();
   const [loading,setLoading] = React.useState<string|null>(null);
   const {report,ready,user} = useSelector<Pick<State,'report'|'ready'|'user'>>(s=>({report:s.report,ready:s.ready,user:s.user}))
-  const {post} = useAPI();
+  const {upload,post} = useAPI();
   const theme = useTheme();
   const setNotif = useNotification();
 
   const feedbackSubmit=React.useCallback((type:string,addi:Record<string,any>={})=>async(dt: IData)=>{
     setLoading('feedback')
     try {
-      const {text,sysInfo: sysInfoObj,screenshot} = dt
-      let data: Record<string,any> | FormData,opt: AxiosRequestConfig|undefined=undefined;
-      const sysInfo = JSON.stringify(sysInfoObj)
+      const {text,sysInfo,screenshot} = dt
+      let opt: AxiosRequestConfig|undefined=undefined;
+      const data = {
+        type,
+        text,
+        system:sysInfo,
+        ...addi
+      }
+      let input: Record<string,any> | FormData;
       if(screenshot) {
         opt = {
           headers:{
@@ -50,31 +58,24 @@ export default function Header({ children, title,desc }: HeaderProps) {
           }
         }
         const res = await fetch(screenshot);
-        data = new FormData();
-        const blob = await res.blob();
-        const file = new File([blob],`${uuid('report')}.png`);
-        data.append('image',file);
-        data.append('text',text);
-        data.append('sysInfo',sysInfo);
-        Object.keys(addi).map(k=>{
-          data.append(k,addi[k])
-        })
+        input = new FormData();
+        const blob = await res.arrayBuffer();
+        const file = new File([blob],`Report-${getDayJs().format('YYYY-MM-DD')}-${nanoid()}.png`,{type:'image/png'});
+        input.append('files.image',file,file.name);
+        input.append('data',JSON.stringify(data));
       } else {
-        data = {
-          text,
-          ...(screenshot ? {image:screenshot} : {}),
-          sysInfo,
-          ...addi
-        }
+        input = data;
       }
-      await post(`/internal/report`,data);
-      dispatch({type:"CUSTOM",payload:{report:null}});
+      await upload(`/reports`,input,opt);
     } catch(e: any) {
-      setNotif((e?.message||t('error_500')),true);
+      setNotif((e?.error?.message||t('error_500')),true);
     } finally {
       setLoading(null)
+      dispatch({type:"CUSTOM",payload:{report:null}});
+      const notif = type === 'report' ? tReport('response_report') : type === 'feedback' ? tReport('response_feedback') : t('success');
+      setNotif(notif,false);
     }
-  },[post,setNotif,t])
+  },[upload,setNotif,t,tReport])
 
   React.useEffect(()=>{
     if(!ready) {
@@ -128,7 +129,7 @@ export default function Header({ children, title,desc }: HeaderProps) {
               vapidKey:'BCchOVH17v-HJon-RqIZE-bWVcvVT9F2KFb73kwDwBzvlyLxG_gYMYJ_TpcCPyif4t42NSYibviJHHxjUb5nXOY'
             })
             await Promise.all([
-              post("/internal/send-notification",{token,id,apps:'SansOrder Web'})
+              post("/notification-tokens",{token})
             ])
           }
         }
@@ -137,7 +138,7 @@ export default function Header({ children, title,desc }: HeaderProps) {
       }
     }
 
-    if(user && process.env.NEXT_PUBLIC_PN_ENV === 'production') {
+    if(process.env.NODE_ENV === 'production') {
       if(!sudah) {
         sudah=true;
 
@@ -167,7 +168,7 @@ export default function Header({ children, title,desc }: HeaderProps) {
         <meta name="theme-color" content={theme.palette.background.default} />
       </Head>
       {children}
-      {report!==null && <Portal><Feedback title="Send Report" onCancel={()=>dispatch({type:'CUSTOM',payload:{report:null}})} onSend={feedbackSubmit(report?.type,{...report})} required={false} disabled={loading==='feedback'} {...(report?.type==='url' ? {placeholder:"We are sorry for the inconvenience, it seems that there is a problem with our internal server service. Can you tell us how this happened?"} : {})} /></Portal> }
+      {report!==null && <Portal><Feedback t={tReport} title={tReport('title_report')} onCancel={()=>dispatch({type:'CUSTOM',payload:{report:null}})} onSend={feedbackSubmit(report?.type,{...report})} required={false} disabled={loading==='feedback'} {...(report?.type==='url' ? {placeholder:tReport('report_msg')} : {})} /></Portal> }
     </>
   )
 };

@@ -7,7 +7,7 @@ import { OutletUsers } from './OutletUsers';
 import { BusinessHour } from './components/BusinessHour';
 
 export type IDays = 'sunday'|'monday'|'tuesday'|'wednesday'|'thursday'|'friday'|'saturday'
-export const daysArray = ['sunday','monday','wednesday','thursday','friday','saturday'] as IDays[]
+export const daysArray = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] as IDays[]
 
 export type IUserAccess = 'Product'|'Transaction'|'Outlet'|'User'|'Stock'|'Promo'|'Kitchen'|'Ingredient'
 export const userAccess = ['Product','Transaction','Outlet','User','Stock','Promo','Kitchen','Ingredient'] as IUserAccess[]

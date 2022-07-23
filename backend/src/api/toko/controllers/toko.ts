@@ -30,18 +30,22 @@ export default factories.createCoreController('api::toko.toko',({strapi}) => ({
 
     const name = ctx.request.body.data?.name;
 
-    ctx.request.body.data = {
+    const data = {
       ...(ctx.request.body.data||{}),
       ...(name ? {
         slug: slugFormat(name)
       } : {}),
       user:user.id
     }
-    
-    return await super.create(ctx);
+    const toko = await strapi.entityService.create('api::toko.toko',{data,populate:{logo:'*',user:'*'}})
+
+    return this.transformResponse(toko);
   },
   async find(ctx) {
     try {
+      const user = ctx.state.user;
+      if(!user) return ctx.notFound();
+
       const populate = sanitisizedPopulate(ctx);
       populate.logo={
         populate:'*',
@@ -53,6 +57,13 @@ export default factories.createCoreController('api::toko.toko',({strapi}) => ({
       }
 
       ctx.query.populate = populate;
+      ctx.query.filters = {
+        user:{
+          id:{
+            $eq: user.id
+          }
+        }
+      }
       return await super.find(ctx);
     } catch(e) {
       console.log(e)

@@ -17,6 +17,7 @@ import sidebarConfig from './SidebarConfig';
 import MenuQr from '@comp/MenuQr';
 import {dashboardFooterMenu as footerMenu} from '@layout/FooterConfig';
 import config from '@root/web.config.json'
+import {version} from '@root/src/version'
 // ----------------------------------------------------------------------
 
 const DRAWER_WIDTH = 280;
@@ -200,6 +201,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title,
               </span>
             </FooterChild>
             <FooterChild><span>Powered by <a target='_blank' href={process.env.PORTAL_URL}>Portalnesia</a></span></FooterChild>
+            <FooterChild><span>{`v${version}`}</span></FooterChild>
           </FooterMenu>
         </FooterRoot>
       </Box>

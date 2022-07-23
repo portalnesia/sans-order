@@ -88,7 +88,7 @@ export default class TokoReport {
       header:"QTY",
       width:10
     },{
-      key:"disscount",
+      key:"discount",
       header:"DISSCOUNT",
       width:15
     },{
@@ -287,7 +287,7 @@ export default class TokoReport {
         t.items[0].price,
         t.items[0].hpp||"-",
         t.items[0].qty,
-        t.items[0].disscount,
+        t.items[0].discount,
         t.subtotal,
         total_hpp,
         t.total
@@ -305,7 +305,7 @@ export default class TokoReport {
               it.price,
               it.hpp||0,
               it.qty,
-              it.disscount,
+              it.discount,
               '',
               '',
               ''

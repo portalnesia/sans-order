@@ -42,7 +42,7 @@
       "type": "boolean",
       "default": false
     },
-    "disscount": {
+    "discount": {
       "type": "float",
       "min": 0,
       "required": false,

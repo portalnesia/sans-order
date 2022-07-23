@@ -27,6 +27,10 @@ export type CreateParams<D,P extends keyof D> = {
 
 export type IPages<D,Pagination extends boolean = false> = {
   meta?: StrapiResponse<D,Pagination>,
+  header?: {
+    title?: string,
+    desc?: string
+  },
   err?: number
 } & Partial<SSRConfig>
 
