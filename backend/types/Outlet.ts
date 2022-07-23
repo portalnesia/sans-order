@@ -3,7 +3,6 @@ import { BusinessHour } from './components/BusinessHour';
 import { Promo } from './Promo';
 import { Ingredient } from './Ingredient';
 import { Product } from './Product';
-import { File } from './File';
 import { Toko } from './Toko';
 
 export interface Outlet {
@@ -18,7 +17,6 @@ export interface Outlet {
   table_number: boolean;
   block: boolean;
   toko?: Toko;
-  files: File[];
   products: Product[];
   idcounter: number;
   ingredients: Ingredient[];

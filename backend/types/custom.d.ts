@@ -15,6 +15,8 @@ import type { Promo } from './Promo';
 import type { File } from './File';
 import type { Params } from './General';
 import { OutletUser } from './OutletUser';
+import { WalletService } from '../src/api/wallet/services/wallet';
+import { Config } from './Config';
 
 declare global {
   export interface AllTypes {
@@ -31,6 +33,7 @@ declare global {
     'api::transaction-item.transaction-item': TransactionItem
     'api::promo.promo': Promo
     'api::outlet-user.outlet-user': OutletUser
+    'api::config.config': Config
   }
   type DefaultService = {}
   type UploadService = {
@@ -49,10 +52,14 @@ declare global {
     'api::subcribe.subcribe': DefaultService
     'api::transaction.transaction': TrServices
     'plugin::users-permissions.user': DefaultService
-    'api::wallet.wallet': DefaultService
+    'api::wallet.wallet': WalletService
     'api::transaction-item.transaction-item': DefaultService
     'api::promo.promo': DefaultService
     'plugin::upload.upload': UploadService,
     'api::outlet-user.outlet-user': DefaultService
+    'api::config.config': DefaultService
+  }
+  export interface GlobalSingleService {
+    'api::config.config': true
   }
 }

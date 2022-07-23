@@ -16,6 +16,7 @@ import { SSRConfig } from 'next-i18next';
 import { IUserAccess, Outlet, Toko, Transaction } from '@type/index';
 import portalnesia from '@utils/api';
 import qs from 'qs'
+import { issueJwt } from '@utils/jwt';
 
 export const useDispatch = ()=>originalUseDispatch<Dispatch<ActionType>>()
 export const useSelector = <D=State>(selector: (state: State)=>D)=>originalUseSelector<State,D>(selector)
@@ -89,6 +90,8 @@ export default function wrapper<P=IPages<any,false>>(callback?: Callback<P>|IQue
   // @ts-ignore
   return wrapperRoot.getServerSideProps((store)=>async(ctx)=>{
     const token = portalnesia.getToken(ctx.req.cookies?.[portalnesia.options.store.key]);
+    const fjwt = issueJwt({apps:'sansorder-web'});
+    const headers = {'x-backend-token':fjwt}
     let props: IPages<any,false> = {}
     try {
       const userid = token?.user?.id;
@@ -100,7 +103,7 @@ export default function wrapper<P=IPages<any,false>>(callback?: Callback<P>|IQue
         const outlet_id = ctx.params?.outlet_id;
         if(typeof toko_id !== 'string' || typeof outlet_id !== 'string') return redirect<P>(!dt.notfound ? "/apps" : undefined);
 
-        const data = await portalnesia.request<Outlet>('get',`/outlets/${outlet_id}${dt.withWallet ? '?with_wallet=true':''}`);
+        const data = await portalnesia.request<Outlet>('get',`/outlets/${outlet_id}${dt.withWallet ? '?with_wallet=true':''}`,{headers});
         if(data.error) return redirect<P>(!dt.notfound ? "/apps" : undefined);
         const outlet = data.data;
         if(!outlet) return redirect<P>(!dt.notfound ? "/apps" : undefined);
@@ -133,7 +136,7 @@ export default function wrapper<P=IPages<any,false>>(callback?: Callback<P>|IQue
         const toko_id = ctx.params?.toko_id;
         if(typeof toko_id !== 'string') return redirect();
 
-        const data = await portalnesia.request<Toko>('get',`/tokos/${toko_id}`);
+        const data = await portalnesia.request<Toko>('get',`/tokos/${toko_id}`,{headers});
         if(data.error  || !data.data) return redirect<P>(!dt.notfound ? "/apps" : undefined);
         const toko = data.data;
 
@@ -154,7 +157,7 @@ export default function wrapper<P=IPages<any,false>>(callback?: Callback<P>|IQue
         const slug = ctx.params?.slug;
         if(typeof slug !== 'string') return redirect();
         
-        const data = await portalnesia.request<Transaction>('get',`/transactions/${slug}`);
+        const data = await portalnesia.request<Transaction>('get',`/transactions/${slug}`,{headers});
         if(!data.data || data.error) return redirect();
 
         return {

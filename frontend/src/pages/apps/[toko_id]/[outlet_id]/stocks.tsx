@@ -30,6 +30,7 @@ import dynamic from 'next/dynamic'
 import { numberFormat } from '@portalnesia/utils';
 import { getDayJs, getOutletAccess } from '@utils/Main';
 import { Dayjs } from 'dayjs';
+import { State,useSelector } from '@redux/index';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -49,20 +50,25 @@ interface FormProps {
   autoFocus?:boolean
   ingOptions: Ingredient[],
   ingLoading: boolean,
+  outlet?: Outlet,
+  edit?: boolean
   handleAutocompleteInputChange(e: React.SyntheticEvent<Element, Event>, value: string,reason: AutocompleteInputChangeReason): void
 }
 
-function Form({input,setInput,loading,autoFocus,ingOptions,ingLoading,handleAutocompleteInputChange}: FormProps) {
+function Form({input,setInput,loading,ingOptions,ingLoading,edit,outlet,handleAutocompleteInputChange}: FormProps) {
   const {t} = useTranslation('dash_product');
   const {t:tMenu} = useTranslation('menu');
-  const {t:tCom} = useTranslation('common');
-  const [edit,setEdit] = React.useState<number | null>(null);
+  const user = useSelector<State['user']>(s=>s.user);
   const [openAutocomplete,setOpenAutocomplete] = React.useState(false)
 
   const timestamp = React.useMemo(()=>{
     if(input.timestamp) return getDayJs(input.timestamp);
     return getDayJs();
   },[input])
+
+  const canEdit = React.useMemo(()=>{
+    return !!(!edit || user && outlet && outlet?.toko?.user?.id == user?.id)
+  },[outlet,user,edit])
 
   const handleChange=React.useCallback((name: keyof IInputStocks)=>(e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement> | string)=>{
     const val = typeof e === 'string' ? e : e?.target?.value;
@@ -111,7 +117,7 @@ function Form({input,setInput,loading,autoFocus,ingOptions,ingLoading,handleAuto
             getOptionLabel={o=>o.name}
             loading={ingLoading}
             open={openAutocomplete}
-            disabled={loading}
+            disabled={loading||!canEdit}
             onOpen={()=>setOpenAutocomplete(true)}
             onClose={()=>setOpenAutocomplete(false)}
             renderInput={(params) => (
@@ -133,7 +139,7 @@ function Form({input,setInput,loading,autoFocus,ingOptions,ingLoading,handleAuto
             required
             fullWidth
             type='number'
-            disabled={loading}
+            disabled={loading||!canEdit}
             placeholder='10000'
             helperText={`IDR ${numberFormat(`${input.price||0}`)}`}
             inputProps={{min:0}}
@@ -148,7 +154,7 @@ function Form({input,setInput,loading,autoFocus,ingOptions,ingLoading,handleAuto
               type='number'
               placeholder='5'
               onChange={handleChange('stocks')}
-              value={input.stocks}
+              value={input.stocks||!canEdit}
               inputProps={{min:0,step:'any'}}
               endAdornment={ valueAutoComplete ?
                 <InputAdornment position='end'>
@@ -401,7 +407,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
         <form onSubmit={handleCreate}>
           <DialogTitle>{tCom("add_ctx",{what:tMenu("stock")})}</DialogTitle>
           <DialogContent dividers>
-            <Form input={input} setInput={setInput} loading={loading} ingOptions={ingOptions} ingLoading={ingLoading} handleAutocompleteInputChange={handleAutocompleteInputChange} />
+            <Form outlet={outlet?.data} input={input} setInput={setInput} loading={loading} ingOptions={ingOptions} ingLoading={ingLoading} handleAutocompleteInputChange={handleAutocompleteInputChange} />
           </DialogContent>
           <DialogActions>
             <Button text color='inherit' disabled={loading} onClick={()=>setDCreate(false)}>{tCom("cancel")}</Button>
@@ -414,7 +420,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
         <form onSubmit={handleEdit}>
           <DialogTitle>{`Edit ${tMenu("stock")}`}</DialogTitle>
           <DialogContent dividers>
-            <Form input={input} setInput={setInput} loading={loading} ingOptions={ingOptions} ingLoading={ingLoading} handleAutocompleteInputChange={handleAutocompleteInputChange} />
+            <Form edit outlet={outlet?.data} input={input} setInput={setInput} loading={loading} ingOptions={ingOptions} ingLoading={ingLoading} handleAutocompleteInputChange={handleAutocompleteInputChange} />
           </DialogContent>
           <DialogActions>
             <Button text color='inherit' disabled={loading} onClick={()=>setDEdit(null)}>{tCom("cancel")}</Button>

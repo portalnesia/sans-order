@@ -14,4 +14,5 @@ export interface Toko {
   outlets: Outlet[];
   wallet?: Wallet;
   logo?: File;
+  files: File[];
 }

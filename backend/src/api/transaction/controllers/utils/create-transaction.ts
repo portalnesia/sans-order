@@ -2,7 +2,7 @@ import { Dayjs } from "dayjs";
 import { Context } from "koa";
 import { ChannelProps } from "xendit-node/src/ewallet/ewallet_charge";
 import { Outlet } from "../../../../../types/Outlet";
-import { PAYMENT_TYPE, BANK_CODES, EWALLET_CODE, PAYMENT_STATUS, ORDER_STATUS } from "../../../../../types/Payment";
+import { PAYMENT_TYPE, BANK_CODES, EWALLET_CODE, PAYMENT_STATUS, ORDER_STATUS, EWalletOpts, ICreatePayment, QrCodeOpts, VirtualAccOpts } from "../../../../../types/Payment";
 import { PaymentError } from "../../../../utils/payment";
 import * as Main from '../../../../../utils/Main';
 import type {Strapi} from '@strapi/strapi'
@@ -74,7 +74,10 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
       console.log("CHECK5")
     }
 
-    const {total,subtotal,disscount,items,items_stock} = await service.checkItemForTransaction(data.items,outlet);
+    const [{total,subtotal,disscount,items,items_stock},config] = await Promise.all([
+      service.checkItemForTransaction(data.items,outlet),
+      strapi.service('api::config.config').find({})
+    ]);
     const changes = (cash||total)-total;
     if(changes < 0) throw new PaymentError("Cash is less than the total transaction price",400);
 
@@ -83,9 +86,8 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
     let payload: {expired: Dayjs|null,payload:any}|undefined=undefined;
 
     if(type !== 'cashier') {
-      
-      throw new PaymentError("Missing payment parameters",400);
-      /*if(!payment_req) throw new PaymentError("Missing payment parameters",400);
+      //throw new PaymentError("Missing payment parameters",400);
+      if(!payment_req) throw new PaymentError("Missing payment parameters",400);
       const user_email = user ? user.email : email as string;
       const user_name = user ? user.name : name as string;
       const user_telephone = user ? user.telephone : telephone;
@@ -115,6 +117,7 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
       }
       // ONLINE PAYMENT
       else {
+        if(!config.online_payment) throw new PaymentError("Transactions failed. `online_payment` is under maintenance",403);
         if(!outlet.online_payment) throw new PaymentError("Transactions failed. This toko not implemented `online_payment`",403);
 
         // VA
@@ -154,7 +157,7 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
             ewallet
           })
         }
-      }*/
+      }
     }
 
     const insert = {
@@ -178,8 +181,8 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
         telephone
       }),
       cashier: type === 'cashier' && user ? user.id : null,
-      //...(payload?.payload ? {payload:JSON.stringify(payload.payload)} : {}),
-      //...(payload?.expired ? {expired:payload.expired.pn_format()} : {}),
+      ...(payload?.payload ? {payload:JSON.stringify(payload.payload)} : {}),
+      ...(payload?.expired ? {expired:payload.expired.pn_format()} : {}),
       ...(name ? {name} : {}),
       ...(email ? {email} : {}),
       ...(metadata ? {metadata:JSON.stringify(metadata)} : {}),
@@ -255,8 +258,7 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
       token
     }
     
-    const sanitizedEntity = await this.sanitizeOutput(output, ctx);
-    return this.transformResponse(sanitizedEntity);
+    return this.transformResponse(output);
   } catch(e) {
     if(e instanceof PaymentError) {
       ctx.throw(e.code,e.message);

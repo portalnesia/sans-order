@@ -45,7 +45,7 @@ function Carousel({data,enabled}: CarouselProps) {
       <Stack mb={4} direction='row' justifyContent={'space-between'} alignItems='center' spacing={2} sx={{pb:1,mb:4,borderBottom:(theme)=>`1px solid ${theme.palette.divider}`}}>
         <Typography variant='h3' component='h3'>{data.category}</Typography>
         {!slug && data.data.length >= 5 && (
-          <Button size='small' onClick={()=>router.push(`/merchant/[toko_id]/[outlet_id]/[[...slug]]`,`/merchant/${toko_id}/${outlet_id}/${data.category.toLowerCase()}`,{shallow:true})}>{t("view_more")}</Button>
+          <Button size='small' onClick={()=>router.push(`/merchant/[toko_id]/[outlet_id]/[[...slug]]`,`/merchant/${toko_id}/${outlet_id}/${encodeURIComponent(data.category)}`,{shallow:true})}>{t("view_more")}</Button>
         )}
       </Stack>
       <Box>
@@ -104,7 +104,7 @@ function MerchantOutlet({meta,socket}: IPages<Outlet>  & ({socket:ISocket|null})
 	const {toko_id,outlet_id,slug,table_number} = router.query;
   const locale = router.locale;
   const [page,setPage] = usePagination(true);
-  const {data,error} = useSWR<ProductMenu,true>(typeof slug?.[0] === 'undefined' ? `/products/${outlet_id}/menu` : `/products/${outlet_id}/menu/${slug?.[0]?.toLowerCase()}?page=${page}&pageSize=25`)
+  const {data,error} = useSWR<ProductMenu,true>(typeof slug?.[0] === 'undefined' ? `/products/${outlet_id}/menu?page=1&pageSize=5` : `/products/${outlet_id}/menu/${encodeURIComponent(slug?.[0])}?page=${page}&pageSize=25`)
   const [table,setTable] = React.useState<string|undefined>();
   const [openSocket,setOpenSocket] = React.useState(false);
   let sudah = React.useRef(false);
@@ -213,7 +213,7 @@ function MerchantOutlet({meta,socket}: IPages<Outlet>  & ({socket:ISocket|null})
                 </Box>
               ) : typeof slug?.[0] === 'undefined' ? data?.data.map((d,i)=>(
                 <Carousel enabled={isEnabled.enabled} key={d.category} data={d} />
-              )) : typeof slug?.[0] === 'undefined' && data?.data ? (
+              )) : typeof slug?.[0] !== 'undefined' && data?.data ? (
                 <GridData enabled={isEnabled.enabled} data={data?.data[0]} page={page} setPage={setPage} count={data?.meta?.pagination?.pageCount||0} onBack={onBack} />
               ) : null}
             </Box>

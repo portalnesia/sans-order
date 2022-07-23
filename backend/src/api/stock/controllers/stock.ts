@@ -73,6 +73,7 @@ export default factories.createCoreController('api::stock.stock',({strapi}) => (
     return output;
   },
   async update(ctx) {
+    const user = ctx.state.user;
     const outlet = ctx.state.outlet as Outlet;
 
     ctx.query = {
@@ -92,9 +93,13 @@ export default factories.createCoreController('api::stock.stock',({strapi}) => (
     
     ctx.request.body.data = {
       outlet:outlet.id,
-      ...(ctx.request.body?.data?.timestamp ? {
-        timestamp: ctx.request.body?.data?.timestamp
-      } : {})
+      ...(outlet.toko?.user?.id == user?.id ? {
+        ...ctx.request.body?.data
+      } : {
+        ...(ctx.request.body?.data?.timestamp ? {
+          timestamp: ctx.request.body?.data?.timestamp
+        } : {})
+      })
     };
 
     return await super.update(ctx);

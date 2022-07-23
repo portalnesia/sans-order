@@ -298,7 +298,7 @@ export default class Payment {
     }
     else throw new PaymentError("Invalid payment method",400);
     
-    if(result.va_number) this.sendPaymentEmail('created',opt,result.va_number);
+    //if(result.va_number) this.sendPaymentEmail('created',opt,result.va_number);
 
     return result;
   }
@@ -329,7 +329,7 @@ export default class Payment {
     const expired = Main.getDayJs().add(2,'h')
     const channelProperties: ChannelProps = data.ewallet.channelCode !== EWALLET_CODE.OVO ? {
       ...data.ewallet.channelProperties,
-      successRedirectURL:Main.url(`/api/payment/redirect/${data.ewallet.referenceID}`),
+      successRedirectURL:Main.webUrl(`/transactions/${data.ewallet.referenceID}`),
     } : data.ewallet.channelProperties
     const options: XenditEWalletOpts = {
       ...data,
@@ -350,7 +350,7 @@ export default class Payment {
     const expired = Main.getDayJs().add(2,'h')
     const options: XenditQrCodeOpts = {
       ...data.qr,
-      callbackURL:`${process.env.API_PUBLIC_URL}/payment/callback/qr`,
+      callbackURL:`${process.env.URL}/api/callback/callback-qr`,
       // @ts-ignore
       type: (data?.qr?.type==="STATIC" ? "STATIC" : "DYNAMIC")
     }
@@ -380,7 +380,7 @@ export default class Payment {
       }
     }
     
-    const opt: ICreatePayment<false> = {
+    const opt: ICreatePayment = {
       uid:transaksi.uid||'',
       payment: payment as ICreatePayment['payment'],
       items:transaksi?.items,
@@ -832,7 +832,7 @@ export default class Payment {
     }
 
     const filePath = path.resolve(`./src/templates/print_transaction.ejs`);
-    const html = await renderFile(filePath,{outlet:tr.outlet,tr:transaction,desktop,sans_url:urlToDomain(process.env.URL as string).toLowerCase()},{rmWhitespace:true})
+    const html = await renderFile(filePath,{outlet:tr.outlet,tr:transaction,desktop,sans_url:urlToDomain(process.env.WEB_URL as string).toLowerCase()},{rmWhitespace:true})
 
     return html;
   }
@@ -1097,6 +1097,256 @@ export default class Payment {
         income: sum,
         total_transactions:total
       }
+    }
+  }
+
+  private async getTransactionByUid(uid: string) {
+    const strapi = await this.strapi.entityService.findMany('api::transaction.transaction',{
+      filters:{
+        uid:{
+          $eq: uid
+        }
+      },
+      limit:1,
+      populate:{
+        outlet:{
+          populate:{
+            toko:{
+              populate:'user'
+            }
+          }
+        },
+        items:{
+          populate:{
+            item:{
+              populate:'recipes'
+            }
+          }
+        }
+      }
+    })
+
+    if(!strapi) return undefined;
+    return strapi[0];
+  }
+
+  async updateStock(tr: Transaction,tanggal: Dayjs) {
+    return await Promise.all(tr.items?.map(async(i)=>{
+      const r = i.item?.recipes.find(r=>r.item?.id === i.item?.id);
+      if(r) {
+        return strapi.entityService.create('api::stock.stock',{
+          data:{
+            outlet:tr.outlet?.id,
+            item: i.item?.id,
+            price:i.price,
+            type:'out',
+            stocks:r.consume,
+            timestamp:tanggal.toDate()
+          }
+        })
+      }
+      return Promise.resolve(null);
+    }))
+  }
+
+  async callbackVA(type:'paid'|'status',body: Record<string,any>) {
+    try {
+      console.log("VIRTUAL ACCOUNT",type,body);
+      const id = body?.external_id;
+      const tr = await this.getTransactionByUid(id);
+      if(tr && tr.outlet?.toko) {
+        const tanggal = Main.getDayJs().utcOffset(7);
+        const status = type === 'paid' || body?.status==='INACTIVE' && tr.status===PAYMENT_STATUS.PAID ? PAYMENT_STATUS.PAID : (body.status==='INACTIVE' && tr.status != PAYMENT_STATUS.PAID ? PAYMENT_STATUS.EXPIRED : (body.status==='PENDING' ? PAYMENT_STATUS.PENDING : undefined))
+
+        const order_status = type === 'paid' || body?.status==='INACTIVE' && tr.status===PAYMENT_STATUS.PAID ? ORDER_STATUS.PROCESSING : (body.status==='INACTIVE' && tr.status != PAYMENT_STATUS.PAID ? ORDER_STATUS.CANCELED : (body.status==='PENDING' ? ORDER_STATUS.PENDING : undefined))
+
+        const payload = type === 'status' ? body : tr?.payload;
+        let platform_fees: number|undefined;
+        if(type === 'paid') {
+          payload.status = 'PAID';
+          platform_fees=this.fees.VIRTUAL_ACCOUNT
+        }
+
+        const data: Partial<Transaction> = {
+          updated: tanggal.toDate(),
+          platform_fees,
+          status,
+          order_status,
+          payload
+        }
+        await strapi.entityService.update('api::transaction.transaction',tr.id,{data});
+
+        const result = {
+          ...tr,
+          ...data
+        }
+
+        const opt = this.getOptionsFromDb(result);
+
+        await Promise.all([
+          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'add',opt.total - this.fees.VIRTUAL_ACCOUNT),
+          this.updateStock(tr,tanggal),
+          opt.email.length > 0 ? this.sendPaymentEmail('success',opt) : Promise.resolve(),
+          this.sendWhatsapp('success',opt)
+        ])
+
+        strapi.$io.raw('toko transactions',result,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
+      }
+    } catch(e) {
+      console.log("CALLBACK VA ERROR",e)
+      throw e
+    }
+  }
+
+  async callbackEwallet(body: Record<string,any>) {
+    try {
+      console.log("Ewallet",body);
+      const id = body?.data?.reference_id;
+      const tr = await this.getTransactionByUid(id);
+      if(tr && tr.outlet?.toko) {
+        const tanggal = Main.getDayJs().utcOffset(7);
+
+        const status = body?.data?.status === 'SUCCEEDED' ? PAYMENT_STATUS.PAID : (body?.data?.status==='FAILED' ? PAYMENT_STATUS.FAILED : (body?.data?.status==='VOIDED' ? PAYMENT_STATUS.FAILED : (body?.data?.status === 'REFUNDED' ? PAYMENT_STATUS.REFUNDED : undefined)))
+
+        const order_status = body?.data?.status === 'SUCCEEDED' ? ORDER_STATUS.PROCESSING : (body?.data?.status==='FAILED' ? ORDER_STATUS.CANCELED : (body?.data?.status==='VOIDED' ? ORDER_STATUS.CANCELED : (body?.data?.status === 'REFUNDED' ? ORDER_STATUS.CANCELED : undefined)))
+
+        let platform_fees: number|undefined;
+        if(status === PAYMENT_STATUS.PAID) {
+          platform_fees = Math.round(tr?.total*this.fees.EWALLET);
+        }
+
+        const payload = body?.data;
+
+        const data: Partial<Transaction> = {
+          updated: tanggal.toDate(),
+          platform_fees,
+          status,
+          order_status,
+          payload
+        }
+
+        await strapi.entityService.update('api::transaction.transaction',tr.id,{data});
+
+        const result = {
+          ...tr,
+          ...data
+        }
+
+        const opt = this.getOptionsFromDb(result);
+
+        await Promise.all([
+          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'add',opt.total - this.fees.VIRTUAL_ACCOUNT),
+          this.updateStock(tr,tanggal),
+          opt.email.length > 0 ? this.sendPaymentEmail('success',opt) : Promise.resolve(),
+          this.sendWhatsapp('success',opt)
+        ])
+
+        strapi.$io.raw('toko transactions',result,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
+      }
+    } catch(e) {
+      console.log("CALLBACK VA ERROR",e)
+      throw e
+    }
+  }
+
+  async callbackQrCode(body: Record<string,any>) {
+    try {
+      console.log("QR",body);
+      const id = body?.qr_code?.external_id;
+      const tr = await this.getTransactionByUid(id);
+      if(tr && tr.outlet?.toko) {
+        const tanggal = Main.getDayJs().utcOffset(7);
+
+        const status = body?.status === 'COMPLETED' ? PAYMENT_STATUS.PAID : undefined
+
+        const order_status = body?.status === 'COMPLETED' ? ORDER_STATUS.PROCESSING : undefined
+
+        let platform_fees: number|undefined;
+        if(status === PAYMENT_STATUS.PAID) {
+          platform_fees = Math.round(tr?.total*this.fees.QRIS);
+        }
+
+        const payload = body?.data;
+
+        const data: Partial<Transaction> = {
+          updated: tanggal.toDate(),
+          platform_fees,
+          status,
+          order_status,
+          payload
+        }
+
+        const result = {
+          ...tr,
+          ...data
+        }
+
+        const opt = this.getOptionsFromDb(result);
+
+        await Promise.all([
+          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'add',opt.total - this.fees.VIRTUAL_ACCOUNT),
+          this.updateStock(tr,tanggal),
+          opt.email.length > 0 ? this.sendPaymentEmail('success',opt) : Promise.resolve(),
+          this.sendWhatsapp('success',opt)
+        ])
+
+        strapi.$io.raw('toko transactions',result,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
+      }
+    } catch(e) {
+      console.log("CALLBACK VA ERROR",e)
+      throw e
+    }
+  }
+
+  async callbackSendMoney(body: Record<string,any>) {
+    try {
+      console.log("SEND MONEY",body);
+      const id = body?.external_id;
+      const tr = await this.getTransactionByUid(id);
+      if(tr && tr.outlet?.toko) {
+        const tanggal = Main.getDayJs().utcOffset(7);
+
+        const status = body?.status === 'COMPLETED' ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.FAILED
+        const order_status = body?.status === 'COMPLETED' ? ORDER_STATUS.FINISHED : ORDER_STATUS.CANCELED
+
+        let platform_fees: number|undefined;
+        if(status === PAYMENT_STATUS.PAID) {
+          platform_fees = Math.round(tr?.total*this.fees.WITHDRAW);
+        }
+
+        const payload = body;
+
+        const data: Partial<Transaction> = {
+          updated: tanggal.toDate(),
+          platform_fees,
+          status,
+          order_status,
+          payload
+        }
+
+        await strapi.entityService.update('api::transaction.transaction',tr.id,{data});
+
+        const result = {
+          ...tr,
+          ...data
+        }
+
+        const opt = this.getOptionsFromDb(result);
+
+        await Promise.all([
+          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'sub',opt.subtotal + this.fees.VIRTUAL_ACCOUNT),
+          this.sendSendMoneyEmail('send_money',{
+            ...opt,
+            bank_code:body.bank_code,
+            item_name:"Withdrawal Payment",
+          })
+        ])
+
+        strapi.$io.raw('toko withdraw',result,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
+      }
+    } catch(e) {
+      console.log("CALLBACK VA ERROR",e)
+      throw e
     }
   }
 }

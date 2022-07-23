@@ -92,6 +92,9 @@ export default factories.createCoreController('api::product.product',({strapi}) 
             $eq: category
           })
         },
+        show_in_menu:{
+          $eq:true
+        },
         outlet:{
           id:{
             $eq: `${outlet?.id}`
@@ -100,7 +103,7 @@ export default factories.createCoreController('api::product.product',({strapi}) 
       }
       const pr = await strapi.entityService.findPage('api::product.product',{filters,populate})
       
-      return {data:pr.results,meta:{pagination:pr.pagination}};
+      return {data:[{category:category,data:pr.results}],meta:{pagination:pr.pagination}};
     } else if(typeof category === 'undefined') {
       const data: {category: string,data: Product[]}[] = []
 
@@ -115,6 +118,10 @@ export default factories.createCoreController('api::product.product',({strapi}) 
             id:{
               $eq: `${outlet?.id}`
             }
+          }
+        },{
+          show_in_menu:{
+            $eq:true
           }
         }],
       },populate})
@@ -141,6 +148,10 @@ export default factories.createCoreController('api::product.product',({strapi}) 
               id:{
                 $eq: `${outlet?.id}`
               }
+            }
+          },{
+            show_in_menu:{
+              $eq:true
             }
           }]
         }
@@ -214,6 +225,9 @@ export default factories.createCoreController('api::product.product',({strapi}) 
         image:{
           populate:'*',
           fields:['id','url']
+        },
+        recipes:{
+          populate:'*'
         }
       }
     }

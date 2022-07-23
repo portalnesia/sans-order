@@ -19,7 +19,8 @@ const useApiProxy=(req: Request,res: Response,next: NextFunction)=>{
     changeOrigin: true,
     headers:{
       host:`http://localhost:${process.env.API_PORT}`
-    }
+    },
+    logLevel:'error'
   });
   return apiProxy(req,res,next);
 }
