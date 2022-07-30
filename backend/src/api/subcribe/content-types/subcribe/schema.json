@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "subcribes",
+  "info": {
+    "singularName": "subcribe",
+    "pluralName": "subcribes",
+    "displayName": "Subcribe"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "max_toko": {
+      "type": "integer",
+      "min": 0,
+      "required": true,
+      "default": 0
+    },
+    "max_outlet": {
+      "type": "integer",
+      "min": 0,
+      "required": true,
+      "default": 0
+    },
+    "max_user": {
+      "type": "integer",
+      "min": 0,
+      "required": true
+    },
+    "expired": {
+      "type": "datetime",
+      "required": true
+    }
+  }
+}

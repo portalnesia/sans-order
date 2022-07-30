@@ -1,0 +1,16 @@
+{
+  "hi":"Hi, Welcome Back",
+  "signin":"Sign in with Portalnesia",
+  "not_register":"Don’t have an account?",
+  "register":"Register Now",
+  "owned_merchant":"Owned Merchant",
+  "managed_merchant":"Managed Merchant",
+  "features": "Please wait...\nWe are checking your browser",
+  "features_failed":{
+    "title": "Your browser does not support the following features:",
+    "cookieEnabled":"Cookies",
+    "support_localStorage": "Local Storage",
+    "support_sessionStorage": "Session Storage",
+    "support_webSocket": "Websocket"
+  }
+}

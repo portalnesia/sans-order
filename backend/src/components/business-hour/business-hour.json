@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_business_hour_business_hours",
+  "info": {
+    "displayName": "Business Hour"
+  },
+  "options": {},
+  "attributes": {
+    "day": {
+      "type": "enumeration",
+      "enum": [
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday"
+      ],
+      "required": true
+    },
+    "from": {
+      "type": "time",
+      "required": true
+    },
+    "to": {
+      "type": "time",
+      "required": true
+    }
+  }
+}

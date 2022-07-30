@@ -1,0 +1,46 @@
+diff --git a/node_modules/xendit-node/src/ewallet/ewallet_charge.d.ts b/node_modules/xendit-node/src/ewallet/ewallet_charge.d.ts
+index 052f6ef..b7fca86 100644
+--- a/node_modules/xendit-node/src/ewallet/ewallet_charge.d.ts
++++ b/node_modules/xendit-node/src/ewallet/ewallet_charge.d.ts
+@@ -1,9 +1,9 @@
+-enum Currency {
++export enum Currency {
+   IDR = 'IDR',
+   PHP = 'PHP',
+ }
+ 
+-enum ChannelCode {
++export enum ChannelCode {
+   ID_OVO = 'ID_OVO',
+   ID_DANA = 'ID_DANA',
+   ID_LINKAJA = 'ID_LINKAJA',
+@@ -11,7 +11,7 @@ enum ChannelCode {
+   PH_PAYMAYA = 'PH_PAYMAYA',
+ }
+ 
+-interface ChannelProps {
++export interface ChannelProps {
+   mobileNumber?: string;
+   successRedirectURL?: string;
+   failureRedirectURL?: string;
+@@ -19,7 +19,7 @@ interface ChannelProps {
+   redeemPoints?: string;
+ }
+ 
+-interface Basket {
++export interface Basket {
+   referenceID: string;
+   name: string;
+   category: string;
+diff --git a/node_modules/xendit-node/src/qr_code/qr_code.d.ts b/node_modules/xendit-node/src/qr_code/qr_code.d.ts
+index 98f05be..951221d 100644
+--- a/node_modules/xendit-node/src/qr_code/qr_code.d.ts
++++ b/node_modules/xendit-node/src/qr_code/qr_code.d.ts
+@@ -1,6 +1,6 @@
+ import { XenditOptions } from '../xendit_opts';
+ 
+-enum QrCodeTypes {
++export enum QrCodeTypes {
+   Dynamic = 'DYNAMIC',
+   Static = 'STATIC',
+ }

@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "notification_tokens",
+  "info": {
+    "singularName": "notification-token",
+    "pluralName": "notification-tokens",
+    "displayName": "Notification Token",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "token": {
+      "type": "text",
+      "required": true,
+      "unique": true
+    },
+    "datetime": {
+      "type": "datetime"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}

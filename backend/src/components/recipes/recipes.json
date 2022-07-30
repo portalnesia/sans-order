@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_recipes_recipes",
+  "info": {
+    "displayName": "Recipes",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "consume": {
+      "type": "float",
+      "min": 0,
+      "required": true,
+      "default": 0
+    },
+    "item": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::ingredient.ingredient"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "stocks",
+  "info": {
+    "singularName": "stock",
+    "pluralName": "stocks",
+    "displayName": "Stock",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "outlet": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::outlet.outlet"
+    },
+    "item": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::ingredient.ingredient"
+    },
+    "price": {
+      "type": "float",
+      "required": true,
+      "min": 0,
+      "default": 0
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "in",
+        "out"
+      ],
+      "required": false,
+      "default": "out"
+    },
+    "stocks": {
+      "type": "float",
+      "required": true,
+      "min": -100000,
+      "default": 0
+    },
+    "timestamp": {
+      "type": "datetime",
+      "required": true
+    }
+  }
+}

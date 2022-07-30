@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "messages",
+  "info": {
+    "singularName": "message",
+    "pluralName": "messages",
+    "displayName": "Message"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "from": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "to": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "message": {
+      "type": "richtext"
+    },
+    "file": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "datetime": {
+      "type": "datetime",
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "support"
+      ],
+      "required": true
+    },
+    "room_id": {
+      "type": "biginteger",
+      "required": true
+    }
+  }
+}

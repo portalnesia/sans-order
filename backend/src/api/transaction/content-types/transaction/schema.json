@@ -1,0 +1,145 @@
+{
+  "kind": "collectionType",
+  "collectionName": "transactions",
+  "info": {
+    "singularName": "transaction",
+    "pluralName": "transactions",
+    "displayName": "Transaction",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "outlet": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::outlet.outlet"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "uid": {
+      "type": "uid"
+    },
+    "name": {
+      "type": "string",
+      "private": true
+    },
+    "email": {
+      "type": "string",
+      "private": true
+    },
+    "telephone": {
+      "type": "string",
+      "private": true
+    },
+    "payment": {
+      "type": "enumeration",
+      "enum": [
+        "COD",
+        "VIRTUAL_ACCOUNT",
+        "EWALLET",
+        "QRIS",
+        "BANK MANDIRI",
+        "BANK BNI",
+        "BANK BRI",
+        "BANK BCA",
+        "DANA",
+        "LINKAJA",
+        "SHOPEEPAY",
+        "OVO",
+        "GOPAY"
+      ],
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "PAID",
+        "PENDING",
+        "EXPIRED",
+        "FAILED",
+        "REFUNDED"
+      ],
+      "required": true
+    },
+    "order_status": {
+      "type": "enumeration",
+      "enum": [
+        "FINISHED",
+        "PENDING",
+        "PROCESSING",
+        "CANCELED"
+      ],
+      "required": true
+    },
+    "subtotal": {
+      "type": "float",
+      "required": true,
+      "min": 0
+    },
+    "discount": {
+      "type": "float",
+      "min": 0,
+      "required": true,
+      "default": 0
+    },
+    "total": {
+      "type": "float",
+      "required": true,
+      "min": 0,
+      "default": 0
+    },
+    "cash": {
+      "type": "float",
+      "required": true,
+      "min": 0,
+      "default": 0
+    },
+    "platform_fees": {
+      "type": "float",
+      "min": 0,
+      "required": false,
+      "default": 0
+    },
+    "datetime": {
+      "type": "datetime"
+    },
+    "updated": {
+      "type": "datetime"
+    },
+    "expired": {
+      "type": "datetime"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "self_order",
+        "cashier",
+        "withdraw"
+      ],
+      "required": true
+    },
+    "cashier": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "payload": {
+      "type": "json"
+    },
+    "metadata": {
+      "type": "json"
+    },
+    "items": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::transaction-item.transaction-item",
+      "mappedBy": "transaction"
+    }
+  }
+}

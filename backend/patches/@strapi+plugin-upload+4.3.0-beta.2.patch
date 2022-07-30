@@ -1,0 +1,42 @@
+diff --git a/node_modules/@strapi/plugin-upload/server/register.js b/node_modules/@strapi/plugin-upload/server/register.js
+index fed690e..7deb9be 100644
+--- a/node_modules/@strapi/plugin-upload/server/register.js
++++ b/node_modules/@strapi/plugin-upload/server/register.js
+@@ -8,7 +8,8 @@ const registerUploadMiddleware = require('./middlewares/upload');
+  * @param {{ strapi: import('@strapi/strapi').Strapi }}
+  */
+ module.exports = async ({ strapi }) => {
+-  strapi.plugin('upload').provider = createProvider(strapi.config.get('plugin.upload', {}));
++  const config = strapi.config.get('plugin.upload');
++  strapi.plugin('upload').provider = createProvider(config);
+ 
+   await registerUploadMiddleware({ strapi });
+ 
+diff --git a/node_modules/@strapi/plugin-upload/server/services/upload.js b/node_modules/@strapi/plugin-upload/server/services/upload.js
+index 6849e47..6cbd7df 100644
+--- a/node_modules/@strapi/plugin-upload/server/services/upload.js
++++ b/node_modules/@strapi/plugin-upload/server/services/upload.js
+@@ -72,6 +72,7 @@ module.exports = ({ strapi }) => ({
+     const usedName = fileInfo.name || filename;
+ 
+     const entity = {
++      ...fileInfo,
+       name: usedName,
+       alternativeText: fileInfo.alternativeText,
+       caption: fileInfo.caption,
+diff --git a/node_modules/@strapi/plugin-upload/server/utils/index.d.ts b/node_modules/@strapi/plugin-upload/server/utils/index.d.ts
+index feca170..3e89ce6 100644
+--- a/node_modules/@strapi/plugin-upload/server/utils/index.d.ts
++++ b/node_modules/@strapi/plugin-upload/server/utils/index.d.ts
+@@ -1,9 +1,11 @@
+ import * as upload from '../services/upload';
+ import * as imageManipulation from '../services/image-manipulation';
++import * as apiUploadFolder from '../services/api-upload-folder'
+ 
+ type S = {
+   upload: typeof upload;
+   ['image-manipulation']: typeof imageManipulation;
++  'api-upload-folder': typeof apiUploadFolder
+ };
+ 
+ export function getService<T extends keyof S>(name: T): ReturnType<S[T]>;

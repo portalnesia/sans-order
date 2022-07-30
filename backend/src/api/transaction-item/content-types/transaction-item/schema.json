@@ -1,0 +1,71 @@
+{
+  "kind": "collectionType",
+  "collectionName": "transaction_items",
+  "info": {
+    "singularName": "transaction-item",
+    "pluralName": "transaction-items",
+    "displayName": "Transaction Item",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "item": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::product.product"
+    },
+    "qty": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "hpp": {
+      "type": "float",
+      "required": false,
+      "min": 0,
+      "default": 0
+    },
+    "datetime": {
+      "type": "datetime",
+      "required": true
+    },
+    "price": {
+      "type": "float",
+      "min": 0,
+      "default": 0,
+      "required": true
+    },
+    "done": {
+      "type": "boolean",
+      "default": false
+    },
+    "discount": {
+      "type": "float",
+      "min": 0,
+      "required": false,
+      "default": 0
+    },
+    "metadata": {
+      "type": "json"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "transaction": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::transaction.transaction",
+      "private": true,
+      "inversedBy": "items"
+    },
+    "outlet": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::outlet.outlet",
+      "private": true
+    }
+  }
+}

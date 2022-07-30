@@ -1,0 +1,16 @@
+{
+  "hi":"Hi, Selamat Datang",
+  "signin":"Masuk dengan Portalnesia",
+  "not_register":"Tidak punya akun?",
+  "register":"Daftar Sekarang",
+  "owned_merchant":"Merchant Yang Dimiliki",
+  "managed_merchant":"Merchant Yang Dikelola",
+  "features": "Mohon tunggu...\nKami sedang memeriksa browser Anda",
+  "features_failed":{
+    "title": "Browser Anda tidak mendukung beberapa fitur berikut ini:",
+    "cookieEnabled":"Cookies",
+    "support_localStorage": "Local Storage",
+    "support_sessionStorage": "Session Storage",
+    "support_webSocket": "Websocket"
+  }
+}

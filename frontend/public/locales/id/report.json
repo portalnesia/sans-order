@@ -1,0 +1,18 @@
+{
+  "report_msg":"Mohon maaf atas ketidaknyamanannya, sepertinya ada masalah dengan layanan internal server kami. Bisakah Anda memberi tahu kami bagaimana ini terjadi?",
+  "title_feedback":"Kirim Umpan Balik",
+  "title_report":"Kirim Laporan",
+  "placeholder":"Tolong jelaskan masalah Anda atau bagikan pemikiran Anda",
+  "checkboxLabel":"Sertakan tangkapan layar",
+  "loadingTip":"Memuat tangkapan layar...",
+  "editTip":"Sorot atau sembunyikan informasi",
+  "cancelLabel":"Batal",
+  "confirmLabel":"Kirim",
+  "hightlightTip":"Sorot masalah",
+  "hideTip":"Sembunyikan informasi sensitif",
+  "requiredTip":"Deskripsi harus diisi",
+  "editDoneLabel":"Selesai",
+  "legal": "Beberapa <1>Informasi Sistem</1> mungkin dikirim ke SansOrder. Kami akan menggunakan informasi yang diberikan kepada kami untuk membantu mengatasi masalah teknis dan meningkatkan layanan kami.",
+  "response_report":"Terima kasih atas laporan Anda. Kami akan meninjaunya sesegera mungkin.",
+  "response_feedback":"Terima kasih atas tanggapan Anda."
+}

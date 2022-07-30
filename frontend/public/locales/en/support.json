@@ -1,0 +1,14 @@
+{
+  "copied":"Text copied",
+  "max_file": "Maximum file size is {{max}} MB!",
+  "only_image": "Only support images",
+  "ticket_close": "This ticket is closed. You may reply to this ticket to reopen it.",
+  "empty": "Messages cannot be empty",
+  "type":"Type a message...",
+  "subject":"Subject",
+  "information":"Information",
+  "drop_images":"Drop your images now",
+  "select_message":"Please select a message to start messaging",
+  "no_message":"No more messages",
+  "close_ticket": "Close Ticket"
+}

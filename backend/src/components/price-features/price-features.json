@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_price_features_price_features",
+  "info": {
+    "displayName": "Price Features",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "feature": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::price-list-feature.price-list-feature"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

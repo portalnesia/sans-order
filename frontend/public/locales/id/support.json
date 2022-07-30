@@ -1,0 +1,14 @@
+{
+  "copied":"Teks disalin",
+  "max_file": "Ukuran maksimum file adalah {{max}} MB!",
+  "only_image": "Hanya mendukung gambar",
+  "ticket_close": "Status tiket ini sudah close. Anda dapat membalas ke tiket ini untuk membukanya kembali.",
+  "empty": "Pesan tidak boleh kosong",
+  "type":"Ketik pesan...",
+  "subject":"Subjek",
+  "information":"Informasi",
+  "drop_images":"Lepas gambar anda sekarang",
+  "select_message":"Silahkan pilih pesan untuk mulai mengirim pesan",
+  "no_message":"Tidak ada pesan lagi",
+  "close_ticket": "Tutup Tiket"
+}

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=yes">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Transaction #<%= tr.uid %></title>
+        <style>
+            * {
+                font-size: 14px;
+                font-family: monaco,'Times New Roman';
+            }
+            p{
+                margin-top:.5em;
+                margin-bottom:.5em;
+            }
+
+            td,
+            th,
+            tr,
+            table {
+                border-collapse: collapse;
+            }
+            table{
+                width:100%
+            }
+            .border{
+                border-top: 1px dashed black;
+                border-collapse: collapse;
+            }
+
+            td.quantity,
+            th.quantity {
+                /*width: 159px;
+                max-width: 159px;*/
+                word-break: break-all;
+            }
+
+            td.price,
+            th.price {
+                /*width: 60px;
+                max-width: 60px;*/
+                word-break: break-all;
+                text-align:right;
+            }
+
+            .centered {
+                text-align: center;
+                align-content: center;
+            }
+
+            .ticket {
+                margin: 0 auto;
+                /*width: 219px;
+                max-width: 219px;*/
+            }
+
+            img {
+                max-width: inherit;
+                width: inherit;
+            }
+
+            tbody.items tr{
+                margin-top:10px;
+            }
+            tbody.items tr:first-child{
+                margin-top:unset;
+            }
+
+            img {
+                -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+                filter: grayscale(100%);
+                max-width: 300px;
+                max-height: 120px;
+            }
+
+            @media print {
+                .hidden-print,
+                .hidden-print * {
+                    display: none !important;
+                }
+            }
+            @page {
+                size: 58mm auto;
+                margin: 1mm 1mm 1mm 1mm;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="ticket">
+          <% if(outlet.toko.logo && typeof outlet.toko.logo.url === 'string') { %>
+              <div style="margin-bottom:1em">
+                  <center>
+                      <img src="<%= outlet.toko.logo.url %>" alt="<%= outlet.name %>" />
+                  </center>
+              </div>
+          <% } %>
+          <p class="centered">
+              <span style="font-size:1.5em"><%= outlet.name %></span>
+              <br><%= outlet.address %>
+              <br><%= tr.uid %>
+          </p>
+          <div style="border-top: 1px dashed black;border-bottom: 1px solid black;padding-top:.5em;padding-bottom:.5em">
+            <table>
+              <tbody>
+                <tr>
+                  <td>
+                    <%= tr.date %>
+                    <br /><%= tr.time %>
+                    <% if(tr.type === 'cashier') { %>
+                        <% if(tr?.cashier) { %>
+                            <br />Cashier: <%= tr.cashier %>
+                        <% } %>
+
+                        <% if(tr?.user?.name) { %>
+                            <br />Customer: <%= tr.user.name %>
+                        <% } %>
+                    <% } else { %>
+                        <br />Customer: <%= tr.user.name %>
+                    <% } %>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+            <div style="padding-top:.5em;padding-bottom:.5em">
+                <table>
+                    <tbody class="items">
+                    <% for(const i of tr.items) { %>
+                      <tr>
+                        <td class="quantity"><%= i.item.name %></td>
+                        <td class="price"></td>
+                      </tr>
+                      <tr>
+                          <td class="quantity"><%= i.qty %> X <%= i.price %></td>
+                          <td class="price"><%= i.total %></td>
+                      </tr>
+
+                      <% if(i.disscount) { %>
+                        <tr>
+                          <td class="quantity">(disc. <%= i.qty %> X <%= i.disscount %>)</td>
+                          <td class="price">(<%= i.diss_total %>)</td>
+                        </tr>
+                      <% } %>
+                      <% if(i.notes) { %>
+                        <tr>
+                          <td class="quantity"><%= i.notes %></td>
+                          <td class="price"></td>
+                        </tr>
+                      <% } %>
+                    <% } %>
+                  </tbody>
+                </table>
+            </div>
+
+            <% if(tr.disscount) { %>
+              <div class="border" style="padding-top:.5em;padding-bottom:.5em">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td class="quantity">Subtotal</td>
+                            <td class="price"><%= tr.subtotal %></td>
+                        </tr>
+                        <tr>
+                            <td class="quantity">Disscount</td>
+                            <td class="price">(<%= tr.disscount %>)</td>
+                        </tr>
+                        <tr>
+                            <td class="quantity">Total</td>
+                            <td class="price"><%= tr.total %></td>
+                        </tr>
+                    </tbody>
+                </table>
+              </div>
+              <div class="border" style="padding-top:.5em;padding-bottom:.5em">
+                  <table>
+                      <tbody>
+                          <tr>
+                              <td class="quantity">Cash</td>
+                              <td class="price"><%= tr.cash %></td>
+                          </tr>
+                          <tr>
+                              <td class="quantity">Changes</td>
+                              <td class="price"><%= tr.changes %></td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
+            <% } else { %>
+              <div class="border" style="padding-top:.5em;padding-bottom:.5em">
+                  <table>
+                      <tbody>
+                          <tr>
+                              <td class="quantity">Total</td>
+                              <td class="price"><%= tr.total %></td>
+                          </tr>
+                          <tr>
+                              <td class="quantity">Cash</td>
+                              <td class="price"><%= tr.cash %></td>
+                          </tr>
+                          <tr>
+                              <td class="quantity">Changes</td>
+                              <td class="price"><%= tr.changes %></td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
+            <% } %>
+            
+            <div class="border" style="padding-top:.5em;">
+              <% if(outlet.toko.slogan) { %>
+                <p class="centered"><%= outlet.toko.slogan %>></p>
+              <% } %>
+              <p class="centered">Thanks for your purchase!</p>
+              <p class="centered"><%= sans_url %></p>
+            </div>
+        </div>
+        <script data-cfasync="false" type="text/javascript">
+            <% if(desktop === true) { %>
+                //var cekFunction=(window.parent && window.parent.hidePrintLoading==='function');
+                window.print();
+                if(window.parent.hidePrintLoading) window.parent.hidePrintLoading();
+                else window.parent.postMessage({print:true},"*");
+            <% } else { %>
+                window.print();
+            <% } %>
+        </script>
+    </body>
+</html>

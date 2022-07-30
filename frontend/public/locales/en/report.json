@@ -1,0 +1,18 @@
+{
+  "report_msg":"We are sorry for the inconvenience, it seems that there is a problem with our internal server service. Can you tell us how this happened?",
+  "title_feedback":"Send Feedback",
+  "title_report":"Send Report",
+  "placeholder":"Please explain your problem or share your thoughts",
+  "checkboxLabel":"Include screenshots",
+  "loadingTip":"Loading screenshots...",
+  "editTip":"Highlight or hide information",
+  "cancelLabel":"Cancel",
+  "confirmLabel":"Send",
+  "hightlightTip":"Highlight the problem",
+  "hideTip":"Hide sensitive information",
+  "requiredTip":"Description must be added",
+  "editDoneLabel":"Done",
+  "legal": "Some <1>System Information</1> may be sent to SansOrder. We will use the information that give us to help address technical issues and to improve our services.",
+  "response_report":"Thank you for your report. We will review it as soon as possible.",
+  "response_feedback":"Thank you for your feedback."
+}

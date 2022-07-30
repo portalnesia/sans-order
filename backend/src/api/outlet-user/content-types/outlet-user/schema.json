@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "outlet_users",
+  "info": {
+    "singularName": "outlet-user",
+    "pluralName": "outlet-users",
+    "displayName": "Outlet User",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "pending": {
+      "type": "boolean",
+      "default": true,
+      "required": true
+    },
+    "roles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::outlet-user-role.outlet-user-role"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "outlet": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::outlet.outlet",
+      "private": true,
+      "inversedBy": "users"
+    }
+  }
+}

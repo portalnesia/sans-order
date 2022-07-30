@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_outlet_users_outlet_users",
+  "info": {
+    "displayName": "Outlet Users",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "pending": {
+      "type": "boolean",
+      "default": true
+    },
+    "roles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::outlet-user-role.outlet-user-role"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}
