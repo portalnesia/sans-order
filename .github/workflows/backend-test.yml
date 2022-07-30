@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  Backend Test:
+  backend-test:
     runs-on: ubuntu-18.04
 
     strategy:
