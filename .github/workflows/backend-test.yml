@@ -1,0 +1,45 @@
+name: Backend CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  Backend Test:
+    runs-on: ubuntu-18.04
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    env:
+      NODE_ENV: test
+      APP_KEYS: ${{secrets.BACKEND_APP_KEYS}}
+      API_TOKEN_SALT: ${{secrets.BACKEND_API_TOKEN_SALT}}
+      ADMIN_JWT_SECRET: ${{secrets.BACKEND_ADMIN_JWT_SECRET}}
+      JWT_SECRET: ${{secrets.BACKEND_JWT_SECRET}}
+      PN_ENV: development
+      XENDIT_CALLBACKTOKEN: ${{secrets.BACKEND_XENDIT_CALLBACKTOKEN}}
+      XENDIT_PUBLICKEY: ${{secrets.BACKEND_XENDIT_PUBLICKEY}}
+      XENDIT_SECRETKEY: ${{secrets.BACKEND_XENDIT_SECRETKEY}} 
+      RABBIT_USER: ${{secrets.BACKEND_RABBIT_USER}}
+      RABBIT_PASS: ${{secrets.BACKEND_RABBIT_PASS}}
+      RABBIT_HOST: ${{secrets.BACKEND_HOST}}
+      PORTALNESIA_CONTENT_ROOT: ./tmp/php/content
+      PORTALNESIA_PHP_ROOT: ./tmp/php
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: mkdir ./tmp/php && mkdir ./tmp/php/content
+      - name: Install Depedencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Test Backend
+        run: npm test
