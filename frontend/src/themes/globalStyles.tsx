@@ -113,7 +113,7 @@ export default function GlobalStyles() {
           marginBottom:'unset'
         },
         'ul.MuiPagination-ul li': {
-          marginBottom:'inherit'
+          marginBottom:'inherit !important'
         },
         a: {color:'inherit',textDecoration:'unset',WebkitTapHighlightColor:'transparent'},
         'a p':{
@@ -161,6 +161,14 @@ export default function GlobalStyles() {
         },
         '.sans-scroll-disabled':{
           overflow:'hidden'
+        },
+        '.form .postComment':{
+          color:theme.palette.text.secondary,
+          borderBottom:`1px solid ${theme.palette.divider} !important`
+        },
+        '.react-responsive-modal-modal':{
+          color:`${theme.palette.text.secondary} !important`,
+          background:`${theme.palette.background.paper} !important`,
         }
       }}
     />

@@ -1,7 +1,7 @@
 import type { QueryFromContentType,EntityManager } from '@strapi/database';
 import type { Context } from 'koa';
 import type { IO } from '../src/utils/socket';
-import type { NestedKeys,Params } from './General';
+import type { NestedKeys,Params,ServiceParams } from './General';
 import { LifecycleProvider } from '@strapi/database/lib/lifecycles';
 import { MigrationProvider } from '@strapi/database/lib/migrations';
 import { SchemaProvideer } from '@strapi/database/lib/schema';
@@ -37,7 +37,7 @@ interface SingleTypeService<K extends keyof AllTypes,T extends AllTypes[K]> exte
 }
 
 interface CollectionTypeService<K extends keyof AllTypes,T extends AllTypes[K]> extends BaseService<K,T> {
-  find?(params: Params<T>): Promise<{results:T[],pagination: Pagination}>;
+  find?(params: ServiceParams<T>): Promise<{results:T[],pagination: Pagination}>;
   findOne?(entityId: string|number,params: Params<T>): Promise<T|null>;
   create?(params: Params<T>): Promise<T>;
   update?(entityId: string|number,params: Params<T>): Promise<T>;

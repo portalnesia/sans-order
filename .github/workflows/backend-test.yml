@@ -4,10 +4,19 @@ on:
   pull_request:
     branches:
       - main
+    paths: 'backend/**'
+  push:
+    branches:
+      - main
+    paths: 'backend/**'
 
 jobs:
   backend-test:
     runs-on: ubuntu-18.04
+
+    defaults:
+      run:
+        working-directory: 'backend'
 
     strategy:
       matrix:
@@ -31,14 +40,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - run: mkdir -p ./.tmp/php/content
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - run: mkdir ./tmp/php && mkdir ./tmp/php/content && cd ./backend
+          cache-dependency-path: '**/package-lock.json'
       - name: Install Depedencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
       - name: Build
         run: npm run build
       - name: Test Backend

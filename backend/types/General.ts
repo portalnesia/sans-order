@@ -34,3 +34,20 @@ export type Params<T> = {
   data?: Partial<Record<keyof T,any>>;
   files?: any;
 };
+
+export type ServiceParams<T> = {
+  fields?: (keyof T)[];
+  filters?: any;
+  _q?: string;
+  populate?: any;
+  sort?: any;
+  pagination?:{
+    start?: number;
+    limit?: number;
+    page?: number;
+    pageSize?: number;
+  }
+  publicationState?: string;
+  data?: Partial<Record<keyof T,any>>;
+  files?: any;
+};

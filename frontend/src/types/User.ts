@@ -1,3 +1,3 @@
 import type {PortalnesiaUser} from '@portalnesia/portalnesia-strapi'
 
-export type User = PortalnesiaUser & ({picture: string|null})
+export type User = PortalnesiaUser

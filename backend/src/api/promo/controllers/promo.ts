@@ -42,7 +42,8 @@ export default factories.createCoreController('api::promo.promo',({strapi}) => (
             $eq: `${outlet?.id}`
           }
         }
-      }
+      },
+      sort:{id:'desc'}
     }
     const output =  await super.find(ctx)
     return output;

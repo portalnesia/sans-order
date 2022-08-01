@@ -6,6 +6,9 @@ export interface Blog {
   image?: File;
   slug: string;
   text: string;
-  createdBy: any;
-  publishedAt: Date|null
+  createdBy: {
+    name:string,
+    picture?: string|null
+  };
+  publishedAt: Date
 }

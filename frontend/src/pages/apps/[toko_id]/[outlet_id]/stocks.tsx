@@ -1,6 +1,6 @@
 // material
 import { Box, Grid, Container, Typography,Tooltip,IconButton,TextField, Card, FormControlLabel, Switch,Checkbox,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText, Autocomplete, AutocompleteChangeReason, AutocompleteInputChangeReason, FormControl, InputLabel, OutlinedInput, InputAdornment } from '@mui/material';
-import {AddAPhoto,Delete} from '@mui/icons-material'
+import {AddAPhoto,Close,Delete} from '@mui/icons-material'
 import {LocalizationProvider, DateTimePicker} from '@mui/lab'
 import AdapterDayjs from '@mui/lab/AdapterDayjs'
 // components
@@ -10,10 +10,7 @@ import React from 'react'
 import useNotif from '@utils/notification'
 import {useAPI} from '@utils/api'
 import Button from '@comp/Button'
-import Backdrop from '@comp/Backdrop'
-import Image from '@comp/Image'
-import Popover from '@comp/Popover'
-import {Outlet,IPages,Product, Without, Stock, Ingredient, Nullable} from '@type/index'
+import {Outlet,IPages,Product, Without, Stock, Ingredient, Nullable, Transaction, colorOrderStatus, colorStatus} from '@type/index'
 import wrapper from '@redux/store'
 import {useTranslation} from 'next-i18next';
 import useSWR from '@utils/swr';
@@ -22,8 +19,6 @@ import Iconify from '@comp/Iconify';
 import MenuPopover from '@comp/MenuPopover'
 import useOutlet from '@utils/useOutlet'
 import Scrollbar from '@comp/Scrollbar'
-import Avatar from '@comp/Avatar'
-import Label from '@comp/Label'
 import {useMousetrap} from '@utils/useKeys'
 import usePagination from '@comp/TablePagination'
 import dynamic from 'next/dynamic'
@@ -174,17 +169,20 @@ function Form({input,setInput,loading,ingOptions,ingLoading,edit,outlet,handleAu
 interface UserMenu {
   onEdit(): void,
   editDisabled?: boolean,
-  allDisabled?:boolean
+  allDisabled?:boolean,
+  type: 'in'|'out',
+  onDetail(): void
 }
 
-function UserMenu({onEdit,editDisabled,allDisabled}: UserMenu) {
+function UserMenu({onEdit,editDisabled,allDisabled,type,onDetail}: UserMenu) {
   const ref=React.useRef(null);
   const [open,setOpen] = React.useState(false);
 
-  const handleClick=React.useCallback((type:'edit'|'delete')=>(_e: React.MouseEvent<HTMLLIElement>)=>{
+  const handleClick=React.useCallback((type:'edit'|'detail')=>(_e: React.MouseEvent<HTMLLIElement>)=>{
     setOpen(false)
     if(type === 'edit') onEdit();
-  },[onEdit])
+    if(type === 'detail') onDetail();
+  },[onEdit,onDetail])
 
   return (
     <>
@@ -193,14 +191,122 @@ function UserMenu({onEdit,editDisabled,allDisabled}: UserMenu) {
       </IconButton>
 
       <MenuPopover open={open} onClose={()=>setOpen(false)} anchorEl={ref.current} paperSx={{py:1}}>
-        <MenuItem disabled={!!editDisabled||!!allDisabled} sx={{ color: 'text.secondary',py:1 }} onClick={handleClick('edit')}>
-          <ListItemIcon>
-            <Iconify icon="eva:edit-fill" width={24} height={24} />
-          </ListItemIcon>
-          <ListItemText primary="Edit" primaryTypographyProps={{ variant: 'body2' }} />
-        </MenuItem>
+        {type === 'in' ? (
+          <MenuItem disabled={!!editDisabled||!!allDisabled} sx={{ color: 'text.secondary',py:1 }} onClick={handleClick('edit')}>
+            <ListItemIcon>
+              <Iconify icon="eva:edit-fill" width={24} height={24} />
+            </ListItemIcon>
+            <ListItemText primary="Edit" primaryTypographyProps={{ variant: 'body2' }} />
+          </MenuItem>
+        ) : (
+          <MenuItem disabled={!!editDisabled||!!allDisabled} sx={{ color: 'text.secondary',py:1 }} onClick={handleClick('detail')}>
+            <ListItemIcon>
+              <Iconify icon="ep:warning" width={24} height={24} />
+            </ListItemIcon>
+            <ListItemText primary="Detail" primaryTypographyProps={{ variant: 'body2' }} />
+          </MenuItem>
+        )}
       </MenuPopover>
     </>
+  )
+}
+
+function StockDetail({stock}: {stock: Stock|null}) {
+  const {t} = useTranslation('dash_product');
+  const {t:tMenu} = useTranslation('menu');
+  const {t:tCom} = useTranslation('common');
+  const router = useRouter();
+  const locale = router.locale||'en';
+
+  if(!stock) return null;
+
+  const transaction = stock.transaction as Transaction
+  const product = stock.product as Product
+
+  return (
+    <Box sx={{m:1}}>
+      <Box sx={{mb:4}}>
+        <Typography paragraph variant='h6' component='h6'>{tMenu('stock')}</Typography>
+        <Table>
+          <TableBody>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{t('type')}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{stock?.type === 'in' ? t('stock_in') : stock?.type === 'out' ? t('stock_out') : ''}</TableCell>
+            </TableRow>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{tMenu('ingredient')}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{stock.item?.name}</TableCell>
+            </TableRow>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{'Timestamp'}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{getDayJs(stock?.timestamp).locale(locale).pn_format('full')}</TableCell>
+            </TableRow>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{'Stock'}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{`${stock?.stocks} ${stock?.item?.unit}`}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Box>
+      <Box sx={{mb:4}}>
+        <Typography paragraph variant='h6' component='h6'>{tMenu('transactions')}</Typography>
+        <Table>
+          <TableBody>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{'ID'}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.uid}</TableCell>
+            </TableRow>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{tCom("type")}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.type.toUpperCase()}</TableCell>
+            </TableRow>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{t("payment_method")}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.payment}</TableCell>
+            </TableRow>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{t("payment_status")}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.status}</TableCell>
+            </TableRow>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{t("order_status")}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.order_status}</TableCell>
+            </TableRow>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{'Subtotal'}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${transaction.subtotal}`)}`}</TableCell>
+            </TableRow>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{t('discount')}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${transaction.discount}`)}`}</TableCell>
+            </TableRow>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{'Total'}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${transaction.total}`)}`}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Box>
+      <Box sx={{mb:4}}>
+        <Typography paragraph variant='h6' component='h6'>{tMenu('product')}</Typography>
+        <Table>
+          <TableBody>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{tCom('name')}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{product.name}</TableCell>
+            </TableRow>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{t("price")}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${product.price}`)}`}</TableCell>
+            </TableRow>
+            <TableRow hover>
+              <TableCell sx={{borderBottom:'unset',py:1}}>HPP</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${product.hpp||'0'}`)}`}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Box>
+    </Box>
   )
 }
 
@@ -210,6 +316,7 @@ const DEFAULT_INPUT_IN: IInputStocks = {
   stocks: 0,
   type:'in',
 }
+type IFilter = 'stock_in'|'stock_out'
 
 export default function OutletStocks({meta}: IPages<Outlet>) {
   const {t} = useTranslation('dash_product');
@@ -226,7 +333,9 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
   const [dCreate,setDCreate] = React.useState(false);
   const [dEdit,setDEdit] = React.useState<Stock|null>(null);
   const [loading,setLoading] = React.useState(false);
-  const {data,error,mutate} = useSWR<Stock,true>(`/stocks/${outlet_id}?page=${page}&pageSize=${rowsPerPage}`);
+  const [dDetail,setDDetail] = React.useState<Stock|null>(null)
+  const [filter,setFilter] = React.useState('');
+  const {data,error,mutate} = useSWR<Stock,true>(`/stocks/${outlet_id}?page=${page}&pageSize=${rowsPerPage}${filter.length > 0 ? `&filters=${filter}` : ''}`);
   const [ingOptions,setIngOption]=React.useState<Ingredient[]>([]);
   const [ingLoading,setIngLoading] = React.useState(false);
 
@@ -272,6 +381,10 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
       setLoading(false);
     }
   },[dEdit,input,setNotif,put,toko_id,outlet_id,mutate,tCom,tMenu])
+
+  const handleDetail = React.useCallback((s: Stock)=>()=>{
+    setDDetail(s)
+  },[])
 
   const handleAutocompleteInputChange=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: string,reason: AutocompleteInputChangeReason)=>{
     if(reason==='input') {
@@ -340,6 +453,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
                 <TableHead>
                   <TableRow>
                     <TableCell align="left">{tCom("name_ctx",{what:tMenu("ingredient")})}</TableCell>
+                    <TableCell>{tMenu("product")}</TableCell>
                     <TableCell>Timestamp</TableCell>
                     <TableCell>{tCom("type")}</TableCell>
                     <TableCell>{t("price")}</TableCell>
@@ -350,15 +464,15 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
                 <TableBody>
                   {!data && !error ? (
                     <TableRow>
-                    <TableCell align="center" colSpan={6} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
+                    <TableCell align="center" colSpan={7} sx={{ py: 3 }}><CircularProgress size={30} /></TableCell>
                   </TableRow>
                   ) : error ? (
                     <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}><Typography>{error?.error.message}</Typography></TableCell>
+                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{error?.error.message}</Typography></TableCell>
                     </TableRow>
                   ) : data?.data && data?.data?.length === 0 ? (
                     <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:tMenu("stock")})}</Typography></TableCell>
+                      <TableCell align="center" colSpan={7} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:tMenu("stock")})}</Typography></TableCell>
                     </TableRow>
                   ) : data?.data?.map((d)=>{
                     return (
@@ -369,12 +483,13 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
                         role="checkbox"
                       >
                         <TableCell>{d?.item?.name}</TableCell>
-                        <TableCell>{getDayJs(d?.timestamp).locale(locale).pn_format('full')}</TableCell>
+                        <TableCell>{`${d?.product?.name||'-'}`}</TableCell>
+                        <TableCell>{getDayJs(d?.timestamp).locale(locale).format('DD MMM YYYY, HH:mm')}</TableCell>
                         <TableCell>{d?.type === 'in' ? t('stock_in') : d?.type === 'out' ? t('stock_out') : ''}</TableCell>
-                        <TableCell sx={{whiteSpace:'nowrap'}}>{`Rp${numberFormat(`${d.price}`)}`}</TableCell>
+                        <TableCell sx={{whiteSpace:'nowrap'}}>{d?.type === 'in' ? `Rp${numberFormat(`${d.price}`)}` : '-'}</TableCell>
                         <TableCell>{`${d?.stocks} ${d?.item?.unit}`}</TableCell>
                         <TableCell>
-                          {d?.type === 'in' && <UserMenu onEdit={buttonEdit(d)} allDisabled={!getOutletAccess(outlet?.data,'Stock')} />}
+                          <UserMenu onEdit={buttonEdit(d)} allDisabled={!getOutletAccess(outlet?.data,'Stock')} type={d?.type} onDetail={handleDetail(d)} />
                         </TableCell>
                       </TableRow>
                     )
@@ -416,6 +531,20 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
             <Button disabled={loading} loading={loading} icon='submit' type='submit'>{tCom("save")}</Button>
           </DialogActions>
         </form>
+      </Dialog>
+
+      <Dialog loading={loading} maxWidth='md' open={dDetail!==null} handleClose={()=>setDDetail(null)}>
+        <DialogTitle>
+          <Stack direction='row' alignItems='center' justifyContent='space-between'>
+            <Typography variant='h6' component='h6'>Detail</Typography>
+            <IconButton onClick={()=>setDDetail(null)}>
+              <Close />
+            </IconButton>
+          </Stack>
+        </DialogTitle>
+        <DialogContent dividers>
+          <StockDetail stock={dDetail as Stock} />
+        </DialogContent>
       </Dialog>
     </Header>
   )

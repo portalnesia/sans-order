@@ -384,7 +384,7 @@ export default function WalletPage({meta}: IPages<Toko>) {
                           ) : history?.map((d)=>(
                             <TableRow hover>
                               <TableCell align='left'>{d.type === 'withdraw' ? t('cash_out') : t('cash_in')}</TableCell>
-                              <TableCell align='left'>{d.id}</TableCell>
+                              <TableCell align='left'>{d?.uid}</TableCell>
                               <TableCell align='left'>{d?.outlet?.name ? d.outlet.name : `-`}</TableCell>
                               <TableCell align='left'>{getDayJs(d.datetime).pn_format('full')}</TableCell>
                               <TableCell align='right'>{`Rp${numberFormat(`${d.total}`)}`}</TableCell>

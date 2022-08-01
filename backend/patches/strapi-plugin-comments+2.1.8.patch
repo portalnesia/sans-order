@@ -1,0 +1,43 @@
+diff --git a/node_modules/strapi-plugin-comments/server/controllers/utils/functions.js b/node_modules/strapi-plugin-comments/server/controllers/utils/functions.js
+index b4f6e33..b1718fc 100644
+--- a/node_modules/strapi-plugin-comments/server/controllers/utils/functions.js
++++ b/node_modules/strapi-plugin-comments/server/controllers/utils/functions.js
+@@ -16,7 +16,7 @@ const parseParams = (params) => Object.keys(params).reduce((prev, curr) => {
+ exports.parseParams = parseParams;
+ const throwError = (ctx, e) => {
+     if (e instanceof error_1.default) {
+-        return ctx.throw(e.status, JSON.stringify(e));
++        return ctx.throw(e.status, e?.message);
+     }
+     return e;
+ };
+diff --git a/node_modules/strapi-plugin-comments/server/services/utils/functions.js b/node_modules/strapi-plugin-comments/server/services/utils/functions.js
+index 93b07d9..cfeaeaa 100644
+--- a/node_modules/strapi-plugin-comments/server/services/utils/functions.js
++++ b/node_modules/strapi-plugin-comments/server/services/utils/functions.js
+@@ -73,11 +73,12 @@ const buildAuthorModel = (item, fieldsToPopulate = []) => {
+             [curr]: authorUser[curr],
+         }), {
+             id: authorUser.id,
+-            name: authorUser.username,
++            name: authorUser.name,
++            username: authorUser.username,
+             email: authorUser.email,
+-            avatar: (0, lodash_1.isString)(authorUser.avatar) || (0, lodash_1.isObject)(authorUser.avatar)
+-                ? authorUser.avatar
+-                : undefined,
++            picture: (0, lodash_1.isString)(authorUser.picture)
++                ? authorUser.picture
++                : null,
+         });
+     }
+     else if (authorId) {
+@@ -85,7 +86,7 @@ const buildAuthorModel = (item, fieldsToPopulate = []) => {
+             id: authorId,
+             name: authorName,
+             email: authorEmail,
+-            avatar: authorAvatar,
++            picture: authorAvatar,
+         };
+     }
+     return {

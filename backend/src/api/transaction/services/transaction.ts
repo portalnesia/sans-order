@@ -93,7 +93,7 @@ export default factories.createCoreService('api::transaction.transaction', ({str
       const result = results.map(d=>{
         const {name,email,telephone,user:dUser,...rest} = d;
         return {
-          ...d,
+          ...rest,
           user: dUser ? {
             name: dUser.name,
             email: dUser.email,

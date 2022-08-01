@@ -78,4 +78,18 @@ export default ({env}) => ({
       },
     },
   },
+  comments: {
+    enabled: true,
+    config: {
+      enabledCollections:['api::blog.blog'],
+      badWords: false,
+      entryLabel: {
+        "*": ["Title", "title", "Name", "name", "Subject", "subject"],
+        'api::blog.blog':['comments']
+      },
+      /*reportReasons: {
+        MY_CUSTOM_REASON: "MY_CUSTOM_REASON",
+      },*/
+    },
+  },
 })

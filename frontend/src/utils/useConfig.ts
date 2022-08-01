@@ -4,7 +4,6 @@ import { StrapiResponse } from '@portalnesia/portalnesia-strapi';
 
 export default function useConfig(SWRConfig?: CustomConfiguration<StrapiResponse<Config,false>>) {
   const {data:config,error:errConfig,mutate:mutateConfig,...other} = useSWR<Config>(`/config`,{
-    revalidateOnMount:false,
     ...SWRConfig
   });
   return {config,errConfig,mutateConfig,...other}

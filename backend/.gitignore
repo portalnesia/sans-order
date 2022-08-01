@@ -118,5 +118,4 @@ dist
 *-credentials.json
 *-pn.*
 *.exp
-package-lock.json
 yarn.lock

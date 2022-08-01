@@ -1,93 +1,84 @@
 const request = require('supertest');
 
-describe("Toko Endpoint",()=>{
+describe("Ingredient Endpoint",()=>{
   describe("Authenticated",()=>{
-    it("FindAll", async() => {
+    it("Create Ingredient Failed", async() => {
       const resp = await request(strapi.server.httpServer)
-        .get("/api/tokos")
-        .set('accept', 'application/json')
-        .set('Content-Type', 'application/json')
-        .set('Authorization', 'Bearer ' + jwtToken)
-        .expect('Content-Type', /json/)
-  
-      expect(resp.statusCode).toBe(200);
-    });
-  
-    it("Create Failed", async() => {
-      const resp = await request(strapi.server.httpServer)
-        .post("/api/tokos")
-        .send({data:{}})
-        .set('accept', 'application/json')
-        .set('Content-Type', 'application/json')
-        .set('Authorization', 'Bearer ' + jwtToken)
-        .expect('Content-Type', /json/);
-      
-      expect(resp.statusCode).toBe(400);
-    });
-
-    it("Create", async() => {
-      const resp = await request(strapi.server.httpServer)
-        .post("/api/tokos")
+        .post("/api/ingredients/1")
         .send({data:{name:"Test"}})
         .set('accept', 'application/json')
         .set('Content-Type', 'application/json')
         .set('Authorization', 'Bearer ' + jwtToken)
-        .expect('Content-Type', /json/);
-      
-      expect(resp.statusCode).toBe(200);
-    });
-  
-    it("FindOne", async() => {
-      const resp = await request(strapi.server.httpServer)
-        .get("/api/tokos/test")
-        .set('accept', 'application/json')
-        .set('Content-Type', 'application/json')
-        .set('Authorization', 'Bearer ' + jwtToken);
-      
-      expect(resp.statusCode).toBe(200);
-      expect(resp?.body?.data?.name).toBe('Test')
+        
+      expect(resp.statusCode).toBe(400);
     });
 
-    it("Update", async() => {
+    it("Create Ingredient", async() => {
       const resp = await request(strapi.server.httpServer)
-        .put("/api/tokos/1")
-        .send({data:{name:"Test Update"}})
+        .post("/api/ingredients/1")
+        .send({data:{name:"Test Create",unit:"ml"}})
         .set('accept', 'application/json')
         .set('Content-Type', 'application/json')
         .set('Authorization', 'Bearer ' + jwtToken)
-        .expect('Content-Type', /json/);
-      
+        
       expect(resp.statusCode).toBe(200);
     });
-
-    it("FindOne Update", async() => {
+  
+    it("Find All Ingredient", async() => {
       const resp = await request(strapi.server.httpServer)
-        .get("/api/tokos/test")
+        .get("/api/ingredients/1")
         .set('accept', 'application/json')
         .set('Content-Type', 'application/json')
-        .set('Authorization', 'Bearer ' + jwtToken);
-      
+        .set('Authorization', 'Bearer ' + jwtToken)
+        
       expect(resp.statusCode).toBe(200);
-      expect(resp?.body?.data?.name).toBe('Test Update')
+      expect(resp?.body?.data?.[0]?.name).toBe('Test Create')
+      expect(resp?.body?.data?.[0]?.unit).toBe('ml')
+    });
+
+    it("Update Ingredient", async() => {
+      const resp = await request(strapi.server.httpServer)
+        .put("/api/ingredients/1/1")
+        .send({data:{name:"Test",unit:"ml"}})
+        .set('accept', 'application/json')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', 'Bearer ' + jwtToken)
+        
+      expect(resp.statusCode).toBe(200);
+    });
+
+    it("Find All Ingredient Updated", async() => {
+      const resp = await request(strapi.server.httpServer)
+        .get("/api/ingredients/1")
+        .set('accept', 'application/json')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', 'Bearer ' + jwtToken)
+        
+      expect(resp.statusCode).toBe(200);
+      expect(resp?.body?.data?.[0]?.name).toBe('Test')
+      expect(resp?.body?.data?.[0]?.unit).toBe('ml')
     });
   })
-  
+
 
   describe("Public",()=>{
-    it("FindOne", async() => {
+    it("Find Failed", async() => {
       const resp = await request(strapi.server.httpServer)
-        .get("/api/tokos/test")
+        .get("/api/ingredients/1")
         .set('accept', 'application/json')
         .set('Content-Type', 'application/json')
         
-      expect(resp.statusCode).toBe(200);
-      expect(resp?.body?.data?.name).toBe('Test Update')
+      expect(resp.statusCode).toBe(403);
     });
-    it("FindAll Notfound", async() => {
+  
+    it("Create Ingredient Failed", async() => {
       const resp = await request(strapi.server.httpServer)
-        .get("/api/tokos")
-      
-      expect(resp.statusCode).toBe(404);
+        .post("/api/ingredients/1")
+        .send({data:{name:"Test",toko:1}})
+        .set('accept', 'application/json')
+        .set('Content-Type', 'application/json');
+  
+      expect(resp.statusCode).toBe(403);
     });
   })
 })

@@ -179,8 +179,8 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
         telephone
       }),
       cashier: type === 'cashier' && user ? user.id : null,
-      ...(payload?.payload ? {payload:JSON.stringify(payload.payload)} : {}),
-      ...(payload?.expired ? {expired:payload.expired.pn_format()} : {}),
+      ...(payload?.payload ? {payload:payload.payload} : {}),
+      ...(payload?.expired ? {expired:payload.expired.toDate()} : {}),
       ...(name ? {name} : {}),
       ...(email ? {email} : {}),
       ...(metadata ? {metadata} : {}),

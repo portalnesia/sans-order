@@ -38,7 +38,7 @@ export async function getKitchenTransaction(strapi: Strapi,ctx: Context) {
         }
       ]
     },
-    orderBy:{datetime:'desc'},
+    sort:{datetime:'desc'},
     populate
   }
 

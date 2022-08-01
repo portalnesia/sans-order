@@ -1,7 +1,7 @@
 {
   "name": "sans-order-backend",
   "private": true,
-  "version": "0.0.2-beta",
+  "version": "0.0.2-beta.2",
   "description": "A Strapi application",
   "scripts": {
     "dev": "strapi dev",
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@portalnesia/dayjs-plugins": "^1.0.1",
-    "@portalnesia/utils": "^1.1.7",
+    "@portalnesia/utils": "^1.1.8",
     "@strapi/plugin-i18n": "4.3.0-beta.2",
     "@strapi/plugin-users-permissions": "4.3.0-beta.2",
     "@strapi/strapi": "4.3.0-beta.2",
@@ -54,6 +54,7 @@
     "nanoid": "^4.0.0",
     "npm": "^8.13.2",
     "pdfkit": "^0.13.0",
+    "strapi-plugin-comments": "^2.1.8",
     "strapi-plugin-email-designer": "^2.1.1",
     "strapi-plugin-io": "^1.1.1",
     "xendit-node": "^1.21.4"

@@ -35,5 +35,6 @@ export function usePagination(initialPage: number|true=1): [number,(e: any,page:
 }
 
 export default function Pagination({page,count,...other}: PaginationProps) {
+  console.log(page,count)
   return <Paging color='primary' count={Number(count)} page={Number(page)} boundaryCount={2} siblingCount={2} hidePrevButton hideNextButton showFirstButton showLastButton {...other} />
 }

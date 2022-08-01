@@ -208,13 +208,15 @@ export default function wrapper<P=IPages<any,false>>(callback?: Callback<P>|IQue
   })
 }
 
-type CallbackStaticParams = GetStaticPropsContext<ParsedUrlQuery,any> & ({
+type CallbackStaticParams = GetStaticPropsContext<ParsedUrlQuery,any> & ({store: Store<State, ActionType> & {
+  dispatch: Dispatch<ActionType>;
+}}) & ({
   getTranslation(translation?: string|string[],locale?: string): Promise<SSRConfig>
 })
 type CallbackStatic<P=IPages<any,false>> = (params: CallbackStaticParams)=>Promise<GetStaticPropsResult<P>>
 
 export function staticProps<P=IPages<any,false>>(config?: CallbackStatic<P>|Pick<IQuery,'translation'>){
-  return async(ctx: GetStaticPropsContext)=>{
+  return wrapperRoot.getStaticProps((store)=>async(ctx)=>{
     let props = {props:{}} as any
 
     if(typeof config ==='object' && config?.translation) {
@@ -225,9 +227,9 @@ export function staticProps<P=IPages<any,false>>(config?: CallbackStatic<P>|Pick
         },
       }
     } else if(typeof config === 'function') {
-      props = await config({getTranslation,...ctx})
+      props = await config({store,getTranslation,...ctx})
     }
 
     return props;
-  }
+  })
 }

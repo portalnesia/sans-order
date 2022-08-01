@@ -12,3 +12,9 @@ declare module 'firebase/messaging' {
     icon?: string
   }
 }
+
+declare module '@portalnesia/portalnesia-strapi' {
+  export interface PortalnesiaUser {
+    admin: boolean
+  }
+}

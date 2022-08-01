@@ -46,4 +46,3 @@ db.ts
 src/version.ts
 server.js
 *.exp
-package-lock.json

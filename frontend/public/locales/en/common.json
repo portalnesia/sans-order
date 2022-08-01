@@ -49,5 +49,17 @@
   "maintenance_subs":"The online subscription is currently under maintenance. Please contact our sales if you want to subscribe to the package",
   "type":"Type",
   "send":"Send",
-  "success":"Success"
+  "reply":"Reply",
+  "success":"Success",
+  "comment":"Comment",
+  "no_comment":"No comments here. Be the first one to comment!",
+  "login_comment":"Log in to leave a comment",
+  "count_comments": "{{count}} Comments",
+  "type_comment":"Type your comment...",
+  "type_comment_reply":"Type your reply...",
+  "comment_not_available":"Comment not available",
+  "show_reply":"Show {{count}} replies",
+  "hide_reply":"Hide replies",
+  "dialog_comment_delete":"Once you delete this comment it will be gone forever.",
+  "comment_blocked":"Comment blocked"
 }

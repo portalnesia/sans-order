@@ -3,7 +3,7 @@
  */
 
 import { factories } from '@strapi/strapi'
-import { SEND_ALL_CODES } from '../../../../types/Payment';
+import { PAYMENT_STATUS, PAYMENT_TYPE, SEND_ALL_CODES } from '../../../../types/Payment';
 import { Toko } from '../../../../types/Toko';
 import checkTokoSubscription from '../../../utils/check-subscription';
 import toko from '../../toko/controllers/toko';
@@ -135,9 +135,24 @@ export default factories.createCoreController('api::wallet.wallet',({strapi}) =>
             type:{
               $ne:'cashier'
             }
+          },{
+            payment:{
+              $ne:PAYMENT_TYPE.COD
+            }
+          },{
+            status:{
+              $eq: PAYMENT_STATUS.PAID
+            }
           }
         ]
-      }
+      },
+      populate:{
+        outlet:'*',
+        items:{
+          item:'*'
+        }
+      },
+      sort:{datetime:'desc'}
     })
 
     const sanitizedEntity = await this.sanitizeOutput(results, ctx);
