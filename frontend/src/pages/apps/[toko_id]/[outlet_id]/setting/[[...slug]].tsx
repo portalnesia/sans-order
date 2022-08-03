@@ -154,7 +154,7 @@ export function GeneralSetting({meta,config}: {meta: IPages<Outlet>['meta'],conf
       return;
     }
     setInput({...input,[name]:e.target.checked});
-  },[input,outlet,haveWallet])
+  },[input,haveWallet])
 
   const handleCheckedHourChange=React.useCallback((name: IDay)=>(e: React.ChangeEvent<HTMLInputElement>)=>{
     if(e.target.checked===false) {
@@ -217,7 +217,7 @@ export function GeneralSetting({meta,config}: {meta: IPages<Outlet>['meta'],conf
     } finally {
       setLoading(null)
     }
-  },[put,setNotif,input,tCom])
+  },[put,setNotif,input,tCom,mutateOutlet,outlet_id])
 
   React.useEffect(()=>{
     if(outlet) {
@@ -483,7 +483,7 @@ export function TeamSetting({meta}: {meta: IPages<Outlet>['meta']}) {
     } finally {
       setLoading(false);
     }
-  },[iCreate,setNotif,post,toko_id,outlet_id,mutate,tCom])
+  },[iCreate,setNotif,post,outlet_id,mutate,tCom])
 
   const handleUserAccessCreate = React.useCallback((type: IUserAccess)=>(e: React.ChangeEvent<HTMLInputElement>)=>{
     const roles = iCreate.roles||[];
@@ -497,7 +497,7 @@ export function TeamSetting({meta}: {meta: IPages<Outlet>['meta']}) {
       }
     }
     setICreate({...iCreate,roles})
-  },[iCreate])
+  },[iCreate,uRoles?.data])
 
   const handleEdit=React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
@@ -512,7 +512,7 @@ export function TeamSetting({meta}: {meta: IPages<Outlet>['meta']}) {
     } finally {
       setLoading(false);
     }
-  },[dEdit,iEdit,setNotif,put,toko_id,outlet_id,mutate,tCom])
+  },[dEdit,iEdit,setNotif,put,outlet_id,mutate,tCom])
 
   const handleDelete=React.useCallback(async()=>{
     setLoading(true);
@@ -526,7 +526,7 @@ export function TeamSetting({meta}: {meta: IPages<Outlet>['meta']}) {
     } finally {
       setLoading(false);
     }
-  },[dDelete,del,setNotif,toko_id,outlet_id,mutate,tCom])
+  },[dDelete,del,setNotif,outlet_id,mutate,tCom])
   
   return (
     <Box>
@@ -560,11 +560,11 @@ export function TeamSetting({meta}: {meta: IPages<Outlet>['meta']}) {
                   <TableCell align="center" colSpan={3} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:"Data"})}</Typography></TableCell>
                 </TableRow>
               ) : data?.data?.map((d,i)=>(
-                <TableRow>
+                <TableRow key={`setting-${d.id}`}>
                   <TableCell align="left">
                     <Stack direction="row" alignItems="center" spacing={2}>
                       <Avatar alt={d?.user?.name}>
-                        {d?.user?.picture === null ? d?.user?.name : <Image src={d?.user?.picture} />}
+                        {d?.user?.picture === null ? d?.user?.name : <Image alt={d?.user?.name} src={d?.user?.picture} />}
                       </Avatar>
                       <Typography variant="subtitle2" noWrap>
                         {d?.user?.name}
@@ -573,7 +573,7 @@ export function TeamSetting({meta}: {meta: IPages<Outlet>['meta']}) {
                   </TableCell>
                   <TableCell align="center">
                     <Stack direction="row" alignItems="center" justifyContent='center' spacing={2}>
-                      {d?.roles?.length > 0 && d?.roles?.map(a=><Label variant='filled' color='info'>{ucwords(a?.name)}</Label>)}
+                      {d?.roles?.length > 0 && d?.roles?.map(a=><Label key={`roles-${a.id}`} variant='filled' color='info'>{ucwords(a?.name)}</Label>)}
                       <Label variant='filled' color={d?.pending ? 'error':'success'}>{d?.pending ? t("pending"):t("active")}</Label>
                     </Stack>
                   </TableCell>
@@ -692,6 +692,7 @@ export default function OutletSetting({meta}: IPages<Outlet>) {
     if(typeof slug?.[0] === 'undefined') {
       router.replace(`/apps/[toko_id]/[outlet_id]/setting/outlet`,`/apps/${toko_id}/${outlet_id}/setting/outlet`,{shallow:true})
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[slug,toko_id,outlet_id])
 
   return (

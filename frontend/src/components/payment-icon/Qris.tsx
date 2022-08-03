@@ -5,10 +5,10 @@ export default function QrisIcon(props: SvgIconProps) {
     <SvgIcon width="108.37466mm" height="17.412731mm" viewBox="0 0 108.37466 17.412731" sx={{width:150,height:78}} fill='none' {...props}>
       <g xmlns="http://www.w3.org/2000/svg" id="layer1" transform="translate(-31.991243,-118.40059)">
       <g id="g90" transform="matrix(0.7313755,0,0,-0.7313755,-550.54458,504.98281)" >
-        <g id="g92" clip-path="url(#clipPath96)" >
+        <g id="g92" clipPath="url(#clipPath96)" >
           <g id="g98" transform="matrix(2.1033,-7.54e-7,-7.54e-7,0.375,795.24,502.8)" >
             <g id="g100" transform="scale(0.55189,3.0538)" >
-              <g id="g102" clip-path="url(#clipPath106)" >
+              <g id="g102" clipPath="url(#clipPath106)" >
                 <g id="g108" >
                   <g id="g110" >
                     <g id="g112" />

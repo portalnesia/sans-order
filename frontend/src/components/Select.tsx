@@ -1,19 +1,27 @@
-import {MenuItem} from '@mui/material'
+import {MenuItem,TextField,TextFieldProps} from '@mui/material'
 import {isMobile} from 'react-device-detect'
-import {uuid} from '@portalnesia/utils'
 
-export interface SelectProps {
+export interface SelectItemProps {
     value: string|number;
     children: string|number;
-    key?: string
 }
 
-export default function Select(props: SelectProps) {
-    const {key,...rest} = props;
+export default function Select(props: TextFieldProps) {
+  return (
+    <TextField
+      {...props}
+      select
+      {...(isMobile ? {
+        SelectProps:{native:true}
+      } : {})}
+    />
+  )
+}
 
-    if(isMobile) {
-        return <option key={key ? `mobile-${key}`: uuid('mobile-select')} {...rest} />
-    } else {
-        return <MenuItem key={key ? `desktop-${key}` : uuid('desktop-select')} {...rest} />
-    }
+export function SelectItem(props: SelectItemProps) {
+  if(isMobile) {
+    return <option {...props} />
+  } else {
+    return <MenuItem {...props} />
+  }
 }

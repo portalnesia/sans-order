@@ -16,7 +16,7 @@ export default function useDarkTheme() {
         const prefersDark = prefersDarkMode || winDark;
         const newVal:State['redux_theme'] = (prefersDark && value=='auto')||value=='dark' ? 'dark' : 'light';
         const kuki:State['theme'] = ['light','dark','auto'].indexOf(value) !== -1 ? value : 'auto';
-        if(force!==true) cookies.set('theme',kuki,{expires:(30*12)});
+        if(force!==true) cookies.set('sans_theme',kuki,{expires:(30*12)});
         const lightStyle = document.querySelector('link.higtlightjs-light');
         const darkStyle = document.querySelector('link.higtlightjs-dark');
 
@@ -37,12 +37,12 @@ export default function useDarkTheme() {
     },[])
 
     const checkTheme = useCallback(()=>{
-      const theme = cookies.get('theme') as State['redux_theme']|undefined;
+      const theme = cookies.get('sans_theme') as State['redux_theme']|undefined;
       if(theme) return theme;
       const winDark = window?.matchMedia && window?.matchMedia('(prefers-color-scheme: dark)').matches;
       const prefersDark = prefersDarkMode || winDark;
       return( prefersDark ? 'dark' : 'light');
-    },[])
+    },[prefersDarkMode])
 
     return {theme,isDark,setTheme,prefersDarkMode,checkTheme}
 }

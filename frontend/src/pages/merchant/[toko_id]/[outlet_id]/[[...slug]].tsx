@@ -52,7 +52,7 @@ function Carousel({data,enabled}: CarouselProps) {
         <Scrollbar>
           <Box display='flex' flexDirection="row" alignItems="center">
             {data.data.map((d,i)=>(
-              <Box px={1}><Products enabled={enabled} maxWidth items={d} /></Box>
+              <Box key={d.id} px={1}><Products enabled={enabled} maxWidth items={d} /></Box>
             ))}
           </Box>
         </Scrollbar>
@@ -116,6 +116,7 @@ function MerchantOutlet({meta}: IPages<Outlet>) {
     } else {
       router.back();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[toko_id,outlet_id])
 
   const isEnabled = useMemo(()=>{
@@ -130,15 +131,15 @@ function MerchantOutlet({meta}: IPages<Outlet>) {
   },[isEnabled,t])
 
   React.useEffect(()=>{
-    const str = SessionStorage.get(`outlet_${toko_id}/${outlet_id}`);
+    const str = SessionStorage.get(`outlet_${router?.query?.toko_id}/${router?.query?.outlet_id}`);
     if(typeof table_number === 'string' && router.isReady && typeof table === 'undefined') {
       setTable(table_number);
-      SessionStorage.set(`outlet_${toko_id}/${outlet_id}`,{table_number})
-      router.replace({pathname:router.pathname,query:router.query},`/merchant/${toko_id}/${outlet_id}${slug ? `/slug`:''}`,{shallow:true})
+      SessionStorage.set(`outlet_${router?.query?.toko_id}/${router?.query?.outlet_id}`,{table_number})
+      router.replace({pathname:router.pathname,query:router.query},`/merchant/${router?.query?.toko_id}/${router?.query?.outlet_id}${router?.query?.slug ? `/slug`:''}`,{shallow:true})
     }
     else if(str && str?.table_number && router.isReady && typeof table === 'undefined') {
       setTable(str?.table_number);
-      router.replace({pathname:router.pathname,query:router.query},`/merchant/${toko_id}/${outlet_id}${slug ? `/slug`:''}`,{shallow:true})
+      router.replace({pathname:router.pathname,query:router.query},`/merchant/${router?.query?.toko_id}/${router?.query?.outlet_id}${router?.query?.slug ? `/slug`:''}`,{shallow:true})
     }
   },[table_number,router,table])
 
@@ -180,7 +181,7 @@ function MerchantOutlet({meta}: IPages<Outlet>) {
         whatsappWidget={{enabled:false}}>
           <Container maxWidth='lg' sx={{mt:2}}>
             <Box textAlign='center' mb={4}>
-              {meta?.data?.toko?.logo?.url && <Box mb={2} display='flex' justifyContent={'center'}><Image src={meta?.data?.toko?.logo?.url} style={{maxHeight:300}} fancybox /></Box>}
+              {meta?.data?.toko?.logo?.url && <Box mb={2} display='flex' justifyContent={'center'}><Image alt={meta?.data?.toko?.name} src={meta?.data?.toko?.logo?.url} style={{maxHeight:300}} fancybox /></Box>}
               <Typography gutterBottom variant='h2' component='h2'>{meta?.data.name}</Typography>
               {meta?.data.address && <Typography gutterBottom variant='body2'>{meta?.data.address}</Typography>}
               <Typography gutterBottom variant='h3' component='h3' sx={{color:status.color,mt:4}}>{status.text}</Typography>
@@ -192,7 +193,7 @@ function MerchantOutlet({meta}: IPages<Outlet>) {
                 <Table sx={{width:'unset'}}>
                   <TableBody>
                     {sortBusinessHour(meta?.data.business_hour).map(b=>(
-                      <TableRow>
+                      <TableRow key={b.id}>
                         <TableCell sx={{borderBottom:'unset',py:0.5}}>{t(`${b.day}`)}</TableCell>
                         <TableCell sx={{borderBottom:'unset',py:0.5}}>{`${getDayJs(`1997-01-01 ${b.from}`).locale(locale||'en').pn_format('time')} - ${getDayJs(`1997-01-01 ${b.to}`).locale(locale||'en').pn_format('time')}`}</TableCell>
                       </TableRow>

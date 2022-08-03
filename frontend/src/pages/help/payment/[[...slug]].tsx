@@ -285,7 +285,7 @@ export default function PaymentHelp({meta}: IPages) {
 
             <Grid container spacing={2}>
               {meta?.index?.map((m,i)=>(
-                <Grid item xs={12} sm={6}>
+                <Grid key={m.key} item xs={12} sm={6}>
                   <Card>
                   <Link href={`/help/payment${m.link}`} passHref><CAArea component='a'>
                       <CardContent>

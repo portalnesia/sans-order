@@ -54,7 +54,7 @@ function TransactionsPage({meta,socket}: IPages<Transaction> & {socket?: ISocket
       socket?.off('toko transactions items',handleTransactionChange)
       socket?.off('toko transactions orderstatus',handleTransactionChange)
     }
-  },[data,socket])
+  },[data,socket,mutate])
 
   return (
     <Header title={`${tMenu('transactions')} #${data?.data?.uid}`}>

@@ -56,7 +56,7 @@ function Cart({cart,total,subtotal,discount}: {cart:ICard[],total:number,subtota
         <Divider />
         <List>
           {cart.map((c,i)=>(
-            <ListItemButton>
+            <ListItemButton key={c.item.id}>
               <ListItemText primary={c.item.name} secondary={
                 <>
                   <Typography variant='body2'>{`${c.qty} x Rp${numberFormat(`${c.price - c.discount}`)}`}</Typography>
@@ -161,7 +161,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
       })
     }
     setInput(newInput);
-  },[input])
+  },[input,setInput])
 
   const telephoneCompleteChange=useCallback((value,newValue: ITelephone)=>{
     if(newValue && newValue.code) {
@@ -170,7 +170,7 @@ function Form({input,user,setInput,loading,table_number}: IForm) {
         tel:newValue,
       })
     }
-},[input])
+},[input,setInput])
 
   useEffect(()=>{
     if(option.length === 0 && !user) {
@@ -383,7 +383,7 @@ function Method({payment,onChange}: {payment:IForm['input']['payment'],onChange(
 
   if(dt) return (
     <>
-      {Object.keys(dt).map(k=><MethodItems dt={dt[k]} payment={payment} onChange={onChange} category={k as PAYMENT_TYPE} />)}
+      {Object.keys(dt).map(k=><MethodItems key={k} dt={dt[k]} payment={payment} onChange={onChange} category={k as PAYMENT_TYPE} />)}
     </>
   )
   return null;
@@ -446,7 +446,7 @@ function QrisInformation({data}: {data: PaymentResponse<QrCodeResults>}) {
       </Box>
       {img && (
         <Box mt={3} display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
-          <Image src={img} dataSrc={img} fancybox style={{maxWidth:'80%',height:'auto',marginLeft:'auto',marginRight:'auto'}} />
+          <Image alt='QRIS' src={img} dataSrc={img} fancybox style={{maxWidth:'80%',height:'auto',marginLeft:'auto',marginRight:'auto'}} />
           <Box mt={3}>
             <Button href={img} download={`QRIS #${data.uid}`}>Download</Button>
           </Box>
@@ -492,7 +492,7 @@ function EwalletInformation({data}: {data: PaymentResponse<EWalletResults>}) {
           {img && (
             <Box mt={3}  display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
               <a href={isMobile ? data?.payload?.actions?.mobile_deeplink_checkout_url||'#' : '#'}>
-                <Image src={img} dataSrc={img} fancybox={!isMobile} style={{maxWidth:'80%',height:'auto',marginLeft:'auto',marginRight:'auto'}} />
+                <Image alt='Download' src={img} dataSrc={img} fancybox={!isMobile} style={{maxWidth:'80%',height:'auto',marginLeft:'auto',marginRight:'auto'}} />
               </a>
               <Box mt={3}>
                 <Button href={img} download={`ShopeePay #${data.uid}`}>Download</Button>
@@ -641,7 +641,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
     } finally {
       setLoading(null)
     }
-  },[post,outlet_id,removeCart,input,cart,total,user,setNotif,tCom])
+  },[post,outlet_id,removeCart,input,cart,total,user,setNotif,tCom,t])
 
   const handleSimulation = useCallback(async()=>{
     if(process.env.NEXT_PUBLIC_PN_ENV === 'production') return;
@@ -657,7 +657,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
       setLoading(null)
     }
 
-  },[menu,post,outlet_id])
+  },[menu,post,outlet_id,setNotif,tCom])
 
   const handleCloseDSuccess=useCallback(()=>{
     if(timeout.current) {
@@ -691,6 +691,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
     return ()=>{
       socket?.off('toko transactions',handleOnTransactions)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[socket,menu,onClose])
   
   return (

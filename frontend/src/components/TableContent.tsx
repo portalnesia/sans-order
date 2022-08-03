@@ -154,6 +154,7 @@ export default function useTableContent(opt: Args) {
       setOpacity(0)
       containerRef.current=null
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[content])
 
   return {content,btnPageContent,handlePageContent,right,opacity};

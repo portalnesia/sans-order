@@ -89,7 +89,7 @@ function LoginSection() {
             <Typography variant="h4" gutterBottom>
               {t("signin")}
             </Typography>
-            <Button onClick={login} sx={{mt:3,backgroundColor:'#2f6f4e !important'}} size="large" startIcon={<Image src="/portalnesia-icon/android-icon-48x48.png" width={25} />}>{tMenu("signin")}</Button>
+            <Button onClick={login} sx={{mt:3,backgroundColor:'#2f6f4e !important'}} size="large" startIcon={<Image alt='login' src="/portalnesia-icon/android-icon-48x48.png" width={25} />}>{tMenu("signin")}</Button>
             {typeof err === 'string' && (
               <Alert variant='outlined' sx={{mt:2,minWidth:{xs:'90%',md:400,justifyContent:'center'}}} severity='error'>{decodeURIComponent(err.replace(/\+/gim,' '))}</Alert>
             )}
@@ -139,7 +139,8 @@ function Loginned({user}: {user:PortalnesiaUser}) {
     } finally {
       setLoading(false);
     }
-  },[input,post,setNotif,tCom])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[input,post,setNotif,tCom,mutate])
 
   return (
     <Dashboard withNavbar={false} backToTop={{position:'bottom',color:'primary'}} whatsappWidget={{enabled:false}}>
@@ -152,7 +153,7 @@ function Loginned({user}: {user:PortalnesiaUser}) {
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Box display='flex' justifyContent={'flex-end'} alignItems='flex-end'>
+            <Box mb={2} display='flex' justifyContent={'flex-end'} alignItems='flex-end'>
               <Button size='large' icon='add' onClick={()=>setDialog(true)}>{tCom("create_ctx",{what:"Merchant"})}</Button>
             </Box>
           </Grid>
@@ -178,7 +179,7 @@ function Loginned({user}: {user:PortalnesiaUser}) {
                       <Card>
                         <CardActionArea onClick={()=>router.push(`/apps/${d.slug}`)}>
                           <CardMedia>
-                            <Image src={`${photoUrl(d.logo?.url||null)}`} style={{width:300,height:'auto'}} />
+                            <Image alt={d.name} src={`${photoUrl(d.logo?.url||null)}`} style={{width:300,height:'auto', margin:'auto'}} />
                           </CardMedia>
                           <CardContent>
                             <Typography>{d.name}</Typography>
@@ -339,7 +340,8 @@ export default function DashboardApp() {
     }
 
     if(loaded && typeof access_token === 'string' && !codeLoading && router.isReady && features === false) login();
-  },[access_token,router.isReady,loaded,dispatch])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[access_token,router.isReady,loaded,dispatch,tCom])
 
   return (
     <Header title={ucwords(tMenu("dashboard"))}>

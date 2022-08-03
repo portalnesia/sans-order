@@ -172,6 +172,7 @@ function SupportDetail({homeReady,selected,support,initImage,changeStatus,admin}
   const handleBack=React.useCallback(()=>{
     if(homeReady) return router.back();
     else return router.replace('/support/[[...slug]]',`/support${admin ? '/admin' : ''}`,{shallow:true})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[homeReady,admin])
 
   const getMsg=React.useCallback((page: number=1,scroll?:boolean,conc?: boolean)=>{
@@ -224,7 +225,7 @@ function SupportDetail({homeReady,selected,support,initImage,changeStatus,admin}
       setLoading(true)
       getMsg(page+1,true)
     }
-  },[page,loading,reachEnd])
+  },[page,loading,reachEnd,getMsg])
 
   const handleToBottom=React.useCallback(()=>{
     setCekScroll(false);
@@ -263,7 +264,7 @@ function SupportDetail({homeReady,selected,support,initImage,changeStatus,admin}
     })
   },[put,changeStatus,support,t])
 
-  const handleSubmit=()=>{
+  const handleSubmit=React.useCallback(()=>{
     if(!image && input?.message?.match(/\S/) === null) return setNotif(t('empty'),true);
     setDisabled('send')
     const form=new FormData();
@@ -297,7 +298,7 @@ function SupportDetail({homeReady,selected,support,initImage,changeStatus,admin}
         setDisabled(null)
         textRef?.current?.focus();
     })
-  }
+  },[upload,image,input,setNotif,support,data,admin,changeStatus,locale,t])
 
   const handleKeyPress=React.useCallback((e)=>{
     if(e?.keyCode==13 && !e?.shiftKey && !isMobile) {
@@ -310,11 +311,12 @@ function SupportDetail({homeReady,selected,support,initImage,changeStatus,admin}
 
   React.useEffect(()=>{
     if(initImage) {
-        if(initImage?.size>5242880) setNotif(t("max_file",{max:5}),true);
-        if(initImage?.type?.match("image/*")) setImage(initImage);
-        else setNotif(t('only_image'),true);
+      if(initImage?.size>5242880) setNotif(t("max_file",{max:5}),true);
+      if(initImage?.type?.match("image/*")) setImage(initImage);
+      else setNotif(t('only_image'),true);
     }
-  },[initImage])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[initImage,setNotif,t])
 
   React.useEffect(()=>{
     if(image){
@@ -356,13 +358,14 @@ function SupportDetail({homeReady,selected,support,initImage,changeStatus,admin}
     return ()=>{
       con?.removeEventListener('scroll',onScroll);
     }
-  },[support,page,reachEnd,loading,cekScroll,lastScroll]);
+  },[support,page,reachEnd,loading,cekScroll,lastScroll,getMsg]);
 
   React.useEffect(()=>{
     pindah=true;
     if(support && ready) {
       getMsg(1,false,false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[support,ready])
 
   return (
@@ -465,7 +468,7 @@ function SupportDetail({homeReady,selected,support,initImage,changeStatus,admin}
                 <div className='imgBtn'>
                   <IconButton onClick={()=>setImage(undefined)} size="large"><CloseIcon /></IconButton>
                 </div>
-                <Image blured fancybox src={imageUrl as unknown as string} />
+                <Image alt='Image' blured fancybox src={imageUrl as unknown as string} />
               </ChatImage>
             ) : <React.Fragment></React.Fragment>}
           </Slidedown>
@@ -661,6 +664,7 @@ export default function SupportPages({meta,header}: IPages<Support>) {
 
   const handleClickList=React.useCallback((id)=>{
     router.push('/support/[[...slug]]',`/support${admin ? '/admin':''}/${id}`,{shallow:true})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[admin])
 
   const handleSearch=React.useCallback((value?: string)=>{
@@ -743,7 +747,7 @@ export default function SupportPages({meta,header}: IPages<Support>) {
       setNotif(e?.error?.message||tCom("error_500"),true);
       return null;
     }
-  },[get,tCom,admin,setNotif])
+  },[get,tCom,admin,setNotif,data])
 
   React.useEffect(()=>{
     if(slugId && data.length > 0) {
@@ -759,7 +763,7 @@ export default function SupportPages({meta,header}: IPages<Support>) {
       changeTitle()
     }
     if(typeof slugId==='undefined') setSudahHome(true)
-  },[slugId,data]);
+  },[slugId,data,changeTitle]);
 
   React.useEffect(()=>{
     if(data.length === 0 && ready) {
@@ -769,7 +773,7 @@ export default function SupportPages({meta,header}: IPages<Support>) {
         setData([meta.data])
       }
     }
-  },[user,data,meta,ready])
+  },[user,data,meta,ready,getData])
 
   const support=React.useMemo(()=>{
     if(selected!==null && data.length > 0) {

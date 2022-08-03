@@ -103,9 +103,9 @@ export default function Avatar(props: AvatarProps){
             const i = Math.floor(Math.random() * randomArr.length);
             setSelect(randomArr[i])
         }
-    },[])
+    },[select])
 
     return (
-        <Ava withTop={withTop} className={clx(className,typeof children==='string' && select!==null && typeof classes?.[(select as keyof typeof classes)] !== 'undefined' ? classes[(select as keyof typeof classes)] : '' )} {...(React.isValidElement(children) ? {style:{...style}} : {style:{...style,paddingTop:0}})} children={child} {...other} />
+        <Ava withTop={withTop} className={clx(className,typeof children==='string' && select!==null && typeof classes?.[(select as keyof typeof classes)] !== 'undefined' ? classes[(select as keyof typeof classes)] : '' )} {...(React.isValidElement(children) ? {style:{...style}} : {style:{...style,paddingTop:0}})} {...other}>{child}</Ava>
     )
 }

@@ -31,7 +31,7 @@ import { numberFormat } from '@portalnesia/utils';
 import { getDayJs, getOutletAccess, toFixed } from '@utils/Main';
 import { Dayjs } from 'dayjs';
 import { State,useSelector } from '@redux/index';
-import Select from '@comp/Select';
+import Select,{SelectItem} from '@comp/Select';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -77,7 +77,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,pOptions,pLoading,ha
       return;
     }
     setInput({...input,[name]:val||null})
-  },[input])
+  },[input,setInput])
 
   const handleInputChange=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: string,reason: AutocompleteInputChangeReason)=>{
     if(reason==='input') return handleAutocompleteInputChange(e,value,reason);
@@ -90,19 +90,19 @@ function Form({input,setInput,loading,openBrowser,autoFocus,pOptions,pLoading,ha
 
   const handleChecked = React.useCallback((name: keyof IInput)=>(e?: React.ChangeEvent<HTMLInputElement>)=>{
     setInput({...input,[name]:e?.target?.checked||false})
-  },[input])
+  },[input,setInput])
 
   const handleAutocomplete=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: Product | null,reason: AutocompleteChangeReason)=>{
     if(value) {
       setEdit(value);
     }
-  },[edit])
+  },[])
 
   const handleDateChange=React.useCallback((name:'from'|'to')=>(date: Dayjs|null)=>{
     if(date) {
       setInput({...input,[name]: date.toDate()})
     }
-  },[input])
+  },[input,setInput])
 
   const handleAddProducts = React.useCallback((e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
@@ -119,7 +119,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,pOptions,pLoading,ha
     setInput({...input,products})
     setEdit(null);
     setDEdit(false)
-  },[edit,input])
+  },[edit,input,setInput,setNotif])
 
   const handleDeleteProducts = React.useCallback((item: Product)=>()=>{
     const products = input.products||[];
@@ -128,7 +128,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,pOptions,pLoading,ha
       products.splice(i,1);
       setInput({...input,products})
     }
-  },[input])
+  },[input,setInput])
 
   const handleEditProducts = React.useCallback((item: Product)=>()=>{
     setEdit(item)
@@ -160,8 +160,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,pOptions,pLoading,ha
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <TextField
-            select
+          <Select
             label={t("type")}
             value={input.type}
             onChange={handleChange('type')}
@@ -169,9 +168,9 @@ function Form({input,setInput,loading,openBrowser,autoFocus,pOptions,pLoading,ha
             fullWidth
             disabled={loading}
           >
-            <Select key={'fixed'} value={'fixed'}>{`Fixed`}</Select>
-            <Select key={'percentage'} value={'percentage'}>{`Percentage`}</Select>
-          </TextField>
+            <SelectItem key={'fixed'} value={'fixed'}>{`Fixed`}</SelectItem>
+            <SelectItem key={'percentage'} value={'percentage'}>{`Percentage`}</SelectItem>
+          </Select>
         </Grid>
 
         <Grid item xs={12} sm={6}>
@@ -465,7 +464,7 @@ export default function OutletPromo({meta}: IPages<Outlet>) {
     } finally {
       setLoading(false);
     }
-  },[input,setNotif,post,toko_id,outlet_id,mutate,tCom])
+  },[input,setNotif,post,outlet_id,mutate,tCom])
 
   const handleEdit=React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
@@ -485,7 +484,7 @@ export default function OutletPromo({meta}: IPages<Outlet>) {
     } finally {
       setLoading(false);
     }
-  },[dEdit,input,setNotif,put,toko_id,outlet_id,mutate,tCom])
+  },[dEdit,input,setNotif,put,outlet_id,mutate,tCom])
 
   const handleDelete=React.useCallback(async()=>{
     if(typeof dDelete !== 'boolean' && dDelete && 'id' in dDelete) {
@@ -548,7 +547,7 @@ export default function OutletPromo({meta}: IPages<Outlet>) {
         }).finally(()=>setPLoading(false))
       }
     }
-  },[pOptions])
+  },[pOptions,get,outlet_id])
 
   React.useEffect(()=>{
     if(pOptions.length === 0) {

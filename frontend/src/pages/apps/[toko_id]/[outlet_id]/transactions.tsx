@@ -1,6 +1,6 @@
 // material
-import { Box, Grid, Container, Typography,IconButton,TextField, Card,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText,Collapse, Portal } from '@mui/material';
-import {ExpandMore as ExpandMoreIcon,Close} from '@mui/icons-material'
+import { Box, Grid, Container, Typography,IconButton,TextField, Card,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText,Portal } from '@mui/material';
+import {Close} from '@mui/icons-material'
 import {DatePicker,LocalizationProvider} from '@mui/lab'
 import AdapterDayjs from '@mui/lab/AdapterDayjs'
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -22,7 +22,6 @@ import Scrollbar from '@comp/Scrollbar'
 import Search from '@comp/Search'
 import usePagination from '@comp/TablePagination'
 import Label from '@comp/Label'
-import ExpandMore from '@comp/ExpandMore'
 import dynamic from 'next/dynamic'
 import { numberFormat } from '@portalnesia/utils';
 import { getDayJs } from '@utils/Main';
@@ -53,7 +52,7 @@ function Menu({data,disabled,onDetail}: IMenu) {
       handlePrint(data.token,'action=cashier');
     }
     setOpen(false)
-  },[data.token,toko_id,outlet_id])
+  },[data.token])
 
   const handleDetail = React.useCallback(()=>{
     setOpen(false)

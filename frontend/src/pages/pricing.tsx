@@ -35,7 +35,7 @@ function PricingSection({item}: SectionProps) {
 
   const onSubs = React.useCallback(()=>{
     setNotif(tCom("maintenance_subs"),'info')
-  },[tCom])
+  },[tCom,setNotif])
 
   return (
     <Grid item xs={12} md={6}>

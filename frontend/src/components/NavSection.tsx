@@ -111,7 +111,7 @@ function NavItem({ item, active }: NavItemProps) {
               const isActiveSub = active(path);
 
               return (
-                <Link href={`/apps/${router.query?.toko_id}/${router.query?.outlet_id}${path}`} passHref>
+                <Link key={item.path} href={`/apps/${router.query?.toko_id}/${router.query?.outlet_id}${path}`} passHref>
                   <ListItemStyle
                     component='a'
                     disableGutters

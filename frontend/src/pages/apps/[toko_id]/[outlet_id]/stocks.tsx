@@ -73,19 +73,19 @@ function Form({input,setInput,loading,ingOptions,ingLoading,edit,outlet,handleAu
       return;
     }
     setInput({...input,[name]:val||null});
-  },[input])
+  },[input,setInput])
 
   const handleAutocomplete=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: Ingredient | null)=>{
     if(value) {
       setInput({...input,item:value})
     }
-  },[input])
+  },[input,setInput])
 
   const handleDateChange=React.useCallback((date: Dayjs|null)=>{
     if(date) {
       setInput({...input,timestamp: date.toDate()})
     }
-  },[input])
+  },[input,setInput])
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -364,7 +364,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
     } finally {
       setLoading(false);
     }
-  },[input,setNotif,post,toko_id,outlet_id,mutate,tCom,tMenu])
+  },[input,setNotif,post,outlet_id,mutate,tCom,tMenu])
 
   const handleEdit=React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
@@ -380,7 +380,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
     } finally {
       setLoading(false);
     }
-  },[dEdit,input,setNotif,put,toko_id,outlet_id,mutate,tCom,tMenu])
+  },[dEdit,input,setNotif,put,outlet_id,mutate,tCom,tMenu])
 
   const handleDetail = React.useCallback((s: Stock)=>()=>{
     setDDetail(s)
@@ -416,7 +416,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
     else if(reason==='clear') {
       setInput({...input,item:null})
     }
-  },[ingOptions,input])
+  },[ingOptions,input,get,outlet_id])
 
   React.useEffect(()=>{
     if(ingOptions.length === 0) {

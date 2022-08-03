@@ -99,6 +99,7 @@ export default function DashboardApp({meta}: IPages<Toko>) {
 
   const openWallet = React.useCallback(()=>{
     router.push(`/apps/${toko_id}/wallet`)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[toko_id])
 
   const deleteToko = React.useCallback(()=>{
@@ -110,9 +111,7 @@ export default function DashboardApp({meta}: IPages<Toko>) {
     if(type === 'outlet') return openCreateOutlet();
     if(type === 'wallet') return openWallet();
     if(type === 'delete') return deleteToko();
-
-
-  },[openSetting,openWallet,deleteToko])
+  },[openSetting,openWallet,deleteToko,openCreateOutlet])
 
   const handleDelete=React.useCallback(async()=>{
     setLoading('delete');
@@ -124,6 +123,7 @@ export default function DashboardApp({meta}: IPages<Toko>) {
     } catch(e: any) {
       setNotif(e?.error?.message||tCom("error_500"),true);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[del,setNotif,toko,tCom])
 
   const handleEdit = React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
@@ -139,7 +139,7 @@ export default function DashboardApp({meta}: IPages<Toko>) {
     } finally {
       setLoading(null)
     }
-  },[put,setNotif,iEdit,toko,tCom])
+  },[put,setNotif,iEdit,toko,tCom,mutateToko])
 
   const handleOutlet = React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
@@ -155,7 +155,7 @@ export default function DashboardApp({meta}: IPages<Toko>) {
     } finally {
       setLoading(null)
     }
-  },[post,setNotif,iOutlet,toko,tCom])
+  },[post,setNotif,iOutlet,toko,tCom,mutateOutlet,setPage])
 
   return (
     <Header title={toko?.data?.name} desc={toko?.data?.description}>

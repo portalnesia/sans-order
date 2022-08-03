@@ -124,7 +124,7 @@ export default function Contact() {
 
           <Box mt={2} mb={4}>
             {dataContact.map(c=>(
-              <a href={c.link} {...(c.target ? {} : {target:'_blank'})}>
+              <a key={c.label} href={c.link} {...(c.target ? {} : {target:'_blank'})}>
                 <Stack spacing={2} direction='row' alignItems='center' mb={0.5}>
                   {c.icon}
                   <Typography>{c.label}</Typography>

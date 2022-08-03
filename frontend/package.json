@@ -1,6 +1,6 @@
 {
   "name": "sans-order-frontend",
-  "version": "0.0.2-beta.2",
+  "version": "0.0.2-beta.3",
   "description": "Sans Order System by Portalnesia",
   "private": true,
   "main": "index.js",
@@ -12,7 +12,8 @@
     "dev": "SET \"NODE_ENV=development\" && node server.js",
     "build": "npx genversion --es6 src/version.ts && next build",
     "buildprod": "rm -rf .next/static/ .next/cache/ && npx genversion --es6 src/version.ts && next build",
-    "tsc": "npx tsc ./server.ts --module commonjs --esModuleInterop --resolveJsonModule"
+    "tsc": "npx tsc ./server.ts --module commonjs --esModuleInterop --resolveJsonModule",
+    "lint": "next lint"
   },
   "repository": {
     "type": "git",
@@ -43,12 +44,9 @@
     "@portalnesia/dayjs-plugins": "^1.0.1",
     "@portalnesia/portalnesia-strapi": "^1.0.3",
     "@portalnesia/utils": "^1.1.8",
-    "ajv": "^8.11.0",
     "array-move": "^4.0.0",
     "axios": "^0.27.2",
-    "axios-cache-adapter": "^2.7.3",
     "cardinal": "^2.1.1",
-    "cheerio": "^1.0.0-rc.10",
     "classnames": "^2.3.1",
     "cors": "^2.8.5",
     "dayjs": "^1.11.0",
@@ -73,8 +71,6 @@
     "js-cookie": "^3.0.1",
     "js-yaml": "^4.1.0",
     "jsonwebtoken": "^8.5.1",
-    "localforage": "^1.10.0",
-    "localforage-driver-memory": "^1.0.5",
     "lodash": "^4.17.21",
     "lottie-react": "^2.2.1",
     "marked": "^4.0.12",
@@ -85,7 +81,6 @@
     "next-i18next": "^11.0.0",
     "next-pwa": "^5.5.4",
     "next-redux-wrapper": "^7.0.5",
-    "node-fetch": "^2.6.7",
     "notistack": "^2.0.3",
     "nprogress": "^0.2.0",
     "qr-code-styling": "^1.6.0-rc.1",
@@ -103,7 +98,7 @@
     "simplebar-react": "^2.3.6",
     "socket.io-client": "^4.4.1",
     "swr": "^1.2.2",
-    "tss-react": "^3.6.0",
+    "tss-react": "^3.7.1",
     "use-intl": "^2.4.1-alpha.1"
   },
   "devDependencies": {
@@ -129,6 +124,8 @@
     "babel-plugin-minify-dead-code-elimination": "^0.5.1",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "css-minimizer-webpack-plugin": "^3.4.1",
+    "eslint": "8.21.0",
+    "eslint-config-next": "12.2.3",
     "file-loader": "^6.2.0",
     "genversion": "^3.1.1",
     "next-transpile-modules": "^9.0.0",

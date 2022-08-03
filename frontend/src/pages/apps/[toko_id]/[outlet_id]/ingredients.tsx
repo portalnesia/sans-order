@@ -1,6 +1,6 @@
 // material
-import { Box, Grid, Container, Typography,Tooltip,IconButton,TextField, Card, FormControlLabel, Switch,Checkbox,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText, Autocomplete, AutocompleteChangeReason, AutocompleteInputChangeReason } from '@mui/material';
-import {AddAPhoto,Delete} from '@mui/icons-material'
+import { Box, Grid, Container, Typography,IconButton,TextField, Card, Checkbox,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText } from '@mui/material';
+import {Delete} from '@mui/icons-material'
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/dashboard/index'
@@ -8,10 +8,7 @@ import React from 'react'
 import useNotif from '@utils/notification'
 import {useAPI} from '@utils/api'
 import Button from '@comp/Button'
-import Backdrop from '@comp/Backdrop'
-import Image from '@comp/Image'
-import Popover from '@comp/Popover'
-import {Outlet,IPages,Product, Without, Ingredient,Nullable} from '@type/index'
+import {Outlet,IPages,Without, Ingredient,Nullable} from '@type/index'
 import wrapper from '@redux/store'
 import {useTranslation} from 'next-i18next';
 import useSWR from '@utils/swr';
@@ -20,8 +17,6 @@ import Iconify from '@comp/Iconify';
 import MenuPopover from '@comp/MenuPopover'
 import useOutlet from '@utils/useOutlet'
 import Scrollbar from '@comp/Scrollbar'
-import Avatar from '@comp/Avatar'
-import Label from '@comp/Label'
 import {useMousetrap} from '@utils/useKeys'
 import usePagination from '@comp/TablePagination'
 import dynamic from 'next/dynamic'
@@ -60,7 +55,7 @@ function Form({input,setInput,loading,autoFocus}: FormProps) {
       return;
     }
     setInput({...input,[name]:val||null})
-  },[input])
+  },[setInput,input])
 
   return (
     <Grid container spacing={4}>
@@ -110,7 +105,7 @@ function UserMenu({onEdit,onDelete,editDisabled,allDisabled}: UserMenu) {
     setOpen(false)
     if(type === 'edit') onEdit();
     if(type === 'delete') onDelete();
-  },[onEdit])
+  },[onEdit,onDelete])
 
   return (
     <>

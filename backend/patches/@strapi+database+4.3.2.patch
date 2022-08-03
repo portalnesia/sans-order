@@ -1,8 +1,8 @@
 diff --git a/node_modules/@strapi/database/lib/entity-manager.js b/node_modules/@strapi/database/lib/entity-manager.js
-index 0233bb1..e5f35bb 100644
+index 0233bb1..831c539 100644
 --- a/node_modules/@strapi/database/lib/entity-manager.js
 +++ b/node_modules/@strapi/database/lib/entity-manager.js
-@@ -154,6 +154,18 @@ const createEntityManager = db => {
+@@ -154,6 +154,17 @@ const createEntityManager = db => {
        return result;
      },
  
@@ -12,9 +12,8 @@ index 0233bb1..e5f35bb 100644
 +        .sum(field)
 +        .first()
 +        .execute();
-+
++        
 +      const result = Number(res.sum);
-+
 +      return result;
 +    },
 +
@@ -37,33 +36,32 @@ index b0b7054..2610a94 100644
        return db.entityManager.attachRelations(uid, id, data);
      },
 diff --git a/node_modules/@strapi/database/lib/index.d.ts b/node_modules/@strapi/database/lib/index.d.ts
-index 726b910..96ea888 100644
+index 726b910..1f61ea3 100644
 --- a/node_modules/@strapi/database/lib/index.d.ts
 +++ b/node_modules/@strapi/database/lib/index.d.ts
-@@ -48,6 +48,11 @@ interface FindParams<T> {
-   limit?: number;
-   offset?: number;
-   orderBy?: // TODO: add relations
-+  | Sortables<T>
-+    | Sortables<T>[]
-+    | { [K in Sortables<T>]?: Direction }
-+    | { [K in Sortables<T>]?: Direction }[];
-+  groupBy?: // TODO: add relations
-   | Sortables<T>
+@@ -52,6 +52,10 @@ interface FindParams<T> {
      | Sortables<T>[]
      | { [K in Sortables<T>]?: Direction }
-@@ -76,20 +81,19 @@ interface Pagination {
+     | { [K in Sortables<T>]?: Direction }[];
++  groupBy?:
++  | Sortables<T>
++     | Sortables<T>[]
++     | { [K in Sortables<T>]?: Direction }
+   // TODO: define nested obj
+   populate?: (keyof T)[];
+ }
+@@ -76,20 +80,20 @@ interface Pagination {
  }
  
  interface PopulateParams {}
 -interface EntityManager {
 -  findOne<K extends keyof AllTypes>(uid: K, params: FindParams<AllTypes[K]>): Promise<any>;
 -  findMany<K extends keyof AllTypes>(uid: K, params: FindParams<AllTypes[K]>): Promise<any[]>;
--
--  create<K extends keyof AllTypes>(uid: K, params: CreateParams<AllTypes[K]>): Promise<any>;
 +export interface EntityManager {
 +  findOne<K extends keyof AllTypes>(uid: K, params: FindParams<AllTypes[K]>): Promise<AllTypes[K]>;
 +  findMany<K extends keyof AllTypes>(uid: K, params: FindParams<AllTypes[K]>): Promise<AllTypes[K][]>;
+ 
+-  create<K extends keyof AllTypes>(uid: K, params: CreateParams<AllTypes[K]>): Promise<any>;
 +  create<K extends keyof AllTypes>(uid: K, params: CreateParams<AllTypes[K]>): Promise<AllTypes[K]>;
    createMany<K extends keyof AllTypes>(
      uid: K,
@@ -100,47 +98,47 @@ index 726b910..96ea888 100644
  
    update(params: any): Promise<any>;
 diff --git a/node_modules/@strapi/database/lib/query/query-builder.js b/node_modules/@strapi/database/lib/query/query-builder.js
-index 0d0bc1d..58dcb18 100644
+index 0d0bc1d..6f1643d 100644
 --- a/node_modules/@strapi/database/lib/query/query-builder.js
 +++ b/node_modules/@strapi/database/lib/query/query-builder.js
-@@ -12,6 +12,7 @@ const createQueryBuilder = (uid, db) => {
-     type: 'select',
-     select: [],
-     count: null,
-+    sum: null,
-     max: null,
-     first: false,
-     data: null,
-@@ -78,6 +79,13 @@ const createQueryBuilder = (uid, db) => {
+@@ -24,6 +24,7 @@ const createQueryBuilder = (uid, db) => {
+     forUpdate: false,
+     orderBy: [],
+     groupBy: [],
++    sum: null
+   };
+ 
+   let counter = 0;
+@@ -78,6 +79,12 @@ const createQueryBuilder = (uid, db) => {
        return this;
      },
  
 +    sum(sum = '*') {
 +      state.type = 'sum';
 +      state.sum = sum;
-+
 +      return this;
 +    },
 +
      max(column) {
        state.type = 'max';
        state.max = column;
-@@ -194,7 +202,7 @@ const createQueryBuilder = (uid, db) => {
+@@ -194,7 +201,7 @@ const createQueryBuilder = (uid, db) => {
      },
  
      mustUseAlias() {
 -      return ['select', 'count'].includes(state.type);
-+      return ['select', 'count','sum'].includes(state.type);
++      return ['select', 'count', 'sum'].includes(state.type);
      },
  
      aliasColumn(key, alias) {
-@@ -307,6 +315,12 @@ const createQueryBuilder = (uid, db) => {
+@@ -307,6 +314,13 @@ const createQueryBuilder = (uid, db) => {
            qb.count({ count: dbColumnName });
            break;
          }
 +        case 'sum': {
 +          const dbColumnName =
 +            state.sum === '*' ? '*' : this.aliasColumn(helpers.toColumnName(meta, state.sum));
++
 +          qb.sum({ sum: dbColumnName });
 +          break;
 +        }

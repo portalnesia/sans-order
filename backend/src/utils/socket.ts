@@ -71,7 +71,7 @@ export const socketEvents = [
             if(outlet.toko) socket.leave(`outlet::${outlet.toko.id}::${outlet.id}`)
           }
         }
-
+        
         const outlet = await strapi.entityService.findOne<'api::outlet.outlet',Outlet>('api::outlet.outlet',dt.outlet_id,{populate:'toko'});
         if(outlet && outlet.toko) {
           socket.data.outlet = {...outlet,dashboard:dt.dashboard,debug:dt.debug,view:dt.view}

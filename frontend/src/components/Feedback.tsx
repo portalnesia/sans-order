@@ -930,7 +930,8 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
                               <span className="edit-label">{props.t('editTip')}</span>
                             </div>
                           )}
-                          <img id="screenshotPrev" ref={this.screenshotPrev} src=""/>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img alt='Screenshot' id="screenshotPrev" ref={this.screenshotPrev} src=""/>
                         </div>
                       </div>
                     ) : null}
@@ -1185,7 +1186,8 @@ class FeedbackClass extends React.PureComponent<FeedbackAllProps,FeedbackState> 
                       </div>
                     )}
                     <div className="screenshot">
-                      <img id="screenshotPrev" ref={this.screenshotPrev} src=""/>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img alt='Screenshot' id="screenshotPrev" ref={this.screenshotPrev} src=""/>
                     </div>
                   </div>
                 )}

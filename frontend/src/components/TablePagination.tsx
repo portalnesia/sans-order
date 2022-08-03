@@ -29,7 +29,7 @@ export default function usePagination(initialPage: number|true=1,initialPerPage=
       const path = `${url.pathname}?${quer.toString()}`
       router.push({pathname,query:q},path,{shallow:true})
     }
-  },[initialPage,page,router]);
+  },[initialPage,router]);
 
   const onRowsPerPageChange = useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));

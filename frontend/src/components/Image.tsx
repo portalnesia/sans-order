@@ -105,7 +105,7 @@ const Image=(props: ImageProps)=>{
             return `${src}&fm=webp`
         }
         return `${src}&output=webp`
-    },[src,webp])
+    },[src])
 
     const pngDataSrc = React.useMemo(()=>{
         if(!/content\.portalnesia\.com/.test(dataSrc||src)) {
@@ -121,7 +121,7 @@ const Image=(props: ImageProps)=>{
             return (src)
         }
         return getPortalnesiaImagePng((src))
-    },[src])
+    },[src,dataSrc])
     
     if(webp) {
         return (

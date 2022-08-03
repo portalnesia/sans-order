@@ -13,7 +13,7 @@ export default function DialogActions({fixed,children,...rest}: DialogActionsPro
     return sm;
   },[sm,fixed])
 
-  if(!isFixed) return <Dialogg {...rest} children={children} />
+  if(!isFixed) return <Dialogg {...rest}>{children}</Dialogg>
   return (
     <Box position={'fixed'} bottom={0} width='100%' padding={1}>
       <Stack direction={'row'} spacing={2} justifyContent='flex-end'>

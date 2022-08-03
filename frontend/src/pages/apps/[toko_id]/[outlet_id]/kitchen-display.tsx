@@ -1,7 +1,5 @@
 // material
-import { Box, Typography,TextField, Card,Stack,Collapse, Portal, CardHeader, CardContent, FormGroup, FormControlLabel, Checkbox, CardActions } from '@mui/material';
-import {ExpandMore as ExpandMoreIcon,Close} from '@mui/icons-material'
-import useMediaQuery from '@mui/material/useMediaQuery'
+import { Box, Typography,Card,Stack,CardHeader, CardContent, FormGroup, FormControlLabel, Checkbox, CardActions } from '@mui/material';
 // components
 import Header from '@comp/Header';
 import Dashboard, { APP_BAR_DESKTOP, APP_BAR_MOBILE } from '@layout/home/index'
@@ -9,20 +7,12 @@ import React from 'react'
 import useNotif from '@utils/notification'
 import {useAPI} from '@utils/api'
 import Button from '@comp/Button'
-import {IPages,Transaction,colorOrderStatus,colorStatus, Outlet} from '@type/index'
+import {IPages,Transaction,Outlet} from '@type/index'
 import wrapper from '@redux/store'
 import {useTranslation} from 'next-i18next';
 import useSWR from '@utils/swr';
 import { useRouter } from 'next/router';
-import Iconify from '@comp/Iconify';
 import Scrollbar from '@comp/Scrollbar'
-import Search from '@comp/Search'
-import usePagination from '@comp/TablePagination'
-import Label from '@comp/Label'
-import ExpandMore from '@comp/ExpandMore'
-import dynamic from 'next/dynamic'
-import { numberFormat } from '@portalnesia/utils';
-import { getDayJs } from '@utils/Main';
 import { ISocket, withSocket } from '@utils/Socket';
 import { Circular } from '@comp/Loading';
 import { KeyedMutator } from 'swr';
@@ -64,7 +54,7 @@ function MenuCard({data,mutate}: {data: Transaction<{table_number?: string}>,mut
     } finally {
       setLoading(false);
     }
-  },[put,outlet_id,data,setNotif,tCom])
+  },[put,outlet_id,data,setNotif,tCom,input,mutate])
 
   return (
     <Card sx={{mx:1,height:{xs:`calc(100vh - ${APP_BAR_MOBILE + 45}px)`,lg:`calc(100vh - ${APP_BAR_DESKTOP + 45}px)`},minWidth:400}}>
@@ -74,7 +64,7 @@ function MenuCard({data,mutate}: {data: Transaction<{table_number?: string}>,mut
           {Object.values(data.items)?.map((item)=>{
             const checked = !!(input.find(i=>i.id === item.id)?.done);
             return (
-              <Stack direction='row' spacing={1} justifyContent='space-between' alignItems='center'>
+              <Stack key={`item-${item.id}`} direction='row' spacing={1} justifyContent='space-between' alignItems='center'>
                 <Box>
                   <FormControlLabel key={item.id} control={<Checkbox checked={checked} onChange={onCheckedChange(item.id)} />} label={
                     <>
@@ -118,6 +108,7 @@ function OutletKitchenDisplay({socket}: IPages<Outlet> & {socket?: ISocket}) {
       socket?.off('toko transactions items',handleTransactionChange)
       socket?.off('toko transactions orderstatus',handleTransactionChange)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[socket])
 
   return (

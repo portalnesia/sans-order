@@ -55,7 +55,7 @@ export default function HelpIndex({meta}: IPages) {
           </Box>
           <Grid container spacing={2}>
             {meta?.index?.map((m,i)=>(
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid key={m.title} item xs={12} sm={6} md={4}>
                 <Card sx={{height:'100%'}}>
                   <Link href={m.link} passHref><CAArea component='a' sx={{height:'100%',display:'flex',justifyContent:'center'}}>
                     <CardContent>

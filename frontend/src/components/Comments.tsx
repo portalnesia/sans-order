@@ -13,7 +13,7 @@ import Image from './Image';
 import Button from './Button';
 import { Circular } from './Loading';
 import Iconify from './Iconify';
-import Select from './Select';
+import Select,{SelectItem} from './Select';
 import { useRouter } from 'next/router';
 import SessionStorage from '@utils/session-storage';
 
@@ -98,7 +98,7 @@ type CommentModel = BaseCommentModel & ({
 
 const CommentAvatar = ({user}: {user: {name: string,picture: string|null}})=>(
   <Avatar alt={user.name} sx={{height:32,width:32}} {...(user.picture ? {
-    children: <Image src={photoUrl(user.picture)} style={{width:32,height:32}} />
+    children: <Image alt={user.name} src={photoUrl(user.picture)} style={{width:32,height:32}} />
   } : {
     children:user.name
   })} />
@@ -157,12 +157,13 @@ function CommentInputNotLogedIn() {
     SessionStorage.set('auth',{pathname,query,asPath})
     const url = portalnesia.getAuthUrl()
     window.location.href = url;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[router.asPath,router.pathname,router.query])
 
   return (
     <Stack sx={{px:1}} direction='row' spacing={2} alignItems='center' justifyContent='space-between'>
       <Typography>{t('login_comment')}</Typography>
-      <Button onClick={login} sx={{mt:3,backgroundColor:'#2f6f4e !important'}} size="large" startIcon={<Image src="/portalnesia-icon/android-icon-48x48.png" width={25} />}>{tMenu("signin")}</Button>
+      <Button onClick={login} sx={{mt:3,backgroundColor:'#2f6f4e !important'}} size="large" startIcon={<Image alt='Login' src="/portalnesia-icon/android-icon-48x48.png" width={25} />}>{tMenu("signin")}</Button>
     </Stack>
   )
 }
@@ -172,7 +173,7 @@ type ICommentSection = {
   disabled?:boolean,
   loading?: boolean,
   user: State['user'],
-  onSubmit?(input: string): Promise<void>,
+  onSubmit(input: string): Promise<void>,
   onDelete: () => Promise<void>
   onReport: (item: CommentModel) => () => void
 }
@@ -186,11 +187,9 @@ function CommentSection({item,disabled,loading,user,onSubmit,onDelete,onReport}:
   },[setShowReply])
 
   const handleSubmit = React.useCallback(async(input: string)=>{
-    if(onSubmit) {
-      await onSubmit(input);
-      setShowReply(false);
-    }
-  },[])
+    await onSubmit(input);
+    setShowReply(false);
+  },[onSubmit])
 
   return (
     <>
@@ -199,7 +198,7 @@ function CommentSection({item,disabled,loading,user,onSubmit,onDelete,onReport}:
           <CommentAvatar user={item.author} />
         </Box>
         <Box>
-          <a href={portalUrl(`user/${item.author.username}`)} target='_blank'><Typography>{item.author.name}</Typography></a>
+          <a href={portalUrl(`user/${item.author.username}`)} target='_blank' rel='noreferrer noopener'><Typography>{item.author.name}</Typography></a>
           <Typography variant='body2' {...(item.blocked ? {sx:{fontStyle:'italic',color:t=>t.palette.action.disabled}} : {})}>{item.blocked ? t('comment_blocked') : item.content}</Typography>
 
           <Stack sx={{mt:1}} direction='row' spacing={1} alignItems='center'>
@@ -251,7 +250,7 @@ function CommentContainer({onSubmit,item,loading,user,onDelete,onReport}: IComme
           <Collapse in={show} unmountOnExit>
             <Box>
               {item.children?.map(dd=>(
-                <CommentSection onReport={onReport} item={dd} onSubmit={onSubmit(`reply-${dd.id}`,item.id)} onDelete={onDelete(dd,item.id)} loading={loading===`reply-${dd.id}`} disabled={loading!==null} user={user} />
+                <CommentSection key={dd.id} onReport={onReport} item={dd} onSubmit={onSubmit(`reply-${dd.id}`,item.id)} onDelete={onDelete(dd,item.id)} loading={loading===`reply-${dd.id}`} disabled={loading!==null} user={user} />
               ))}
             </Box>
           </Collapse>
@@ -312,7 +311,7 @@ export default function Comments({type,id}: CommentsProps) {
   const onDelete=React.useCallback((item: CommentModel,parentId?: number)=>async()=>{
     if(!user || user.id !== item.author.id) return;
     setDialog({item,parentId});
-  },[del,setNotif,tCom,type,id,data,mutate,user])
+  },[user])
 
   const handleDelete=React.useCallback(async()=>{
     if(dialog) {
@@ -426,8 +425,7 @@ export default function Comments({type,id}: CommentsProps) {
                   <Typography>{`${tCom('comment')}: ${dReport?.content}`}</Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <TextField
-                    select
+                  <Select
                     value={iReport.reason}
                     onChange={e=>setIReport({...iReport,reason:e.target.value})}
                     required
@@ -436,9 +434,9 @@ export default function Comments({type,id}: CommentsProps) {
                     label={tReport('reason')}
                   >
                     {REPORT_REASON.map(r=>(
-                      <Select key={r} value={r}>{tReport(r.toLowerCase())}</Select>
+                      <SelectItem key={r} value={r}>{tReport(r.toLowerCase())}</SelectItem>
                     ))}
-                  </TextField>
+                  </Select>
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
