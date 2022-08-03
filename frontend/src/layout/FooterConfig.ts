@@ -1,14 +1,19 @@
 import { TFunction } from "next-i18next"
 
 export const footerMenu = (t: TFunction): {header:string,child:{name: string,link?:string,exlink?:string}[]}[] => ([
-  {
+  /*{
     header:t("product"),
     child:[]
-  },{
+  },*/
+  {
     header:t('company'),
     child:[{
       name: t("pricing"),
       link: '/pricing'
+    },
+    {
+      name: 'Blog',
+      link: '/blog'
     },
     {
       name:t("terms_of_services"),
@@ -40,6 +45,9 @@ export const dashboardFooterMenu = (t: TFunction): {name: string,link?:string,ex
   {
     name:t("contact_us"),
     link:"/help/contact"
+  },{
+    name: "Blog",
+    link:"/blog"
   },{
     name:t("terms_of_services"),
     link:"/pages/terms-of-services"

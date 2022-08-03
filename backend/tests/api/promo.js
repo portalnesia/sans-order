@@ -1,21 +1,24 @@
 const request = require('supertest');
+const dayjs = require('dayjs')
 
-describe("Outlet Endpoint",()=>{
+describe("Promo Endpoint",()=>{
   describe("Authenticated",()=>{
-    it("Create Outlet Failed", async() => {
+    it("Create Promo Failed", async() => {
       const resp = await request(strapi.server.httpServer)
-        .post("/api/outlets")
-        .send({data:{name:"Test Create"}})
+        .post("/api/promos/1")
+        .send({data:{amount:10000}})
         .set('accept', 'application/json')
         .set('Content-Type', 'application/json')
         .set('Authorization', 'Bearer ' + jwtToken)
         
       expect(resp.statusCode).toBe(400);
     });
-    it("Create Outlet", async() => {
+
+    it("Create Promo", async() => {
+      const now = dayjs();
       const resp = await request(strapi.server.httpServer)
-        .post("/api/outlets")
-        .send({data:{name:"Test Create",toko:1}})
+        .post("/api/promos/1")
+        .send({data:{name:"Test Create",amount:10000,type:'fixed',active:true,from:now.toDate(),to:now.add(7,'day').toDate(),products:[1]}})
         .set('accept', 'application/json')
         .set('Content-Type', 'application/json')
         .set('Authorization', 'Bearer ' + jwtToken)
@@ -23,67 +26,60 @@ describe("Outlet Endpoint",()=>{
       expect(resp.statusCode).toBe(200);
     });
   
-    it("Find Outlet", async() => {
+    it("Find All Promo", async() => {
       const resp = await request(strapi.server.httpServer)
-        .get("/api/outlets/1")
+        .get("/api/promos/1")
         .set('accept', 'application/json')
         .set('Content-Type', 'application/json')
         .set('Authorization', 'Bearer ' + jwtToken)
         
       expect(resp.statusCode).toBe(200);
-      expect(resp?.body?.data?.name).toBe('Test Create')
+      expect(resp?.body?.data?.[0]?.name).toBe('Test Create')
+      expect(resp?.body?.data?.[0]?.type).toBe('fixed')
     });
 
-    it("Update Outlet", async() => {
+    it("Update Promo", async() => {
+      const now = dayjs();
       const resp = await request(strapi.server.httpServer)
-        .put("/api/outlets/1")
-        .send({data:{name:"Test"}})
+        .put("/api/promos/1/1")
+        .send({data:{name:"Test",amount:10000,type:'fixed',active:true,from:now.toDate(),to:now.add(7,'day').toDate(),products:[1]}})
         .set('accept', 'application/json')
         .set('Content-Type', 'application/json')
         .set('Authorization', 'Bearer ' + jwtToken)
         
       expect(resp.statusCode).toBe(200);
-    });
-
-    it("Find Outlet Updated", async() => {
-      const resp = await request(strapi.server.httpServer)
-        .get("/api/outlets/1")
-        .set('accept', 'application/json')
-        .set('Content-Type', 'application/json')
-        .set('Authorization', 'Bearer ' + jwtToken)
-        
-      expect(resp.statusCode).toBe(200);
-      expect(resp?.body?.data?.name).toBe('Test')
     });
   
-    it("Find All Test Outlets", async() => {
+    it("Find All Promo Updated", async() => {
       const resp = await request(strapi.server.httpServer)
-        .get("/api/tokos/test/outlets")
+        .get("/api/promos/1")
         .set('accept', 'application/json')
         .set('Content-Type', 'application/json')
-        .set('Authorization', 'Bearer ' + jwtToken);
+        .set('Authorization', 'Bearer ' + jwtToken)
         
       expect(resp.statusCode).toBe(200);
       expect(resp?.body?.data?.[0]?.name).toBe('Test')
+      expect(resp?.body?.data?.[0]?.type).toBe('fixed')
     });
   })
 
 
   describe("Public",()=>{
-    it("FindOne", async() => {
+    it("Find Failed", async() => {
       const resp = await request(strapi.server.httpServer)
-        .get("/api/outlets/1")
+        .get("/api/promos/1")
         .set('accept', 'application/json')
         .set('Content-Type', 'application/json')
         
       expect(resp.statusCode).toBe(200);
-      expect(resp?.body?.data?.name).toBe('Test')
+      expect(resp?.body?.data?.[0]?.name).toBe('Test')
+      expect(resp?.body?.data?.[0]?.type).toBe('fixed')
     });
   
-    it("Create Outlet Failed", async() => {
+    it("Create Promo Failed", async() => {
       const resp = await request(strapi.server.httpServer)
-        .post("/api/outlets")
-        .send({data:{name:"Test",toko:1}})
+        .post("/api/promos/1")
+        .send({data:{name:"Test"}})
         .set('accept', 'application/json')
         .set('Content-Type', 'application/json');
   

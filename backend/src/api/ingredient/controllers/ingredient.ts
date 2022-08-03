@@ -43,6 +43,9 @@ export default factories.createCoreController('api::ingredient.ingredient',({str
             $eq: `${outlet?.id}`
           }
         }
+      },
+      sort:{
+        id:'desc'
       }
     }
     const {results,pagination} =  await strapi.entityService.findPage('api::ingredient.ingredient',query)

@@ -26,15 +26,15 @@ export default function useSWR<D=any,Pagination extends boolean = false,F=Strapi
 }
 
 export function useDefaultSWR<D=any,E=any>(url: string|null,config: SWRConfiguration={}) {
-    const {fetcher} = useAPI();
+    const {get} = useAPI();
     const ready = useSelector<State['ready']>(s=>s.ready);
 
     const swr = useSWRR<D,E>(!ready ? null : url,{
-        fetcher,
-        revalidateOnReconnect:true,
-        revalidateOnFocus:false,
-        revalidateIfStale:true,
-        ...config
+      fetcher:get,
+      revalidateOnReconnect:true,
+      revalidateOnFocus:false,
+      revalidateIfStale:true,
+      ...config
     });
     return swr;
 }

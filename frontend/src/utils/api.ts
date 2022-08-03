@@ -46,7 +46,7 @@ export function useAPI(useCache=true) {
   },[dispatch])
 
   const fetcher = useCallback(async(url: string)=>{
-    const d = await portalnesia.request('get',url);
+    const d = await portalnesia.request('get',url,{headers});
     return d.data;
   },[headers])
 
@@ -64,9 +64,9 @@ export function useAPI(useCache=true) {
     }
   },[catchError,headers])
 
-  const post=useCallback(<D,B=any,Pagination extends boolean = false>(url: string,data?:B,opt?: AxiosRequestConfig)=>{
+  const post=useCallback(<D,B=any,Pagination extends boolean = false>(url: string,data?:B,opt?: AxiosRequestConfig,wrapData: boolean=true)=>{
     try {
-      const response = portalnesia.request<D,Pagination>('post',url,{...opt,headers,...(data ? {data:{data}} : {})})
+      const response = portalnesia.request<D,Pagination>('post',url,{...opt,headers,...(data ? {data:wrapData ? {data} : data} : {})})
       return response;
     } catch(e) {
       catchError(url,e)
@@ -84,9 +84,9 @@ export function useAPI(useCache=true) {
     }
   },[catchError,headers])
 
-  const put=useCallback(<D=any,B=any,Pagination extends boolean = false>(url: string,data?:B,opt?: AxiosRequestConfig)=>{
+  const put=useCallback(<D=any,B=any,Pagination extends boolean = false>(url: string,data?:B,opt?: AxiosRequestConfig,wrapData: boolean=true)=>{
     try {
-      const response = portalnesia.request<D,Pagination>('put',url,{...opt,headers,...(data ? {data:{data}} : {})})
+      const response = portalnesia.request<D,Pagination>('put',url,{...opt,headers,...(data ? {data:wrapData ? {data} : data} : {})})
       return response;
     } catch(e) {
       catchError(url,e)

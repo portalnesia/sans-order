@@ -16,4 +16,7 @@ describe("SansOrder Test",()=>{
 
   require('./api/toko')
   require('./api/outlet')
+  require('./api/ingredient')
+  require('./api/product')
+  require('./api/promo')
 })

@@ -288,6 +288,7 @@ function Loginned({user}: {user:PortalnesiaUser}) {
   )
 }
 
+let codeLoading=false;
 export default function DashboardApp() {
   const setNotif = useNotif();
   const {t} = useTranslation('dash_apps');
@@ -298,18 +299,18 @@ export default function DashboardApp() {
   const {user,ready:loaded} = useSelector<Pick<State,'user'|'ready'>>(s=>({user:s.user,ready:s.ready}));
   const router = useRouter();
   const access_token = router.query?.access_token;
-  let codeLoading = React.useRef(false)
   const [features,setFeatures] = React.useState<Pick<PSysInfo,'cookieEnabled'|'support_localStorage'|'support_sessionStorage'|'support_webSocket'>|null|false>(null)
 
   React.useEffect(()=>{
     async function login() {
-      if(typeof access_token === 'string' && !codeLoading.current && router.isReady) {
-        codeLoading.current=true;
+      if(typeof access_token === 'string' && !codeLoading && router.isReady) {
+        codeLoading=true;
         const auth = SessionStorage.get('auth');
         SessionStorage.remove('auth')
         try {
           const token = await portalnesia.login(access_token)
           dispatch({type:"CUSTOM",payload:{user:token.user}})
+          console.log(auth);
           if(auth?.pathname) {
             router.replace({pathname:auth?.pathname,query:auth?.query},auth?.asPath);
           } else {
@@ -321,24 +322,24 @@ export default function DashboardApp() {
         }
       }
     }
-    if(loaded && typeof access_token === 'string' && !codeLoading.current && router.isReady && features === false) login();
-  },[access_token,router.isReady,features,loaded,dispatch])
-
-  React.useEffect(()=>{
     const system = getSysInfo();
     const {cookieEnabled,support_localStorage,support_sessionStorage,support_webSocket} = system
+    let features: Pick<PSysInfo,'cookieEnabled'|'support_localStorage'|'support_sessionStorage'|'support_webSocket'>|null|false
     if(
       cookieEnabled && 
       support_localStorage && 
       support_sessionStorage && 
       support_webSocket
     ) {
+      features=false;
       setFeatures(false)
     } else {
+      features={cookieEnabled,support_localStorage,support_sessionStorage,support_webSocket}
       setFeatures({cookieEnabled,support_localStorage,support_sessionStorage,support_webSocket})
     }
-    //setFeatures({cookieEnabled:false,support_localStorage:false,support_sessionStorage:false,support_webSocket:false})
-  },[])
+
+    if(loaded && typeof access_token === 'string' && !codeLoading && router.isReady && features === false) login();
+  },[access_token,router.isReady,loaded,dispatch])
 
   return (
     <Header title={ucwords(tMenu("dashboard"))}>

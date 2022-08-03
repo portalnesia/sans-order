@@ -161,6 +161,9 @@ export default factories.createCoreController('api::support.support',({strapi}) 
       close:0
     }
 
+    const page = ctx?.query?.pagination?.page;
+    const pageSize = ctx?.query?.pagination?.pageSize||ctx?.query.size
+
     const {results,pagination} = await strapi.entityService.findPage('api::support.support',{
       filters:{
         ...(!admin ? {
@@ -174,6 +177,8 @@ export default factories.createCoreController('api::support.support',({strapi}) 
       populate:{
         user:'*'
       },
+      page,
+      pageSize
     })
 
     const output = await Promise.all(results.map(async(r)=>{
@@ -194,7 +199,7 @@ export default factories.createCoreController('api::support.support',({strapi}) 
 
     output.sort((a,b) => statusToIndex[a.status] - statusToIndex[b.status])
 
-    return this.transformResponse(output,pagination);
+    return this.transformResponse(output,{pagination});
   },
   async findMessage(ctx) {
     const user = ctx.state.user;
@@ -203,6 +208,9 @@ export default factories.createCoreController('api::support.support',({strapi}) 
     const admin = isTrue(ctx?.query?.admin) && user?.admin;
 
     if(!admin && ((support.user && support.user.id != user?.id) || (!support.user && user))) return ctx.badRequest('Support message not found');
+
+    const page = ctx?.query?.pagination?.page;
+    const pageSize = ctx?.query?.pagination?.pageSize||ctx?.query.size
 
     const {results,pagination} = await strapi.entityService.findPage('api::message.message',{
       populate:{
@@ -220,10 +228,12 @@ export default factories.createCoreController('api::support.support',({strapi}) 
       },
       sort:{
         id:'desc'
-      }
+      },
+      page,
+      pageSize
     })
 
-    return this.transformResponse(results,pagination);
+    return this.transformResponse(results,{pagination});
   },
   async reply(ctx) {
     const user = ctx.state.user;

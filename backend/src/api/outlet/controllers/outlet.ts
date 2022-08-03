@@ -87,15 +87,15 @@ export default factories.createCoreController('api::outlet.outlet',({strapi})=>{
             roles:'*'
           }
         }
+        populate.wallet = '*'
       }
       
       const outlet = await strapi.entityService.findOne<'api::outlet.outlet',Outlet>('api::outlet.outlet',id,{populate})
       
       const subs = await checkTokoSubscription(strapi,outlet?.toko?.user);
       if(!subs) return ctx.notFound();
-  
-      const data = await strapi.entityService.findOne('api::outlet.outlet',id,{populate});
-      return {data,meta:{}}
+
+      return {data:outlet,meta:{}}
     },
     async find(ctx) {
       try {
@@ -110,6 +110,9 @@ export default factories.createCoreController('api::outlet.outlet',({strapi})=>{
             user: '*'
           }
         }
+
+        const page = ctx?.query?.pagination?.page;
+        const pageSize = ctx?.query?.pagination?.pageSize||ctx?.query.size
 
         const filters: Record<string,any> = {
           users:{
@@ -136,7 +139,7 @@ export default factories.createCoreController('api::outlet.outlet',({strapi})=>{
           }
         }
 
-        const {results:outlet,pagination} = await strapi.entityService.findPage<'api::outlet.outlet',Outlet>('api::outlet.outlet',{populate,filters})
+        const {results:outlet,pagination} = await strapi.entityService.findPage<'api::outlet.outlet',Outlet>('api::outlet.outlet',{populate,filters,page,pageSize})
         const results: Outlet[] = [];
         for(const o of outlet) {
           const subs = await checkTokoSubscription(strapi,outlet?.[0]?.toko?.user);
@@ -159,7 +162,9 @@ export default factories.createCoreController('api::outlet.outlet',({strapi})=>{
           toko:{
             populate:{
               user:'*',
-              wallet:'*'
+              wallet:{
+                populate:'*'
+              }
             }
           },
           users:{
@@ -189,7 +194,7 @@ export default factories.createCoreController('api::outlet.outlet',({strapi})=>{
       if(isTrue(data.online_payment)) {
         if(!config.online_payment) return ctx.badRequest("`online_payment` is under maintenance");
         const wallet = outlet.toko?.wallet;
-        if(!wallet || !wallet.account) return ctx.forbidden('You must set and activated your wallet before use "online_payment"');
+        if(typeof wallet?.account?.id === 'undefined') return ctx.forbidden('You must set and activated your wallet before use "online_payment"');
       }
   
       return await super.update(ctx);

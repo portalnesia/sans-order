@@ -1,7 +1,7 @@
 {
   "price":"Harga",
   "price_ctx": "Harga {{what}}",
-  "disscount":"Diskon",
+  "discount":"Diskon",
   "stock":"Stok",
   "purchase":"Beli",
   "stock_in":"Stok Masuk",
@@ -13,5 +13,9 @@
   "active_not":"Tidak Aktif",
   "selected_zero":"Tidak ada yang dipilih",
   "selected_other":"{{count}} dipilih",
-  "remaining_stock": "Sisa Stok"
+  "remaining_stock": "Sisa Stok",
+  "transaction_id":"ID Transaksi",
+  "payment_status":"Status Pembayaran",
+  "order_status":"Status Pemesanan",
+  "payment_method":"Metode Pembayaran"
 }

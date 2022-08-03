@@ -67,19 +67,25 @@ function MenuCard({data,mutate}: {data: Transaction<{table_number?: string}>,mut
   },[put,outlet_id,data,setNotif,tCom])
 
   return (
-    <Card sx={{mx:1,height:{xs:`calc(100vh - ${APP_BAR_MOBILE + 45}px)`,lg:`calc(100vh - ${APP_BAR_DESKTOP + 45}px)`},minWidth:300}}>
+    <Card sx={{mx:1,height:{xs:`calc(100vh - ${APP_BAR_MOBILE + 45}px)`,lg:`calc(100vh - ${APP_BAR_DESKTOP + 45}px)`},minWidth:400}}>
       <CardHeader title={`#${data?.uid}`} subheader={data.metadata?.table_number ? `Table: ${data.metadata?.table_number}` : undefined} />
       <CardContent sx={{height:{xs:`calc(100vh - ${APP_BAR_MOBILE + 45}px - 52px - 87px)`,lg:`calc(100vh - ${APP_BAR_DESKTOP + 45}px - 52px - 87px)`,overflow:'auto'}}}>
         <FormGroup>
           {Object.values(data.items)?.map((item)=>{
             const checked = !!(input.find(i=>i.id === item.id)?.done);
             return (
-              <FormControlLabel key={item.id} control={<Checkbox checked={checked} onChange={onCheckedChange(item.id)} />} label={
-                <>
-                  <Typography>{item?.item.name}</Typography>
+              <Stack direction='row' spacing={1} justifyContent='space-between' alignItems='center'>
+                <Box>
+                  <FormControlLabel key={item.id} control={<Checkbox checked={checked} onChange={onCheckedChange(item.id)} />} label={
+                    <>
+                      <Typography>{item?.item.name}</Typography>
+                      
+                    </>
+                  } />
                   { item?.notes && <Typography variant='caption'>{item?.notes}</Typography>}
-                </>
-              } />
+                </Box>
+                <Typography variant='caption'>{`${item?.qty} pcs`}</Typography>
+              </Stack>
             )
           })}
         </FormGroup>

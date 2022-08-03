@@ -77,7 +77,7 @@ export default {
       type: 'boolean',
       default: false,
       configurable: false,
-      private: true,
+      private: false,
     },
     role: {
       type: 'relation',

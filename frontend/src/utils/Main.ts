@@ -46,6 +46,10 @@ export function photoUrl(path?: string|null,content: boolean = false) {
   return (!path) ? staticUrl(`img/content?image=${encodeURIComponent("notfound.png")}&watermark=no`) : content ? staticUrl(path) : path; 
 }
 
+export function portalUrl(path?: string) {
+  return 'https://portalnesia.com' + (path ? "/" + path : '');
+}
+
 export function getDayList(t: TFunction) {
   const days: Record<IDays,string> = {
     sunday:t("sunday"),

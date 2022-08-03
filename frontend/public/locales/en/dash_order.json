@@ -1,6 +1,6 @@
 {
   "price":"Price",
-  "disscount":"Discount",
+  "discount":"Discount",
   "pay":"Pay",
   "payment":"Payment",
   "process":"Process",

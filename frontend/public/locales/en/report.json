@@ -14,5 +14,11 @@
   "editDoneLabel":"Done",
   "legal": "Some <1>System Information</1> may be sent to SansOrder. We will use the information that give us to help address technical issues and to improve our services.",
   "response_report":"Thank you for your report. We will review it as soon as possible.",
-  "response_feedback":"Thank you for your feedback."
+  "response_feedback":"Thank you for your feedback.",
+  "reason":"Reason",
+  "bad_words":"Bad Words",
+  "discrimination":"Discrimination",
+  "other":"Other",
+  "content_report":"Please explain in more detail about the problem in this comment",
+  "report":"Report"
 }

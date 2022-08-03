@@ -1,6 +1,6 @@
 {
   "name": "@portalnesia/sans-order",
-  "version": "0.0.2-beta",
+  "version": "0.0.2-beta.2",
   "description": "Sans Order System by Portalnesia",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

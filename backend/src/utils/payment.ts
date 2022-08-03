@@ -168,6 +168,7 @@ export default class Payment {
   }
 
   async sendPaymentEmail(type:'reminder'|'success'|'cod'|'created',opt: ICreatePayment,va_number?:string) {
+    if(process.env.NODE_ENV !== 'production') return Promise.resolve();
     const footer = {
       "Subtotal":opt.subtotal,
       ...(opt.discount !== 0 ? {"Discount":opt.discount*-1} : {}),
@@ -204,6 +205,7 @@ export default class Payment {
   }
 
   async sendWhatsapp(type:'success',opt: ICreatePayment) {
+    if(process.env.NODE_ENV !== 'production') return Promise.resolve();
     if(!opt.telephone) return Promise.resolve();
     const footer = {
       "Subtotal":opt.subtotal,
@@ -298,7 +300,7 @@ export default class Payment {
     }
     else throw new PaymentError("Invalid payment method, received "+opt.payment,400);
     
-    //if(result.va_number) this.sendPaymentEmail('created',opt,result.va_number);
+    if(result.va_number) this.sendPaymentEmail('created',opt,result.va_number);
 
     return result;
   }
@@ -520,6 +522,7 @@ export default class Payment {
   }
 
   async sendSendMoneyEmail(type:'send_money'|'send_money_created',opt: Pick<ICreatePayment,'discount'|'subtotal'|'total'|'expiration'|'uid'|'datetime'|'name'|'email'|'updated'|'outlet'|'platform_fees'> & ({bank_code: string,item_name:string})) {
+    if(process.env.NODE_ENV !== 'production') return Promise.resolve();
     const footer = {
       "Subtotal":opt.subtotal,
       ...(opt.discount !== 0 ? {"Discount":opt.discount*-1} : {}),
@@ -636,10 +639,10 @@ export default class Payment {
     const ewalletCodeChannel = Object.keys(EWALLET_CODE);
     const bankCode = Object.keys(BANK_CODES);
     const paymentType = Object.keys(PAYMENT_TYPE);
-    const allPayment = (bankCode as string[]).concat(ewalletCodeChannel).concat("QRIS");
+    const allPayment = (bankCode).concat(ewalletCodeChannel).concat("QRIS");
     const d = await xendit.get<IChannelPayment[]>(`https://api.xendit.co/payment_channels`);
     const result = d.data.filter(f=>{
-      return (paymentType as string[]).includes(f.channel_category) &&
+      return (paymentType).includes(f.channel_category) &&
       allPayment.includes(f.channel_code) && 
       f.currency === 'IDR' &&
       f.is_enabled &&
@@ -1142,20 +1145,20 @@ export default class Payment {
     // Extract all items 
     return await Promise.all(tr.items?.map(async(i)=>{
       // i.item = PRODUCT
-      const r = i.item?.recipes.find(r=>r.item?.id === i.item?.id);
-      if(r) {
+      return await Promise.all((i.item?.recipes||[])?.filter(r=>typeof r.item?.id !== 'undefined')?.map(async(b)=>{
         return strapi.entityService.create('api::stock.stock',{
           data:{
             outlet:tr.outlet?.id,
-            item: i.item?.id,
+            item: b?.item?.id,
             price:i.price,
             type:'out',
-            stocks:r.consume,
-            timestamp:tanggal.toDate()
+            stocks:b.consume*i.qty,
+            timestamp:tanggal.toDate(),
+            transaction: tr.id,
+            product: i.item?.id
           }
         })
-      }
-      return Promise.resolve(null);
+      }))
     }))
   }
 
@@ -1191,16 +1194,19 @@ export default class Payment {
           ...data
         }
 
-        const opt = this.getOptionsFromDb(result);
+        if(type === 'paid') {
+          const opt = this.getOptionsFromDb(result);
+          await Promise.all([
+            strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'add',opt.total - this.fees.VIRTUAL_ACCOUNT),
+            this.updateStock(tr,tanggal),
+            opt.email.length > 0 ? this.sendPaymentEmail('success',opt) : Promise.resolve(),
+            this.sendWhatsapp('success',opt)
+          ])
+        }
 
-        await Promise.all([
-          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'add',opt.total - this.fees.VIRTUAL_ACCOUNT),
-          this.updateStock(tr,tanggal),
-          opt.email.length > 0 ? this.sendPaymentEmail('success',opt) : Promise.resolve(),
-          this.sendWhatsapp('success',opt)
-        ])
+        const output = strapi.service('api::transaction.transaction').parseUser(result);
 
-        strapi.$io.raw('toko transactions',result,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
+        strapi.$io.raw('toko transactions',output,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
       }
     } catch(e) {
       console.log("CALLBACK VA ERROR",e)
@@ -1251,7 +1257,9 @@ export default class Payment {
           this.sendWhatsapp('success',opt)
         ])
 
-        strapi.$io.raw('toko transactions',result,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
+        const output = strapi.service('api::transaction.transaction').parseUser(result);
+
+        strapi.$io.raw('toko transactions',output,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
       }
     } catch(e) {
       console.log("CALLBACK VA ERROR",e)
@@ -1300,7 +1308,9 @@ export default class Payment {
           this.sendWhatsapp('success',opt)
         ])
 
-        strapi.$io.raw('toko transactions',result,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
+        const output = strapi.service('api::transaction.transaction').parseUser(result);
+
+        strapi.$io.raw('toko transactions',output,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
       }
     } catch(e) {
       console.log("CALLBACK VA ERROR",e)
@@ -1352,7 +1362,9 @@ export default class Payment {
           })
         ])
 
-        strapi.$io.raw('toko withdraw',result,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
+        const output = strapi.service('api::transaction.transaction').parseUser(result);
+
+        strapi.$io.raw('toko withdraw',output,{room:`outlet::${tr?.outlet?.toko?.id}::${tr?.outlet.id}`})
       }
     } catch(e) {
       console.log("CALLBACK VA ERROR",e)

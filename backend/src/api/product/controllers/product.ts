@@ -40,49 +40,36 @@ export default factories.createCoreController('api::product.product',({strapi}) 
     const outlet = ctx.state.outlet as Outlet;
     const now = getDayJs();
     const category = ctx.params?.category
-
-    ctx.query = {
-      ...ctx.query,
-      populate:{
-        ...(ctx.query?.populate||{}),
-        promo:{
-          filters:{
-            $and: [{
-              active:{
-                $eq: true
-              }
-            },{
-              from:{
-                $lte: now.pn_format()
-              }
-            },{
-              to:{
-                $gte: now.pn_format()
-              }
-            }],
-          }
-        },
-        image:{
-          populate:'*',
-          fields:['id','url']
+    
+    const populate = {
+      ...(ctx.query?.populate||{}),
+      promo:{
+        filters:{
+          $and: [{
+            active:{
+              $eq: true
+            }
+          },{
+            from:{
+              $lte: now.pn_format()
+            }
+          },{
+            to:{
+              $gte: now.pn_format()
+            }
+          }],
         }
-      }
-    }
-    const populate= {
-      ...ctx.query.populate,
+      },
       image:{
         populate:'*',
         fields:['id','url']
-      },
-      promo:{
-        image:{
-          populate:'*',
-          fields:['id','url']
-        }
       }
     }
 
     if(typeof category === 'string') {
+      const page = ctx?.query?.pagination?.page;
+      const pageSize = ctx?.query?.pagination?.pageSize||ctx?.query.size
+
       const filters = {
         ...ctx.query.filters,
         category:{
@@ -95,36 +82,50 @@ export default factories.createCoreController('api::product.product',({strapi}) 
         show_in_menu:{
           $eq:true
         },
+        active:{
+          $eq:true
+        },
         outlet:{
           id:{
             $eq: `${outlet?.id}`
           }
         },
       }
-      const pr = await strapi.entityService.findPage('api::product.product',{filters,populate})
+      const pr = await strapi.entityService.findPage('api::product.product',{filters,populate,page,pageSize})
       
       return {data:[{category:category,data:pr.results}],meta:{pagination:pr.pagination}};
     } else if(typeof category === 'undefined') {
       const data: {category: string,data: Product[]}[] = []
 
-      const {results:pr} = await strapi.service('api::product.product').find({filters:{
-        ...ctx.query.filters,
-        $and:[{
-          category:{
-            $null: true
-          }
-        },{
-          outlet:{
-            id:{
-              $eq: `${outlet?.id}`
+      const {results:pr} = await strapi.service('api::product.product').find({
+        filters:{
+          ...ctx.query.filters,
+          $and:[{
+            category:{
+              $null: true
             }
-          }
-        },{
-          show_in_menu:{
-            $eq:true
-          }
-        }],
-      },populate})
+          },{
+            outlet:{
+              id:{
+                $eq: `${outlet?.id}`
+              }
+            }
+          },{
+            show_in_menu:{
+              $eq:true
+            }
+          },{
+            active:{
+              $eq:true
+            }
+          }]
+        },
+        populate,
+        pagination:{
+          page:1,
+          pageSize:5
+        }
+      })
       if(pr.length > 0) data.push({category:'Uncategory',data:pr});
 
       const cat = await strapi.db.query('api::product.product').findPage({
@@ -140,10 +141,6 @@ export default factories.createCoreController('api::product.product',({strapi}) 
               $eq: c.category
             }
           },{
-            category:{
-              $notNull: true
-            }
-          },{
             outlet:{
               id:{
                 $eq: `${outlet?.id}`
@@ -155,7 +152,7 @@ export default factories.createCoreController('api::product.product',({strapi}) 
             }
           }]
         }
-        const pr = await strapi.entityService.findMany('api::product.product',{filters,populate})
+        const pr = await strapi.entityService.findMany('api::product.product',{filters,populate,page:1,pageSize:5})
 
         data.push({category:c.category||'',data:pr});
       }
@@ -229,6 +226,9 @@ export default factories.createCoreController('api::product.product',({strapi}) 
         recipes:{
           populate:'*'
         }
+      },
+      sort:{
+        id:'desc'
       }
     }
     const output =  await super.find(ctx)

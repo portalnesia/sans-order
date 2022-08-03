@@ -39,7 +39,7 @@ export default async function find(strapi: Strapi,ctx: Context) {
           },
         ]
       },
-      orderBy:{datetime:'desc'},
+      sort:{datetime:'desc'},
       populate
     }
     const {results:data,pagination} =  await strapi.service('api::transaction.transaction').find(ctx?.query||{})

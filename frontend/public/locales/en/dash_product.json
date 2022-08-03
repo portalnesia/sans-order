@@ -1,7 +1,7 @@
 {
   "price":"Price",
   "price_ctx": "{{what}} Price",
-  "disscount":"Discount",
+  "discount":"Discount",
   "stock":"Stock",
   "purchase":"Purchase",
   "stock_in":"Stock In",
@@ -13,5 +13,9 @@
   "active_not":"Not Active",
   "selected_zero":"No selected",
   "selected_other":"{{count}} selected",
-  "remaining_stock": "Remaining Stocks"
+  "remaining_stock": "Remaining Stocks",
+  "transaction_id":"Transaction ID",
+  "payment_status":"Payment Status",
+  "order_status":"Order Status",
+  "payment_method":"Payment Method"
 }

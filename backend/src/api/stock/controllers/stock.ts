@@ -21,7 +21,9 @@ export default factories.createCoreController('api::stock.stock',({strapi}) => (
         }
       },
       populate:{
-        item:'*'
+        item:'*',
+        transaction:'*',
+        product:'*'
       }
     };
 
@@ -65,7 +67,12 @@ export default factories.createCoreController('api::stock.stock',({strapi}) => (
         }
       },
       populate:{
-        item:'*'
+        item:'*',
+        transaction:'*',
+        product:'*'
+      },
+      sort:{
+        timestamp:'desc'
       }
     }
 
@@ -87,7 +94,9 @@ export default factories.createCoreController('api::stock.stock',({strapi}) => (
         }
       },
       populate:{
-        item:'*'
+        item:'*',
+        transaction:'*',
+        product:'*'
       }
     };
     

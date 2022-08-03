@@ -33,6 +33,7 @@ declare global {
     'api::subcribe.subcribe': Subcribe
     'api::transaction.transaction': Transaction
     'plugin::users-permissions.user': User
+    'admin::user': any
     'plugin::upload.file': File
     'api::wallet.wallet': Wallet
     'api::transaction-item.transaction-item': TransactionItem

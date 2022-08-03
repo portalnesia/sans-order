@@ -10,7 +10,7 @@
   "order_status":"Status Pemesanan",
   "print":"Cetak",
   "detail":"Detail {{what}}",
-  "disscount":"Diskon",
+  "discount":"Diskon",
   "price":"Harga",
   "payment_method":"Metode Pembayaran",
   "date":"Tanggal",

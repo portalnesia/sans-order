@@ -5,6 +5,7 @@ const dayjs = require('dayjs')
 let instance;
 
 async function setPublicPermissions(newPermissions) {
+  console.log("Set Public Permissions")
   // Find the ID of the public role
   const publicRole = await strapi
     .query("plugin::users-permissions.role")
@@ -28,10 +29,11 @@ async function setPublicPermissions(newPermissions) {
     });
     allPermissionsToCreate.push(...permissionsToCreate);
   });
-  await Promise.all(allPermissionsToCreate);
+  if(allPermissionsToCreate.length > 0) await Promise.all(allPermissionsToCreate);
 }
 
 async function setAuthPermissions(newPermissions) {
+  console.log("Set Authenticated Permissions")
   // Find the ID of the public role
   const publicRole = await strapi
     .query("plugin::users-permissions.role")
@@ -55,10 +57,11 @@ async function setAuthPermissions(newPermissions) {
     });
     allPermissionsToCreate.push(...permissionsToCreate);
   });
-  await Promise.all(allPermissionsToCreate);
+  if(allPermissionsToCreate.length > 0) await Promise.all(allPermissionsToCreate);
 }
 
 async function setUser() {
+  console.log("Create Mock User")
   const now = dayjs();
   const mockUserData = {
     username: "tester",
@@ -106,12 +109,16 @@ async function setupStrapi() {
       setPublicPermissions({
         toko: ["find", "findOne","findOutlets"],
         outlet: ["find", "findOne"],
-        ingredient: ["find", "findOne"],
+        ingredient: [],
+        product:['findMenu'],
+        promo:['find']
       }),
       setAuthPermissions({
-        toko: ["find", "findOne","create","put","delete","findOutlets"],
-        outlet: ["find", "findOne","create","put","delete"],
-        ingredient: ["find", "findOne","create","put","delete"],
+        toko: ["find", "findOne","create","put","delete","findOutlets","update"],
+        outlet: ["find", "findOne","create","update","delete"],
+        ingredient: ["find", "findOne","create","update","delete"],
+        product:['findMenu','findCashier','update','delete','find','create'],
+        promo:['update','delete','find','create']
       }),
       setUser(),
       instance.server.mount()

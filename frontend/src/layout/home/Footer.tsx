@@ -7,6 +7,7 @@ import Link from 'next/link'
 import config from '@root/web.config.json'
 import useResponsive from '@comp/useResponsive'
 import {version} from '@root/src/version'
+import { useMemo } from 'react'
 
 const BoxStyle = styled(Box)(({theme})=>({
   backgroundColor:theme.palette.background.default,
@@ -66,14 +67,16 @@ function FooterCopyright({xs}: {xs?:boolean}) {
 
 function XsFooter() {
   const {t} = useTranslation('menu');
+  const footer = useMemo(()=>footerMenu(t),[t]);
+  const sm = useMemo(()=>footer.length === 3 ? 4 : 6,[footer])
   return (
     <Box display='flex' flexDirection='column' pt={2} pb={2}>
       <FooterLogo xs />
       <Box mt={4} width='100%'>
         <Box mb={2}>
           <Grid container spacing={4}>
-            {footerMenu(t).map((f)=>(
-              <Grid item key={f.header} xs={12} sm={4}>
+            {footer.map((f)=>(
+              <Grid item key={f.header} xs={12} sm={sm}>
                 <Box display='flex' flexDirection='column' alignItems='flex-start'>
                   <Typography sx={{color:'text.secondary',fontSize:14,mb:1,borderBottom:t=>`1px solid ${t.palette.divider}`}}>{f.header}</Typography>
                   {f.child?.map((c)=>(
@@ -93,7 +96,14 @@ function XsFooter() {
 function SmFooter() {
   const {t} = useTranslation('menu');
   const isMd = useResponsive('up','md');
-
+  const footer = useMemo(()=>footerMenu(t),[t]);
+  const sm = useMemo(()=>{
+    if(footer.length === 3) {
+      return isMd ? 3 : 4
+    } else {
+      return isMd ? 4 : 6
+    }
+  },[footer,isMd])
   return (
     <Box display='flex' flexDirection='column' pt={2} pb={2}>
       <Hidden mdUp>
@@ -102,12 +112,12 @@ function SmFooter() {
       <Box my={4} width='100%'>
         <Grid container spacing={2}>
           <Hidden mdDown>
-            <Grid item key={'footer-logo'} xs={12} sm={3}>
+            <Grid item key={'footer-logo'} xs={12} sm={footer.length === 3 ? 3 : 4}>
               <FooterLogo />
             </Grid>
           </Hidden>
-          {footerMenu(t).map((f)=>(
-            <Grid item key={f.header} xs={12} sm={isMd ? 3 : 4}>
+          {footer.map((f)=>(
+            <Grid item key={f.header} xs={12} sm={sm}>
               <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
                 <Typography sx={{color:'text.secondary',fontSize:14,mb:1,borderBottom:t=>`1px solid ${t.palette.divider}`}}>{f.header}</Typography>
                 {f.child?.map((c)=>(

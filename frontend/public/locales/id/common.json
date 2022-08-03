@@ -49,5 +49,17 @@
   "maintenance_subs":"Berlangganan secara online sedang dalam pemeliharaan. Silakan hubungi sales kami jika Anda ingin berlangganan paket",
   "type":"Jenis",
   "send":"Kirim",
-  "success":"Sukses"
+  "reply":"Balas",
+  "success":"Sukses",
+  "comment":"Komentar",
+  "no_comment":"Tidak ada komentar. Jadilah yang pertama berkomentar!",
+  "login_comment":"Masuk untuk memberikan komentar",
+  "count_comments": "{{count}} Komentar",
+  "type_comment":"Ketikkan komentar Anda...",
+  "type_comment_reply":"Ketikkan balasan Anda...",
+  "comment_not_available":"Komentar tidak tersedia",
+  "show_reply":"Lihat {{count}} balasan",
+  "hide_reply":"Sembunyikan balasan",
+  "dialog_comment_delete":"Setelah Anda menghapus komentar ini, komentar tersebut akan hilang selamanya.",
+  "comment_blocked":"Komentar diblokir"
 }

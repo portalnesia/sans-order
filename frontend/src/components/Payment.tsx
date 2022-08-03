@@ -644,7 +644,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
   },[post,outlet_id,removeCart,input,cart,total,user,setNotif,tCom])
 
   const handleSimulation = useCallback(async()=>{
-    if(process.env.NEXT_PUBLIC_PN_ENV !== 'test') return;
+    if(process.env.NEXT_PUBLIC_PN_ENV === 'production') return;
     if(!menu) return;
 
     setLoading('simulation')
@@ -776,7 +776,7 @@ export default function PaymentMethod({open,handleClose,table_number}: PaymentPr
               <Button type='submit' disabled={loading!==null} loading={loading==='submit'} icon='submit'>{t("pay")}</Button>
             </DialogActions>
           )}
-          {(menu !== null && process.env.NEXT_PUBLIC_PN_ENV==='test' && menu.payment !== PAYMENT_TYPE.COD) && (
+          {(menu !== null && process.env.NEXT_PUBLIC_PN_ENV!=='production' && menu.payment !== PAYMENT_TYPE.COD) && (
             <DialogActions>
               <Button onClick={handleSimulation} disabled={loading!==null} loading={loading==='simulation'} icon='submit'>Simulate</Button>
             </DialogActions>

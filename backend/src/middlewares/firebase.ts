@@ -5,8 +5,8 @@ import firebase from "../utils/firebase";
 export default (config: any, { strapi }: {strapi: Strapi})=> {
   return async(ctx: Context,next: Next)=>{
     try {
-      if(ctx.query?.size || 
-      ctx?.query.pageSize) {
+      if(ctx?.query?.size || 
+      ctx?.query?.pageSize) {
         ctx.query = {
           ...ctx.query,
           pagination:{

@@ -14,5 +14,11 @@
   "editDoneLabel":"Selesai",
   "legal": "Beberapa <1>Informasi Sistem</1> mungkin dikirim ke SansOrder. Kami akan menggunakan informasi yang diberikan kepada kami untuk membantu mengatasi masalah teknis dan meningkatkan layanan kami.",
   "response_report":"Terima kasih atas laporan Anda. Kami akan meninjaunya sesegera mungkin.",
-  "response_feedback":"Terima kasih atas tanggapan Anda."
+  "response_feedback":"Terima kasih atas tanggapan Anda.",
+  "reason":"Alasan",
+  "bad_words":"Kata-kata kasar",
+  "discrimination":"Diskriminasi",
+  "other":"Lainnya",
+  "content_report":"Tolong jelaskan lebih detail mengenai masalah pada komentar ini",
+  "report":"Lapor"
 }
