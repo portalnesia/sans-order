@@ -1,8 +1,8 @@
 // material
 import { Box, Grid, Container, Typography,CardContent,Card, Divider,IconButton, Stack, useMediaQuery, MenuItem, ListItemText,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress } from '@mui/material';
 import {Close} from '@mui/icons-material'
-import {DatePicker,LocalizationProvider} from '@mui/lab'
-import AdapterDayjs from '@mui/lab/AdapterDayjs'
+import {LocalizationProvider, DatePicker} from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'

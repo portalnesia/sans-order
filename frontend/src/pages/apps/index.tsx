@@ -73,7 +73,7 @@ function LoginSection() {
   return (
     <RootStyle>
       <AuthLayout>
-        {t("not_register")} &nbsp;<a href={`${process.env.ACCOUNT_URL}/register`}>{t("register")}</a>
+        {t("not_register")} &nbsp;<a href={`${process.env.NEXT_PUBLIC_ACCOUNT_URL}/register`}>{t("register")}</a>
       </AuthLayout>
 
       <SectionStyle sx={{ display: { xs: 'none', md: 'flex' } }}>
@@ -102,7 +102,7 @@ function LoginSection() {
               display: { sm: 'none' }
             }}
           >
-            {t("not_register")} &nbsp;<a href={`${process.env.ACCOUNT_URL}/register`}>{t("register")}</a>
+            {t("not_register")} &nbsp;<a href={`${process.env.NEXT_PUBLIC_ACCOUNT_URL}/register`}>{t("register")}</a>
           </Typography>
         </ContentStyle>
       </Container>

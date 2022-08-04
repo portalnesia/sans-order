@@ -1,8 +1,8 @@
 // material
 import { Box, Grid, Container, Typography,IconButton,TextField, Card, CardContent,Stack,MenuItem,ListItemText, styled, SxProps, Theme, Tooltip } from '@mui/material';
 import {Download} from '@mui/icons-material'
-import {DatePicker,LocalizationProvider} from '@mui/lab'
-import AdapterDayjs from '@mui/lab/AdapterDayjs'
+import {LocalizationProvider, DatePicker} from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 // components
 import Header,{withForbidden} from '@comp/Header';
 import Dashboard from '@layout/dashboard/index'

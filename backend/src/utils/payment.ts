@@ -482,7 +482,9 @@ export default class Payment {
       return result;
     }
 
-    return {}
+    return {
+      type
+    }
   }
 
   getSendEmailOptions(type:'send_money'|'send_money_created',data: Pick<ICreatePayment,'total'|'expiration'|'uid'|'datetime'|'subtotal'|'discount'|'updated'|'outlet'> & ({bank_code: string,item_name:string}),footers: {[key: string]: number}) {
@@ -1145,8 +1147,9 @@ export default class Payment {
     // Extract all items 
     return await Promise.all(tr.items?.map(async(i)=>{
       // i.item = PRODUCT
-      return await Promise.all((i.item?.recipes||[])?.filter(r=>typeof r.item?.id !== 'undefined')?.map(async(b)=>{
-        return strapi.entityService.create('api::stock.stock',{
+      return await Promise.all((i.item?.recipes||[])?.map(async(b)=>{
+        // b.item = INGREDIENT
+        const create = await strapi.entityService.create('api::stock.stock',{
           data:{
             outlet:tr.outlet?.id,
             item: b?.item?.id,
@@ -1228,7 +1231,7 @@ export default class Payment {
 
         let platform_fees: number|undefined;
         if(status === PAYMENT_STATUS.PAID) {
-          platform_fees = Math.round(tr?.total*this.fees.EWALLET);
+          platform_fees = Math.round(tr?.total*(this.fees.EWALLET/100));
         }
 
         const payload = body?.data;
@@ -1251,7 +1254,7 @@ export default class Payment {
         const opt = this.getOptionsFromDb(result);
 
         await Promise.all([
-          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'add',opt.total - this.fees.VIRTUAL_ACCOUNT),
+          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'add',opt.total - (platform_fees||0)),
           this.updateStock(tr,tanggal),
           opt.email.length > 0 ? this.sendPaymentEmail('success',opt) : Promise.resolve(),
           this.sendWhatsapp('success',opt)
@@ -1281,7 +1284,7 @@ export default class Payment {
 
         let platform_fees: number|undefined;
         if(status === PAYMENT_STATUS.PAID) {
-          platform_fees = Math.round(tr?.total*this.fees.QRIS);
+          platform_fees = Math.round(tr?.total*(this.fees.QRIS/100));
         }
 
         const payload = body?.data;
@@ -1294,6 +1297,8 @@ export default class Payment {
           payload
         }
 
+        await strapi.entityService.update('api::transaction.transaction',tr.id,{data});
+
         const result = {
           ...tr,
           ...data
@@ -1302,7 +1307,7 @@ export default class Payment {
         const opt = this.getOptionsFromDb(result);
 
         await Promise.all([
-          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'add',opt.total - this.fees.VIRTUAL_ACCOUNT),
+          strapi.service('api::wallet.wallet').updateMoney(tr.outlet.toko.id,'add',opt.total - (platform_fees||0)),
           this.updateStock(tr,tanggal),
           opt.email.length > 0 ? this.sendPaymentEmail('success',opt) : Promise.resolve(),
           this.sendWhatsapp('success',opt)

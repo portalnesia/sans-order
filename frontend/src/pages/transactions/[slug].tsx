@@ -44,8 +44,6 @@ function TransactionsPage({meta,socket}: IPages<Transaction> & {socket?: ISocket
       outlet.current = data?.data?.outlet;
       socket?.emit('outlet connection',{toko_id:data.data?.outlet?.toko?.slug,outlet_id:data.data.outlet.id,dashboard:false,view:'public transactions',debug:process.env.NEXT_PUBLIC_PN_ENV==='test'})
     }
-    console.log("DATA",data?.data.outlet)
-    console.log("OUTLET",outlet.current)
     socket?.on('toko transactions',handleTransactionChange)
     socket?.on('toko transactions items',handleTransactionChange)
     socket?.on('toko transactions orderstatus',handleTransactionChange)

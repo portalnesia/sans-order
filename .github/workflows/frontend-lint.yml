@@ -32,6 +32,7 @@ jobs:
       NEXT_PUBLIC_API_URL: http://localhost:30000
       JWT_SECRET: ${{secrets.BACKEND_JWT_SECRET}}
       NEXT_PUBLIC_CONTENT_URL: https://content.portalnesia.com
+      NEXT_PUBLIC_PORTAL_URL: https://portalnesia.com
 
     steps:
       - uses: actions/checkout@v3
@@ -42,6 +43,6 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
       - name: Install Depedencies
-        run: npm install --legacy-peer-deps
+        run: npm ci
       - name: Run Lint
         run: npm run lint

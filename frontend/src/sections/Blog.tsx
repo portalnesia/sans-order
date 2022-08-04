@@ -85,7 +85,7 @@ export default function BlogPostCard({ items, index }: BlogProps) {
               <AvatarStyle
                 alt={author.name}
                 {...(author.picture ? {
-                  children: <Image src={author.picture} style={{width:32,height:32}} />
+                  children: <Image alt={author.name} src={author.picture} style={{width:32,height:32}} />
                 } : {
                   children: author.name
                 })}

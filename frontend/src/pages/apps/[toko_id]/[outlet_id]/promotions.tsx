@@ -1,8 +1,8 @@
 // material
 import { Box, Grid, Container, Typography,Tooltip,IconButton,TextField, Card, FormControlLabel, Switch,Checkbox,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText, Autocomplete, AutocompleteChangeReason, AutocompleteInputChangeReason, FormControl, InputLabel, OutlinedInput, InputAdornment, FormLabel, Portal } from '@mui/material';
 import {AddAPhoto,Create,Delete} from '@mui/icons-material'
-import {LocalizationProvider, DateTimePicker} from '@mui/lab'
-import AdapterDayjs from '@mui/lab/AdapterDayjs'
+import {LocalizationProvider, DateTimePicker} from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/dashboard/index'

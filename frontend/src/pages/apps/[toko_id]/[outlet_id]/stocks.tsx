@@ -1,8 +1,8 @@
 // material
 import { Box, Grid, Container, Typography,Tooltip,IconButton,TextField, Card, FormControlLabel, Switch,Checkbox,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText, Autocomplete, AutocompleteChangeReason, AutocompleteInputChangeReason, FormControl, InputLabel, OutlinedInput, InputAdornment } from '@mui/material';
 import {AddAPhoto,Close,Delete} from '@mui/icons-material'
-import {LocalizationProvider, DateTimePicker} from '@mui/lab'
-import AdapterDayjs from '@mui/lab/AdapterDayjs'
+import {LocalizationProvider, DateTimePicker} from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/dashboard/index'
@@ -26,6 +26,8 @@ import { numberFormat } from '@portalnesia/utils';
 import { getDayJs, getOutletAccess } from '@utils/Main';
 import { Dayjs } from 'dayjs';
 import { State,useSelector } from '@redux/index';
+import Select, { SelectItem } from '@comp/Select';
+import QueryString from 'qs';
 
 const Dialog=dynamic(()=>import('@comp/Dialog'))
 const DialogTitle=dynamic(()=>import('@mui/material/DialogTitle'))
@@ -191,19 +193,18 @@ function UserMenu({onEdit,editDisabled,allDisabled,type,onDetail}: UserMenu) {
       </IconButton>
 
       <MenuPopover open={open} onClose={()=>setOpen(false)} anchorEl={ref.current} paperSx={{py:1}}>
-        {type === 'in' ? (
+        <MenuItem disabled={!!editDisabled||!!allDisabled} sx={{ color: 'text.secondary',py:1 }} onClick={handleClick('detail')}>
+          <ListItemIcon>
+            <Iconify icon="ep:warning" width={24} height={24} />
+          </ListItemIcon>
+          <ListItemText primary="Detail" primaryTypographyProps={{ variant: 'body2' }} />
+        </MenuItem>
+        {type === 'in' && (
           <MenuItem disabled={!!editDisabled||!!allDisabled} sx={{ color: 'text.secondary',py:1 }} onClick={handleClick('edit')}>
             <ListItemIcon>
               <Iconify icon="eva:edit-fill" width={24} height={24} />
             </ListItemIcon>
             <ListItemText primary="Edit" primaryTypographyProps={{ variant: 'body2' }} />
-          </MenuItem>
-        ) : (
-          <MenuItem disabled={!!editDisabled||!!allDisabled} sx={{ color: 'text.secondary',py:1 }} onClick={handleClick('detail')}>
-            <ListItemIcon>
-              <Iconify icon="ep:warning" width={24} height={24} />
-            </ListItemIcon>
-            <ListItemText primary="Detail" primaryTypographyProps={{ variant: 'body2' }} />
           </MenuItem>
         )}
       </MenuPopover>
@@ -230,7 +231,7 @@ function StockDetail({stock}: {stock: Stock|null}) {
         <Table>
           <TableBody>
             <TableRow hover>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{t('type')}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{tCom('type')}</TableCell>
               <TableCell sx={{borderBottom:'unset',py:1}}>{stock?.type === 'in' ? t('stock_in') : stock?.type === 'out' ? t('stock_out') : ''}</TableCell>
             </TableRow>
             <TableRow hover>
@@ -245,67 +246,75 @@ function StockDetail({stock}: {stock: Stock|null}) {
               <TableCell sx={{borderBottom:'unset',py:1}}>{'Stock'}</TableCell>
               <TableCell sx={{borderBottom:'unset',py:1}}>{`${stock?.stocks} ${stock?.item?.unit}`}</TableCell>
             </TableRow>
-          </TableBody>
-        </Table>
-      </Box>
-      <Box sx={{mb:4}}>
-        <Typography paragraph variant='h6' component='h6'>{tMenu('transactions')}</Typography>
-        <Table>
-          <TableBody>
             <TableRow hover>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{'ID'}</TableCell>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.uid}</TableCell>
-            </TableRow>
-            <TableRow hover>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{tCom("type")}</TableCell>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.type.toUpperCase()}</TableCell>
-            </TableRow>
-            <TableRow hover>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{t("payment_method")}</TableCell>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.payment}</TableCell>
-            </TableRow>
-            <TableRow hover>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{t("payment_status")}</TableCell>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.status}</TableCell>
-            </TableRow>
-            <TableRow hover>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{t("order_status")}</TableCell>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.order_status}</TableCell>
-            </TableRow>
-            <TableRow hover>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{'Subtotal'}</TableCell>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${transaction.subtotal}`)}`}</TableCell>
-            </TableRow>
-            <TableRow hover>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{t('discount')}</TableCell>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${transaction.discount}`)}`}</TableCell>
-            </TableRow>
-            <TableRow hover>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{'Total'}</TableCell>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${transaction.total}`)}`}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{t('price')}</TableCell>
+              <TableCell sx={{borderBottom:'unset',py:1}}>{stock?.type === 'in' ? `Rp${numberFormat(`${stock.price}`)}` : '-'}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
       </Box>
-      <Box sx={{mb:4}}>
-        <Typography paragraph variant='h6' component='h6'>{tMenu('product')}</Typography>
-        <Table>
-          <TableBody>
-            <TableRow hover>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{tCom('name')}</TableCell>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{product.name}</TableCell>
-            </TableRow>
-            <TableRow hover>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{t("price")}</TableCell>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${product.price}`)}`}</TableCell>
-            </TableRow>
-            <TableRow hover>
-              <TableCell sx={{borderBottom:'unset',py:1}}>HPP</TableCell>
-              <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${product.hpp||'0'}`)}`}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </Box>
+      {stock?.transaction?.uid && (
+        <Box sx={{mb:4}}>
+          <Typography paragraph variant='h6' component='h6'>{tMenu('transactions')}</Typography>
+          <Table>
+            <TableBody>
+              <TableRow hover>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{'ID'}</TableCell>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.uid}</TableCell>
+              </TableRow>
+              <TableRow hover>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{tCom("type")}</TableCell>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.type.toUpperCase()}</TableCell>
+              </TableRow>
+              <TableRow hover>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{t("payment_method")}</TableCell>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.payment}</TableCell>
+              </TableRow>
+              <TableRow hover>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{t("payment_status")}</TableCell>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.status}</TableCell>
+              </TableRow>
+              <TableRow hover>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{t("order_status")}</TableCell>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{transaction.order_status}</TableCell>
+              </TableRow>
+              <TableRow hover>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{'Subtotal'}</TableCell>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${transaction.subtotal}`)}`}</TableCell>
+              </TableRow>
+              <TableRow hover>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{t('discount')}</TableCell>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${transaction.discount}`)}`}</TableCell>
+              </TableRow>
+              <TableRow hover>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{'Total'}</TableCell>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${transaction.total}`)}`}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </Box>
+      )}
+      {stock?.product?.id && (
+        <Box sx={{mb:4}}>
+          <Typography paragraph variant='h6' component='h6'>{tMenu('product')}</Typography>
+          <Table>
+            <TableBody>
+              <TableRow hover>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{tCom('name')}</TableCell>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{product.name}</TableCell>
+              </TableRow>
+              <TableRow hover>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{t("price")}</TableCell>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${product.price}`)}`}</TableCell>
+              </TableRow>
+              <TableRow hover>
+                <TableCell sx={{borderBottom:'unset',py:1}}>HPP</TableCell>
+                <TableCell sx={{borderBottom:'unset',py:1}}>{`Rp${numberFormat(`${product.hpp||'0'}`)}`}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </Box>
+      )}
     </Box>
   )
 }
@@ -316,7 +325,7 @@ const DEFAULT_INPUT_IN: IInputStocks = {
   stocks: 0,
   type:'in',
 }
-type IFilter = 'stock_in'|'stock_out'
+type IFilter = 'stock_in'|'stock_out'|'none'
 
 export default function OutletStocks({meta}: IPages<Outlet>) {
   const {t} = useTranslation('dash_product');
@@ -334,10 +343,28 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
   const [dEdit,setDEdit] = React.useState<Stock|null>(null);
   const [loading,setLoading] = React.useState(false);
   const [dDetail,setDDetail] = React.useState<Stock|null>(null)
-  const [filter,setFilter] = React.useState('');
-  const {data,error,mutate} = useSWR<Stock,true>(`/stocks/${outlet_id}?page=${page}&pageSize=${rowsPerPage}${filter.length > 0 ? `&filters=${filter}` : ''}`);
+  const [dFilter,setDFilter] = React.useState(false);
+  const [filter,setFilter] = React.useState<string>('none');
+  const [filterQuery,setFilterQuery] = React.useState<string|null>(null)
+  const {data,error,mutate} = useSWR<Stock,true>(`/stocks/${outlet_id}?page=${page}&pageSize=${rowsPerPage}${filterQuery ? `&${filterQuery}` : ''}`);
   const [ingOptions,setIngOption]=React.useState<Ingredient[]>([]);
   const [ingLoading,setIngLoading] = React.useState(false);
+
+  const filterRef = React.useRef(null)
+
+  const handleFilter = React.useCallback((value: 'stock_in'|'stock_out'|'none')=>()=>{
+    setFilter(value);
+    if(['stock_in','stock_out'].includes(value)) {
+      const type = value.replace('stock_','');
+      setFilterQuery(QueryString.stringify({
+        filters:{
+          type
+        }
+      }))
+    }
+    else setFilterQuery(null);
+    setDFilter(false)
+  },[])
 
   const buttonCreate=React.useCallback(()=>{
     setInput(DEFAULT_INPUT_IN);
@@ -448,12 +475,28 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
           </Box>
 
           <Card>
+            <Box p={2}>
+              <Stack direction="row" alignItems="center" justifyContent='space-between' spacing={2}>
+                <Button startIcon={<Iconify icon='akar-icons:filter' />} text color='inherit' ref={filterRef} onClick={()=>setDFilter(true)}>Filter</Button>
+              </Stack>
+              <MenuPopover open={dFilter} onClose={()=>setDFilter(false)} anchorEl={filterRef.current} paperSx={{py:1,width:250}}>
+                <MenuItem sx={{ color: 'text.secondary',py:1 }} onClick={handleFilter('none')} selected={filter===null}>
+                  <ListItemText primary='None' />
+                </MenuItem>
+                <MenuItem sx={{ color: 'text.secondary',py:1 }}  onClick={handleFilter('stock_in')} selected={filter==='stock_in'}>
+                  <ListItemText primary={t("stock_in")} />
+                </MenuItem>
+                <MenuItem sx={{ color: 'text.secondary',py:1 }}  onClick={handleFilter('stock_out')} selected={filter==='stock_out'}>
+                  <ListItemText primary={t("stock_out")} />
+                </MenuItem>
+              </MenuPopover>
+            </Box>
             <Scrollbar>
               <Table>
                 <TableHead>
                   <TableRow>
                     <TableCell align="left">{tCom("name_ctx",{what:tMenu("ingredient")})}</TableCell>
-                    <TableCell>{tMenu("product")}</TableCell>
+                    <TableCell>{`${tMenu("transactions")} (${tMenu("product")})`}</TableCell>
                     <TableCell>Timestamp</TableCell>
                     <TableCell>{tCom("type")}</TableCell>
                     <TableCell>{t("price")}</TableCell>
@@ -483,7 +526,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
                         role="checkbox"
                       >
                         <TableCell>{d?.item?.name}</TableCell>
-                        <TableCell>{`${d?.product?.name||'-'}`}</TableCell>
+                        <TableCell>{`${d?.transaction?.uid ? `${d?.transaction?.uid} (${d?.product?.name})` : '-'}`}</TableCell>
                         <TableCell>{getDayJs(d?.timestamp).locale(locale).format('DD MMM YYYY, HH:mm')}</TableCell>
                         <TableCell>{d?.type === 'in' ? t('stock_in') : d?.type === 'out' ? t('stock_out') : ''}</TableCell>
                         <TableCell sx={{whiteSpace:'nowrap'}}>{d?.type === 'in' ? `Rp${numberFormat(`${d.price}`)}` : '-'}</TableCell>
@@ -536,7 +579,7 @@ export default function OutletStocks({meta}: IPages<Outlet>) {
       <Dialog loading={loading} maxWidth='md' open={dDetail!==null} handleClose={()=>setDDetail(null)}>
         <DialogTitle>
           <Stack direction='row' alignItems='center' justifyContent='space-between'>
-            <Typography variant='h6' component='h6'>Detail</Typography>
+            <Typography variant='h6' component='h6'>{(dDetail?.type === 'in' ? t('stock_in') : t('stock_out')).toUpperCase()}</Typography>
             <IconButton onClick={()=>setDDetail(null)}>
               <Close />
             </IconButton>

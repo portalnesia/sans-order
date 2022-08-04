@@ -12,7 +12,7 @@ export default function Select(props: TextFieldProps) {
       {...props}
       select
       {...(isMobile ? {
-        SelectProps:{native:true}
+        SelectProps:{...props?.SelectProps,native:true}
       } : {})}
     />
   )

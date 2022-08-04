@@ -1,8 +1,8 @@
 // material
 import { Box, Grid, Container, Typography,Checkbox,Divider,IconButton,TextField, FormGroup,FormLabel, FormControlLabel, Switch,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,MenuItem,ListItemIcon,ListItemText, Card } from '@mui/material';
 // components
-import {DatePicker,LocalizationProvider, TimePicker} from '@mui/lab'
-import AdapterDayjs from '@mui/lab/AdapterDayjs'
+import {LocalizationProvider, TimePicker} from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Header from '@comp/Header';
 import Dashboard from '@layout/dashboard/index'
 import React from 'react'

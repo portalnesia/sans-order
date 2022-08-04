@@ -3,7 +3,7 @@ import {Box,Typography,Stack,IconButton,Slide,Fade,Collapse,ListItem,List,ListIt
 import {Close,ArrowBackIosRounded,ExpandMore as ExpandMoreIcon} from '@mui/icons-material'
 import Button from './Button';
 import { useTranslation } from 'next-i18next';
-import { BANK_CODES, CopyRequired, EWALLET_CODE, EWalletResults, PAYMENT_TYPE, QrCodeResults, VirtualAccResults,sendBankCode,walletChannelCodetoEwalletCode,Transaction,paymentCodeName, PAYMENT_STATUS } from '@type/index';
+import { BANK_CODES, CopyRequired, EWALLET_CODE, EWalletResults, PAYMENT_TYPE, QrCodeResults, VirtualAccResults,sendBankCode,walletChannelCodetoEwalletCode,Transaction,paymentCodeName, PAYMENT_STATUS, EWALLET_CHANNEL } from '@type/index';
 import { Context, ICard } from '@redux/cart';
 import { useSelector,State } from '@redux/index';
 import ExpandMore from './ExpandMore';
@@ -313,16 +313,16 @@ function MethodItems({dt,payment,onChange,category}: {payment:IForm['input']['pa
   },[onChange])
 
   const icon = useCallback((data: IPaymentMethod)=>{
-    if(category === 'QRIS') return <QrisIcon />;
-    if(category === 'EWALLET') {
-      if(typeof EWalletIcon[data.channel_code as EWALLET_CODE] !== 'undefined') {
-        const Element = EWalletIcon[data.channel_code as EWALLET_CODE];
+    if(category === PAYMENT_TYPE.QRIS) return <QrisIcon />;
+    if(category === PAYMENT_TYPE.EWALLET) {
+      const Element = EWalletIcon?.[data.channel_code as EWALLET_CHANNEL];
+      if(typeof Element !== 'undefined') {
         return <Element />;
       }
     }
-    if(category === 'VIRTUAL_ACCOUNT') {
-      if(typeof BankIcon[data.channel_code as BANK_CODES] !== 'undefined') {
-        const Element = BankIcon[data.channel_code as BANK_CODES];
+    if(category === PAYMENT_TYPE.VIRTUAL_ACCOUNT) {
+      const Element = BankIcon?.[data.channel_code as BANK_CODES];
+      if(typeof Element !== 'undefined') {
         return <Element />;
       }
     }
@@ -330,8 +330,8 @@ function MethodItems({dt,payment,onChange,category}: {payment:IForm['input']['pa
   },[category])
 
   const getDisabled=useCallback((d: IPaymentMethod)=>{
-    if(payment.type === 'VIRTUAL_ACCOUNT') return payment.bank === d.channel_code;
-    else if(payment.type === 'EWALLET') return payment.ewallet === d.channel_code;
+    if(payment.type === PAYMENT_TYPE.VIRTUAL_ACCOUNT) return payment.bank === d.channel_code;
+    else if(payment.type === PAYMENT_TYPE.EWALLET) return payment.ewallet === d.channel_code;
     else return payment.type === d.channel_code
   },[payment])
 

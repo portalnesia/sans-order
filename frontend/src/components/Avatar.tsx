@@ -20,8 +20,8 @@ const classes = {
     blueGrey: 'avaBlueGray'
 }
 
-const Ava = styled(Av)<{withTop?:boolean}>(({withTop,children})=>({
-    ...(withTop && typeof children !== 'string' ? {
+const Ava = styled(Av)<{withtop?:boolean}>(({withtop,children})=>({
+    ...(withtop && typeof children !== 'string' ? {
         '&.MuiAvatar-root':{
             paddingTop:3
         }
@@ -106,6 +106,6 @@ export default function Avatar(props: AvatarProps){
     },[select])
 
     return (
-        <Ava withTop={withTop} className={clx(className,typeof children==='string' && select!==null && typeof classes?.[(select as keyof typeof classes)] !== 'undefined' ? classes[(select as keyof typeof classes)] : '' )} {...(React.isValidElement(children) ? {style:{...style}} : {style:{...style,paddingTop:0}})} {...other}>{child}</Ava>
+        <Ava withtop={withTop} className={clx(className,typeof children==='string' && select!==null && typeof classes?.[(select as keyof typeof classes)] !== 'undefined' ? classes[(select as keyof typeof classes)] : '' )} {...(React.isValidElement(children) ? {style:{...style}} : {style:{...style,paddingTop:0}})} {...other}>{child}</Ava>
     )
 }

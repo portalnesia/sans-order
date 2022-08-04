@@ -1,14 +1,11 @@
 const withPWA = require('next-pwa');
-const withTM=require('next-transpile-modules')(['@mui/material','@mui/lab','@mui/styles','@mui/base','@mui/system','@mui/icons-material'])
+const withTM=require('next-transpile-modules')(['@mui/material','@mui/lab','@mui/x-date-pickers','@mui/styles','@mui/base','@mui/system','@mui/icons-material'])
 const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const {i18n} = require('./next-i18next.config')
 
 const nextConfig = {
-    typescript:{
-      ignoreBuildErrors:true
-    },
     i18n,
     images: {
       domains: ['portalnesia.com','content.portalnesia.com'],
@@ -17,7 +14,7 @@ const nextConfig = {
     pwa: {
       dest: 'public',
       disable:process.env.NEXT_PUBLIC_PN_ENV !== 'production',
-      register:true,
+      register:process.env.NEXT_PUBLIC_PN_ENV === 'production',
       maximumFileSizeToCacheInBytes: 20 * 1024 * 1024,
       runtimeCaching: [
         {
