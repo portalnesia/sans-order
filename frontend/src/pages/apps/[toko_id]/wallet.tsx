@@ -1,8 +1,8 @@
 // material
 import { Box, Grid, Container, Typography,CardContent,Card, Divider,IconButton, Stack, useMediaQuery, MenuItem, ListItemText,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress } from '@mui/material';
 import {Close} from '@mui/icons-material'
-import {DatePicker,LocalizationProvider} from '@mui/lab'
-import AdapterDayjs from '@mui/lab/AdapterDayjs'
+import {LocalizationProvider, DatePicker} from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'
@@ -10,18 +10,16 @@ import React from 'react'
 import useNotif from '@utils/notification'
 import {useAPI} from '@utils/api'
 import Button from '@comp/Button'
-import Backdrop from '@comp/Backdrop'
 import {Circular} from '@comp/Loading'
-import Image from '@comp/Image'
 import Scrollbar from '@comp/Scrollbar'
 import usePagination from '@comp/TablePagination'
-import {IPages, Transaction ,Toko, Wallet, SEND_ALL_CODES, Without, PAYMENT_TYPE} from '@type/index'
+import {IPages, Transaction ,Toko, Wallet, SEND_ALL_CODES, Without} from '@type/index'
 import wrapper from '@redux/store'
 import {useTranslation} from 'next-i18next';
 import useSWR from '@utils/swr';
 import { useRouter } from 'next/router';
 import Iconify from '@comp/Iconify';
-import Select from '@comp/Select'
+import Select,{SelectItem} from '@comp/Select'
 import Breadcrumbs from '@comp/Breadcrumbs';
 import dynamic from 'next/dynamic'
 import { numberFormat } from '@portalnesia/utils';
@@ -52,8 +50,7 @@ export function Form({input,setInput,disabled}: FormProps) {
   return (
     <Grid container spacing={4}>
       <Grid item xs={12} md={6}>
-        <TextField
-          select
+        <Select
           label={t("withdraw_method")}
           value={input.bank_code}
           onChange={setInput('bank_code')}
@@ -62,9 +59,9 @@ export function Form({input,setInput,disabled}: FormProps) {
           disabled={disabled}
         >
           {sendAllCodeArray.map((b)=>(
-            <Select key={b[0]} value={b[0]}>{b[1]}</Select>
+            <SelectItem key={b[0]} value={b[0]}>{b[1]}</SelectItem>
           ))}
-        </TextField>
+        </Select>
       </Grid>
       <Grid item xs={12} md={6}>
         <TextField
@@ -201,7 +198,7 @@ export default function WalletPage({meta}: IPages<Toko>) {
     } finally {
       setLoading(null)
     }
-  },[post,setNotif,input,put,tCom])
+  },[post,setNotif,input,put,tCom,mutate,toko_id])
 
   const handleWithdraw = React.useCallback(async(e?: React.FormEvent<HTMLFormElement>)=>{
     if(e?.preventDefault) e.preventDefault();
@@ -221,7 +218,7 @@ export default function WalletPage({meta}: IPages<Toko>) {
     } finally {
       setLoading(null)
     }
-  },[data,wd,t,tCom]);
+  },[data,wd,t,tCom,post,setNotif,toko_id]);
 
   React.useEffect(()=>{
     if(data && data?.data?.account) {
@@ -382,7 +379,7 @@ export default function WalletPage({meta}: IPages<Toko>) {
                               <TableCell align="center" colSpan={6} sx={{ py: 3 }}><Typography>{tCom("no_what",{what:tMenu("transactions")})}</Typography></TableCell>
                             </TableRow>
                           ) : history?.map((d)=>(
-                            <TableRow hover>
+                            <TableRow hover key={`history-${d.id}`}>
                               <TableCell align='left'>{d.type === 'withdraw' ? t('cash_out') : t('cash_in')}</TableCell>
                               <TableCell align='left'>{d?.uid}</TableCell>
                               <TableCell align='left'>{d?.outlet?.name ? d.outlet.name : `-`}</TableCell>

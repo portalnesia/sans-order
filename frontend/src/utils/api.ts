@@ -8,17 +8,10 @@ export type {PortalnesiaOptions} from '@portalnesia/portalnesia-strapi'
 
 export const portalnesia = new Portalnesia({
   url:process.env.NEXT_PUBLIC_API_URL as string,
-  ...(process.env.NEXT_PUBLIC_PN_ENV === 'test' ? {
-    
-  } : {})
-})
-/**
-axiosOptions:{
-  headers:{
-    'X-Debug':process.env.NEXT_PUBLIC_X_DEBUG as string,
+  store:{
+    key:'sans_jwt'
   }
-}
-*/
+})
 
 
 export function useAPI(useCache=true) {

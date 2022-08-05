@@ -122,7 +122,7 @@ export default function Cart({table_number,enabled}: {table_number?:string,enabl
           {cart.length > 0 ? (
             <List component={'div'}>
               {cart.map((c,i)=>(
-                <ListItem>
+                <ListItem key={c.item.id}>
                   <ListItemText primary={c.item.name} secondary={
                     <>
                       <Typography>{`Rp${numberFormat(`${(c.price*c.qty)-(c.discount*c.qty)}`)}`}</Typography>

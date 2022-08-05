@@ -173,7 +173,7 @@ function BrowserComp(props: BrowserProps) {
         setPage({},1);
         setServerType(null)
         if(onClose) onClose({},'backdropClick');
-    },[onClose,disabled])
+    },[onClose,setPage])
 
     const handleSelect=React.useCallback((dt: FilesWithIdx)=>()=>{
         if(disabled !== null) return;
@@ -241,7 +241,7 @@ function BrowserComp(props: BrowserProps) {
                 setNotif("Error: File type not allowed",true);
             }
         }
-    },[data,setNotif,upload,disabled,mutate,tCom,serverType])
+    },[setNotif,upload,disabled,mutate,tCom,serverType,setPage,toko_id])
 
     const handleDrag=React.useCallback((enter: boolean)=>(e: React.DragEvent<HTMLDivElement>)=>{
         e.preventDefault();
@@ -302,6 +302,7 @@ function BrowserComp(props: BrowserProps) {
             setSelected(undefined)
             if(typeof router.query.i !== 'undefined') router.back();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     },[open])
 
     return (

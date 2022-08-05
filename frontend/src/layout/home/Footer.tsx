@@ -58,7 +58,7 @@ function FooterCopyright({xs}: {xs?:boolean}) {
               <Link href='/' passHref><a property="dct:title" rel="cc:attributionURL">SansOrder</a></Link> © {(new Date().getFullYear())}. v{version}
             </span>
           </FooterChild>
-          <FooterChild {...(xs ? {} : {sx:{textAlign:'center'}})}><span>Powered by <a target='_blank' href={process.env.PORTAL_URL}>Portalnesia</a></span></FooterChild>
+          <FooterChild {...(xs ? {} : {sx:{textAlign:'center'}})}><span>Powered by <a target='_blank' rel='noreferrer noopener' href={process.env.NEXT_PUBLIC_PORTAL_URL}>Portalnesia</a></span></FooterChild>
         </FooterMenu>
       </FooterRoot>
     </Box>

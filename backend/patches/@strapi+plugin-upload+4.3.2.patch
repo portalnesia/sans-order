@@ -1,14 +1,13 @@
 diff --git a/node_modules/@strapi/plugin-upload/server/register.js b/node_modules/@strapi/plugin-upload/server/register.js
-index fed690e..7deb9be 100644
+index fed690e..b3b6145 100644
 --- a/node_modules/@strapi/plugin-upload/server/register.js
 +++ b/node_modules/@strapi/plugin-upload/server/register.js
-@@ -8,7 +8,8 @@ const registerUploadMiddleware = require('./middlewares/upload');
+@@ -8,7 +8,7 @@ const registerUploadMiddleware = require('./middlewares/upload');
   * @param {{ strapi: import('@strapi/strapi').Strapi }}
   */
  module.exports = async ({ strapi }) => {
 -  strapi.plugin('upload').provider = createProvider(strapi.config.get('plugin.upload', {}));
-+  const config = strapi.config.get('plugin.upload');
-+  strapi.plugin('upload').provider = createProvider(config);
++  strapi.plugin('upload').provider = createProvider(strapi.config.get('plugin.upload'));
  
    await registerUploadMiddleware({ strapi });
  

@@ -200,7 +200,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar, title,
                 <Link href='/' passHref><a property="dct:title" rel="cc:attributionURL">SansOrder</a></Link> © {(new Date().getFullYear())}
               </span>
             </FooterChild>
-            <FooterChild><span>Powered by <a target='_blank' href={process.env.PORTAL_URL}>Portalnesia</a></span></FooterChild>
+            <FooterChild><span>Powered by <a target='_blank' rel='noreferrer noopener' href={process.env.NEXT_PUBLIC_PORTAL_URL}>Portalnesia</a></span></FooterChild>
             <FooterChild><span>{`v${version}`}</span></FooterChild>
           </FooterMenu>
         </FooterRoot>

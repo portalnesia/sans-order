@@ -29,7 +29,7 @@ export function usePagination(initialPage: number|true=1): [number,(e: any,page:
       const path = `${url.pathname}?${quer.toString()}`
       router.replace({pathname,query:q},path,{shallow:true})
     }
-  },[initialPage,page,router])
+  },[initialPage,router])
 
   return [page,handlePage]
 }

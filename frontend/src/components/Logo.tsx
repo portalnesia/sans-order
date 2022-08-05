@@ -12,10 +12,10 @@ export interface LogoProps {
 
 export default function Logo({size=40,href=''}: LogoProps) {
   const theme = useTheme();
-  if(typeof href==='boolean') return <Image src={config.logo[theme.palette.mode]} width={size} height={size} />
+  if(typeof href==='boolean') return <Image alt={config.title} src={config.logo[theme.palette.mode]} width={size} height={size} />
   return (
     <Link href={`/${href}`} passHref><a>
-      <Image src={config.logo[theme.palette.mode]} width={size} height={size} />
+      <Image alt={config.title} src={config.logo[theme.palette.mode]} width={size} height={size} />
     </a></Link>
   );
 }

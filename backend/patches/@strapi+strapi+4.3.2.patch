@@ -19,21 +19,20 @@ index 23f25b7..1bd40a8 100644
      }
    }
 diff --git a/node_modules/@strapi/strapi/lib/core-api/controller/transform.js b/node_modules/@strapi/strapi/lib/core-api/controller/transform.js
-index af078c3..3fe1079 100644
+index af078c3..f0f69c9 100644
 --- a/node_modules/@strapi/strapi/lib/core-api/controller/transform.js
 +++ b/node_modules/@strapi/strapi/lib/core-api/controller/transform.js
-@@ -34,9 +34,7 @@ const transformComponent = (data, component) => {
-   if (isNil(res)) {
+@@ -35,8 +35,7 @@ const transformComponent = (data, component) => {
      return res;
    }
--
+ 
 -  const { id, attributes } = res;
 -  return { id, ...attributes };
-+  return res;
++  return res
  };
  
  const transformEntry = (entry, type) => {
-@@ -63,9 +61,12 @@ const transformEntry = (entry, type) => {
+@@ -63,9 +62,12 @@ const transformEntry = (entry, type) => {
      if (attribute && attribute.type === 'relation') {
        const data = transformEntry(property, strapi.contentType(attribute.target));
  
@@ -48,7 +47,7 @@ index af078c3..3fe1079 100644
      } else if (attribute && attribute.type === 'dynamiczone') {
        if (isNil(property)) {
          attributeValues[key] = property;
-@@ -77,7 +78,7 @@ const transformEntry = (entry, type) => {
+@@ -77,7 +79,7 @@ const transformEntry = (entry, type) => {
      } else if (attribute && attribute.type === 'media') {
        const data = transformEntry(property, strapi.contentType('plugin::upload.file'));
  
@@ -57,7 +56,7 @@ index af078c3..3fe1079 100644
      } else {
        attributeValues[key] = property;
      }
-@@ -85,7 +86,7 @@ const transformEntry = (entry, type) => {
+@@ -85,7 +87,7 @@ const transformEntry = (entry, type) => {
  
    return {
      id,
@@ -66,3 +65,19 @@ index af078c3..3fe1079 100644
      // NOTE: not necessary for now
      // meta: {},
    };
+diff --git a/node_modules/@strapi/strapi/lib/types/core/strapi/index.d.ts b/node_modules/@strapi/strapi/lib/types/core/strapi/index.d.ts
+index 5e07ae1..8b98c6d 100644
+--- a/node_modules/@strapi/strapi/lib/types/core/strapi/index.d.ts
++++ b/node_modules/@strapi/strapi/lib/types/core/strapi/index.d.ts
+@@ -351,11 +351,6 @@ export interface Strapi {
+    * Entity Validator instance
+    */
+   entityValidator: any;
+-
+-  /**
+-   * Entity Service instance
+-   */
+-  entityService: any;  
+ }
+ 
+ export interface Lifecycles {

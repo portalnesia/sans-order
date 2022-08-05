@@ -162,28 +162,28 @@ export default function DashboardApp() {
           <Grid container spacing={4} justifyContent='center'>
             <Grid item xs={12} sm={6}>
               <Box mb={4} textAlign={{xs:'left',sm:'center'}} display='flex' justifyContent='center' flexDirection='column'>
-                <Image src={'/static/Website.png'} sx={{maxWidth:120,ml:'auto',mr:'auto',mb:2}} />
+                <Image alt={t('section4.website.title')} src={'/static/Website.png'} sx={{maxWidth:120,ml:'auto',mr:'auto',mb:2}} />
                 <Typography variant='h4' component='h4' gutterBottom>{t('section4.website.title')}</Typography>
                 <Typography>{t('section4.website.desc')}</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Box mb={4} textAlign={{xs:'left',sm:'center'}} display='flex' justifyContent='center' flexDirection='column'>
-                <Image src={'/static/Online-Payment.png'} sx={{maxWidth:100,ml:'auto',mr:'auto',mb:2}} />
+                <Image alt={t("section4.payment.title")} src={'/static/Online-Payment.png'} sx={{maxWidth:100,ml:'auto',mr:'auto',mb:2}} />
                 <Typography variant='h4' component='h4' gutterBottom>{t("section4.payment.title")}</Typography>
                 <Typography>{t("section4.payment.desc")}</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Box mb={4} textAlign={{xs:'left',sm:'center'}} display='flex' justifyContent='center' flexDirection='column'>
-                <Image src={'/static/Invoice.png'} sx={{maxWidth:120,ml:'auto',mr:'auto',mb:2}} />
+                <Image alt={t("section4.invoice.title")} src={'/static/Invoice.png'} sx={{maxWidth:120,ml:'auto',mr:'auto',mb:2}} />
                 <Typography variant='h4' component='h4' gutterBottom>{t("section4.invoice.title")}</Typography>
                 <Typography>{t("section4.invoice.desc")}</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Box mb={4} textAlign={{xs:'left',sm:'center'}} display='flex' justifyContent='center' flexDirection='column'>
-                <Image src={'/static/Marketing.png'} sx={{maxWidth:120,ml:'auto',mr:'auto',mb:2}} />
+                <Image alt={t('section4.report.title')} src={'/static/Marketing.png'} sx={{maxWidth:120,ml:'auto',mr:'auto',mb:2}} />
                 <Typography variant='h4' component='h4' gutterBottom>{t('section4.report.title')}</Typography>
                 <Typography>{t('section4.report.desc')}</Typography>
               </Box>

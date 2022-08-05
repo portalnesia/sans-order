@@ -71,6 +71,7 @@ export function Socket({dashboard=false,view,onRef}: {dashboard?:boolean,view?:s
  * Socket HOC Component
  */
 export function withSocket<P extends object>(Component: React.ComponentType<P>,data?: {dashboard?:boolean,view?:string}): React.FC<P & ({socket:ISocket|null})> {
+  // eslint-disable-next-line react/display-name
   return (props: P)=>{
     const socket = useSocket();
     const router = useRouter();
@@ -88,6 +89,7 @@ export function withSocket<P extends object>(Component: React.ComponentType<P>,d
         socket?.off('reconnect',onReconnect)
         socket?.off('connect',onReconnect)
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     },[toko_id,outlet_id,socket,dashboard,data])
 
     return <Component {...props as P} socket={socket} />

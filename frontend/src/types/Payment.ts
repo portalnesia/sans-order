@@ -63,6 +63,12 @@ export enum EWALLET_CODE {
   SHOPEEPAY = "ID_SHOPEEPAY"
 }
 
+export enum EWALLET_CHANNEL {
+  DANA = "DANA",
+  LINKAJA = "LINKAJA",
+  SHOPEEPAY = "SHOPEEPAY"
+}
+
 export const walletChannelCodetoEwalletCode: Record<string,EWALLET_CODE> = {
   "ID_DANA":EWALLET_CODE.DANA,
   "ID_LINKAJA":EWALLET_CODE.LINKAJA,

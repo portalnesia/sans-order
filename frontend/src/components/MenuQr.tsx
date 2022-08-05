@@ -94,7 +94,7 @@ export default function MenuQr({...other}: MenuQrProps) {
             <>
               <Divider sx={{my:3}} />
               <Box px={3}>
-                <Image dataSrc={imgUrl} src={imgUrl} fancybox style={{maxWidth:'80%',height:'auto',marginLeft:'auto',marginRight:'auto'}} />
+                <Image alt='QR Code' dataSrc={imgUrl} src={imgUrl} fancybox style={{maxWidth:'80%',height:'auto',marginLeft:'auto',marginRight:'auto'}} />
               </Box>
               <Box px={3} mt={2} display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
                 <Button href={imgUrl} download={`Menu ${outlet?.data?.name}${table && table.length > 0 ? ` (table ${table})` : ''}.png`}>Download</Button>

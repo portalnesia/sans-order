@@ -69,7 +69,7 @@ export default function BlogPages({meta}: IPages<Blog>) {
                     <Stack direction='row' spacing={2} alignItems='center' justifyContent={{xs:'flex-start',sm:'flex-end'}}>
                       <Avatar alt={data?.data?.createdBy?.name} 
                         {...(data?.data?.createdBy?.picture ? {
-                          children: <Image src={data?.data?.createdBy?.picture} style={{width:40}} />
+                          children: <Image alt={data?.data?.createdBy?.name} src={data?.data?.createdBy?.picture} style={{width:40}} />
                         } : {
                           children:data?.data?.createdBy?.name
                         })}

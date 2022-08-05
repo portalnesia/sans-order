@@ -20,7 +20,7 @@ export const useMousetrap=(handlerKey: MouseTrapKeySequence, handlerCallback: (e
     return () => {
       mousetrap.unbind(handlerKey);
     };
-  }, [handlerKey,handlerCallback]);
+  }, [handlerKey,handlerCallback,global]);
   
   return null
 };

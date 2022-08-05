@@ -111,7 +111,7 @@ const Simple=(props: SimpleMDEProps)=>{
             ...options
         }
         return opt;
-    },[image,noSideBySide,options,maxHeight,redux_theme])
+    },[image,noSideBySide,options,maxHeight,openBrowserImage])
     
     return(
         <Div aria-disabled={disabled} disabled={disabled}>

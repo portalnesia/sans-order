@@ -33,7 +33,7 @@ index 7675ad2..6595ef5 100644
      // -------------------------------------------------
      // Enumeration
 diff --git a/node_modules/types-4-strapi/src/createInterface.js b/node_modules/types-4-strapi/src/createInterface.js
-index 4dfb032..345ad09 100644
+index 4dfb032..0edddb8 100644
 --- a/node_modules/types-4-strapi/src/createInterface.js
 +++ b/node_modules/types-4-strapi/src/createInterface.js
 @@ -6,7 +6,6 @@ module.exports = (schemaPath, interfaceName) => {
@@ -149,14 +149,13 @@ index 4dfb032..345ad09 100644
      }
      tsInterface += tsProperty;
    }
-@@ -157,10 +156,9 @@ module.exports = (schemaPath, interfaceName) => {
+@@ -157,10 +156,8 @@ module.exports = (schemaPath, interfaceName) => {
    // Localization
    // -------------------------------------------------
    if (schema.pluginOptions?.i18n?.localized) {
 -    tsInterface += `    locale: string;\n`;
 -    tsInterface += `    localizations?: { data: ${interfaceName}[] }\n`;
 +    tsInterface += `  locale: string;\n`;
-+    tsInterface += `  localizations?: { data: ${interfaceName}[] }\n`;
    }
 -  tsInterface += `  }\n`;
    tsInterface += '}\n';

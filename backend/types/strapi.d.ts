@@ -15,15 +15,6 @@ type Pagination = {
   pageSize: number,
   pageCount:number,
   total: number
-} 
-
-interface Database {
-  schema: SchemaProvideer;
-  lifecycles: LifecycleProvider;
-  migrations: MigrationProvider;
-  entityManager: EntityManager;
-
-  query<T extends keyof AllTypes,K extends AllTypes[T]>(uid: T): CustomQueryFromContentType<T,K>;
 }
 
 interface BaseService {
@@ -107,7 +98,7 @@ interface CustomEntityService {
   ): Promise<T>;
 }
 
-module '@strapi/strapi' {
+declare module '@strapi/strapi' {
   export declare namespace factories {
     interface Controller {
       transformResponse(data: object, meta: object): object;
@@ -162,11 +153,36 @@ module '@strapi/strapi' {
     export function createCoreService<K extends keyof Service,T extends Service[K],P extends AllTypes[K]>(uid: K, cfg?: ServiceCallbacks<T,CoreService<K,P>> | T = {}): () => T & Required<CoreService<K,P>>;
   }
 
-  
+  /**
+   * The Custom Strapi interface implemented by the main Strapi class.
+   */
   export interface Strapi {
+    /**
+     * Custom Entity Service instance
+     */
     entityService: CustomEntityService
     db: Database
     $io: IO
     service<K extends keyof Service,T extends Service[K],P extends AllTypes[K]>(uid: K): T & Required<CoreService<K,P>>;
+  }
+}
+
+interface Database {
+  schema: SchemaProvideer;
+  lifecycles: LifecycleProvider;
+  migrations: MigrationProvider;
+  entityManager: EntityManager;
+
+  query<T extends keyof AllTypes,K extends AllTypes[T]>(uid: T): CustomQueryFromContentType<T,K>;
+}
+
+declare module '@strapi/database' {
+  export interface Database {
+    schema: SchemaProvideer;
+    lifecycles: LifecycleProvider;
+    migrations: MigrationProvider;
+    entityManager: EntityManager;
+  
+    query<T extends keyof AllTypes,K extends AllTypes[T]>(uid: T): CustomQueryFromContentType<T,K>;
   }
 }

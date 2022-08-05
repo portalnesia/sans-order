@@ -59,17 +59,17 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
     const date = Main.getDayJs();
 
     if(type === 'self_order') {
-      console.log("CHECK1")
+      //console.log("CHECK1")
       if(!outlet.self_order && process.env.NODE_ENV === 'production') return ctx.forbidden("Transactions failed. This merchant not implemented `self_order` services")
-      console.log("CHECK2")
+      //console.log("CHECK2")
       if(!service.checkOutletIsOpen(outlet) && process.env.NODE_ENV === 'production') return ctx.forbidden("Merchant is closed");
-      console.log("CHECK3")
+      //console.log("CHECK3")
       if(outlet.busy && process.env.NODE_ENV === 'production') return ctx.forbidden("Merchant is temporary closed");
-      console.log("CHECK4")
+      //console.log("CHECK4")
       const socket = await service.fetchSocket(s=>s.rooms.has(`outlet::${outlet.toko?.id}::${outlet.id}`) && !!s.data.outlet?.dashboard);
 
       if(socket.length === 0 && process.env.PN_ENV === 'production') return ctx.forbidden("Merchant is temporary closed");
-      console.log("CHECK5")
+      //console.log("CHECK5")
     }
 
     const [{total,subtotal,discount,items,items_stock},config] = await Promise.all([
@@ -180,9 +180,7 @@ async function createTransaction(strapi: Strapi,ctx: Context) {
       }),
       cashier: type === 'cashier' && user ? user.id : null,
       ...(payload?.payload ? {payload:payload.payload} : {}),
-      ...(payload?.expired ? {expired:payload.expired.toDate()} : {}),
-      ...(name ? {name} : {}),
-      ...(email ? {email} : {}),
+      ...(payload?.expired ? {expired:payload.expired.pn_format()} : {}),
       ...(metadata ? {metadata} : {}),
     }
 

@@ -75,7 +75,7 @@ export default function Header({ children, title,desc }: HeaderProps) {
       const notif = type === 'report' ? tReport('response_report') : type === 'feedback' ? tReport('response_feedback') : t('success');
       setNotif(notif,false);
     }
-  },[upload,setNotif,t,tReport])
+  },[upload,setNotif,t,tReport,dispatch])
 
   React.useEffect(()=>{
     if(!ready) {
@@ -157,6 +157,7 @@ export default function Header({ children, title,desc }: HeaderProps) {
       if(unsubcribe) unsubcribe();
       unsubcribe = undefined;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[user])
   /** END FIREBASE NOTIFICATION */
 
@@ -174,6 +175,7 @@ export default function Header({ children, title,desc }: HeaderProps) {
 };
 
 export function withForbidden<D,P extends IPages<D>>(Component: React.ComponentType<P>): React.FC<P> {
+  // eslint-disable-next-line react/display-name
   return function(props: P) {
     if((props as IPages<D>).err) {
       if(props.err === 1818) {

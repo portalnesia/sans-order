@@ -7,7 +7,7 @@ import { factories } from '@strapi/strapi';
 export type WalletService = ReturnType<typeof services>
 
 const services = ({strapi}:{strapi: Strapi}) => ({
-  async updateMoney(toko_id: string|number,type:'add'|'sub',money: number) {
+  async updateMoney(toko_id: string|number,type:'add'|'sub',money: any) {
     const wallet = await strapi.entityService.findMany('api::wallet.wallet',{
       filters:{
         toko:{
@@ -17,12 +17,13 @@ const services = ({strapi}:{strapi: Strapi}) => ({
         }
       }
     })
+    const uang = Number(money);
     if(wallet) {
       let balance: number;
       if(type === 'add') {
-        balance = wallet[0].balance + money;
+        balance = Number(wallet[0].balance) + uang;
       } else {
-        balance = wallet[0].balance - money;
+        balance = Number(wallet[0].balance) - uang;
       }
 
       return await strapi.entityService.update('api::wallet.wallet',wallet[0].id,{

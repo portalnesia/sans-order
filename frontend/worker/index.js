@@ -1,7 +1,7 @@
 importScripts('https://www.gstatic.com/firebasejs/7.19.0/firebase-app.js');
 importScripts('https://www.gstatic.com/firebasejs/7.19.0/firebase-messaging.js');
 
-self.WB_DISABLE_DEV_LOGS = true;
+self.__WB_DISABLE_DEV_LOGS = true;
 
 firebase.initializeApp({
   apiKey: "AIzaSyAQ7u4UWLyPZ9dgL9cwtBbXs4GX3th00Bg",

@@ -1,6 +1,6 @@
 // material
-import { Box, Grid, Container, Typography, IconButton,TextField,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,TableFooter,Card, MenuItem, ListItemIcon, ListItemText, Collapse,Portal, alpha} from '@mui/material';
-import {Close,Add,Remove,ExpandMore as ExpandMoreIcon, CheckBox, CheckBoxOutlineBlank} from '@mui/icons-material'
+import { Box, Grid, Container, Typography, IconButton,TextField,Table,TableHead,TableRow,TableBody,TableCell,TablePagination,CircularProgress,Stack,TableFooter,Card, MenuItem, ListItemIcon, ListItemText, Portal, alpha} from '@mui/material';
+import {Close,Add,Remove,CheckBox, CheckBoxOutlineBlank} from '@mui/icons-material'
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/dashboard/index'
@@ -8,7 +8,7 @@ import React from 'react'
 import useNotif from '@utils/notification'
 import {useAPI} from '@utils/api'
 import Button from '@comp/Button'
-import {Outlet,IPages,Product, TransactionItem, Transaction, colorStatus, colorOrderStatus,ORDER_STATUS} from '@type/index'
+import {Outlet,IPages,Product, Transaction, colorStatus, colorOrderStatus} from '@type/index'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import {wrapper,useSelector,State} from '@redux/index'
 import {useTranslation} from 'next-i18next';
@@ -25,7 +25,6 @@ import dynamic from 'next/dynamic'
 import usePagination from '@comp/TablePagination'
 import { numberFormat, ucwords } from '@portalnesia/utils';
 import handlePrint from '@utils/print';
-import ExpandMore from '@comp/ExpandMore';
 import Label from '@comp/Label';
 import { KeyedMutator } from 'swr';
 import useSocket from '@utils/Socket';
@@ -130,7 +129,7 @@ function DialogPay({items,total,open,onClose,pending,onSuccess,table_number}: Pa
     } finally {
       setLoading(false);
     }
-  },[post,cash,items,total,tCom,toko_id,outlet_id,pending,handleClose,TN])
+  },[post,cash,items,total,tCom,outlet_id,pending,handleClose,TN,onSuccess,setNotif])
 
   React.useEffect(()=>{
     if(open) {
@@ -280,7 +279,7 @@ function OutletCashier() {
       setItems(newData);
     }
     if(d?.token) handlePrint(d?.token,'action=cashaier');
-  },[data,outlet_id])
+  },[data])
 
   React.useEffect(()=>{
     if(data) {
@@ -334,10 +333,10 @@ function OutletCashier() {
                     <TableRow>
                       <TableCell align='center' colSpan={5} sx={{ py: 3 }}>{tCom("no_what",{what:tMenu("products")})}</TableCell>
                     </TableRow>
-                  ) : selected.map((d,i)=>{
+                  ) : selected.map((d)=>{
                     const disc = getDisscount(d)
                     return (
-                      <TableRow id={`products-${d.id}`}>
+                      <TableRow key={`transaction-${d.id}`} id={`products-${d.id}`}>
                         <TableCell>{d.name}</TableCell>
                         <TableCell align='center'>
                           <Box>
@@ -409,7 +408,7 @@ function OutletCashier() {
                 ) : productItems?.map((d)=>{
                   const disc = getDisscount(d)
                   return (
-                    <TableRow>
+                    <TableRow key={`transaction-${d.id}`}>
                       <TableCell align='left'>{d?.name}</TableCell>
                       <TableCell align='center'>
                         <Box>
@@ -471,7 +470,7 @@ function Menu({data,disabled,mutate,onDetail}: IMenu) {
     }
     setDialog(null);
     setOpen(false);
-  },[toko_id,outlet_id])
+  },[])
 
   const onPaySuccess=React.useCallback((d: any)=>{
     if(typeof d?.token === 'string') setDialog(d?.token);
@@ -489,7 +488,7 @@ function Menu({data,disabled,mutate,onDetail}: IMenu) {
     } finally {
       setLoading(null);
     }
-  },[mutate,put,setNotif,data.id,toko_id,outlet_id,tCom]);
+  },[mutate,put,setNotif,data.id,outlet_id,tCom]);
 
   const handleDetail = React.useCallback(()=>{
     setOpen(false)
@@ -846,6 +845,7 @@ export default function OutletCashierGeneral({meta}: IPages<Outlet>) {
     if(typeof slug?.[0] === 'undefined') {
       router.replace(`/apps/[toko_id]/[outlet_id]/order/cashier`,`/apps/${toko_id}/${outlet_id}/order/cashier`,{shallow:true})
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[slug,toko_id,outlet_id])
 
   return (

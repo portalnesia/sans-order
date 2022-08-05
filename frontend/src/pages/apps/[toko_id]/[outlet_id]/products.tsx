@@ -8,9 +8,7 @@ import React from 'react'
 import useNotif from '@utils/notification'
 import {useAPI} from '@utils/api'
 import Button from '@comp/Button'
-import Backdrop from '@comp/Backdrop'
 import Image from '@comp/Image'
-import Popover from '@comp/Popover'
 import {Outlet,IPages,Product, Without, Ingredient, Nullable, File} from '@type/index'
 import wrapper from '@redux/store'
 import {useTranslation} from 'next-i18next';
@@ -20,7 +18,6 @@ import Iconify from '@comp/Iconify';
 import MenuPopover from '@comp/MenuPopover'
 import useOutlet from '@utils/useOutlet'
 import Scrollbar from '@comp/Scrollbar'
-import Avatar from '@comp/Avatar'
 import Label from '@comp/Label'
 import {useMousetrap} from '@utils/useKeys'
 import usePagination from '@comp/TablePagination'
@@ -70,7 +67,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
       return;
     }
     setInput({...input,[name]:val||null})
-  },[input])
+  },[input,setInput])
 
   const handleInputChange=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: string,reason: AutocompleteInputChangeReason)=>{
     if(reason==='input') return handleAutocompleteInputChange(e,value,reason);
@@ -83,7 +80,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
 
   const handleChecked = React.useCallback((name: keyof IInputProduct)=>(e?: React.ChangeEvent<HTMLInputElement>)=>{
     setInput({...input,[name]:e?.target?.checked||false})
-  },[input])
+  },[input,setInput])
 
   const handleAutocomplete=React.useCallback((e: React.SyntheticEvent<Element, Event>, value: Ingredient | null,reason: AutocompleteChangeReason)=>{
     if(value) {
@@ -108,7 +105,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
     setInput({...input,recipes})
     setEdit(null);
     setDEdit(false)
-  },[edit,input])
+  },[edit,input,setInput,setNotif])
 
   const handleDeleteStocks = React.useCallback((item: IRecipes)=>()=>{
     const recipes = input.recipes||[];
@@ -117,7 +114,7 @@ function Form({input,setInput,loading,openBrowser,autoFocus,ingOptions,ingLoadin
       recipes.splice(i,1);
       setInput({...input,recipes})
     }
-  },[input])
+  },[input,setInput])
 
   const handleEditStock = React.useCallback((item: IRecipes)=>()=>{
     setEdit({item: item.item,consume: item.consume})
@@ -543,7 +540,7 @@ export default function OutletProducts({meta}: IPages<Outlet>) {
         }).finally(()=>setIngLoading(false))
       }
     }
-  },[ingOptions])
+  },[ingOptions,get,outlet_id])
 
   useMousetrap(['+','shift+='],buttonCreate);
 
@@ -635,7 +632,7 @@ export default function OutletProducts({meta}: IPages<Outlet>) {
                         <TableCell sx={{whiteSpace:'nowrap'}}>{`Rp${numberFormat(`${d.hpp}`)}`}</TableCell>
                         <TableCell>
                           {d?.recipes?.map(s=>(
-                            <Typography variant='body2' sx={{fontSize:13}} >{`${s?.item?.name||''}: ${s?.consume||''} ${s?.item?.unit||''}`}</Typography>
+                            <Typography key={`recipes-${s.id}`} variant='body2' sx={{fontSize:13}} >{`${s?.item?.name||''}: ${s?.consume||''} ${s?.item?.unit||''}`}</Typography>
                           ))}
                         </TableCell>
                         <TableCell align="center">

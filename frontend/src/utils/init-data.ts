@@ -93,6 +93,7 @@ export default function useIniData() {
     return ()=>{
       if(unsubcribe) unsubcribe();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 
   useEffect(()=>{
@@ -114,7 +115,7 @@ export default function useIniData() {
     if(readyInit && user===null) {
       initUser();
     }
-  },[readyInit,user])
+  },[readyInit,user,dispatch])
 
   useEffect(()=>{
     if(router.isReady) {
@@ -124,6 +125,7 @@ export default function useIniData() {
         router.replace({pathname,query},asPath,{locale:(locale||'en')})
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[router.isReady])
 
   return {adBlock}

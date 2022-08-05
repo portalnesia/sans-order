@@ -322,14 +322,14 @@ export function Markdown({source,skipHtml,preview,...other}: MarkdrownProps) {
       const html = DOMPurify.sanitize(hhtm, {FORBID_TAGS: forb,USE_PROFILES: {html: true}})
       setHtml(html);
     }
-  },[source,preview])
+  },[source,preview,skipHtml])
   const finalHtml = React.useMemo(()=>{
     if(preview) {
       const hhtm = convertToHtml(source,preview);
       return hhtm;
     }
     return html;
-  },[preview,html])
+  },[preview,html,source])
 
   if(!finalHtml) return <Loading />
   return <Parser preview={preview} html={finalHtml} {...other} />

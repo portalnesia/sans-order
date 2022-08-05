@@ -52,10 +52,10 @@ export default function AccountPopover() {
     portalnesia.logout()
     dispatch({type:"CUSTOM",payload:{user:false}});
     window.location.reload();
-  },[])
+  },[dispatch])
 
   const login = useCallback(()=>{
-    const {pathname,query,asPath} = router;
+    const {pathname,query,asPath} = {pathname:router.pathname,query:router.query,asPath:router.asPath};
     SessionStorage.set('auth',{pathname,query,asPath})
     const url = portalnesia.getAuthUrl()
     window.location.href = url;

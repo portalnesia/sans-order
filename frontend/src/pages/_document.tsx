@@ -11,6 +11,7 @@ class MyDocument extends Document {
         <Head>
           <meta key='meta-2' httpEquiv='Content-Type' content='text/html; charset=utf-8' />
           <link rel="icon" href="/favicon.ico" />
+          {/* eslint-disable-next-line @next/next/no-page-custom-font */}
           <link rel="stylesheet" href='https://fonts.googleapis.com/css?family=Inter|Roboto|Material+Icons&display=swap' />
           
           <link rel="icon" type="image/png" sizes="512x512" href="/icon/android-icon-512x512.png" />
@@ -30,7 +31,9 @@ class MyDocument extends Document {
           <meta name="msapplication-TileImage" content={`/icon/ms-icon-144x144.png`} />
           <link rel="manifest" href="/manifest.json"/>
           <meta name="msapplication-config" content="/browserconfig.xml" />
+          {/* eslint-disable-next-line @next/next/no-css-tags */}
           <link className='higtlightjs-light' rel='stylesheet' href='/css/github.css' />
+          {/* eslint-disable-next-line @next/next/no-css-tags */}
           <link className='higtlightjs-dark' rel='stylesheet' href='/css/github-dark.css' />
         </Head>
         <body>

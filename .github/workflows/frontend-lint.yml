@@ -1,0 +1,48 @@
+name: Frontend Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths: 'frontend/**'
+  push:
+    branches:
+      - main
+    paths: 'frontend/**'
+
+jobs:
+  frontend-lint:
+    runs-on: ubuntu-18.04
+
+    defaults:
+      run:
+        working-directory: 'frontend'
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    env:
+      NODE_ENV: test
+      APII_PORT: 30000
+      PORT: 3000
+      NEXT_PUBLIC_PN_ENV: development
+      NEXT_PUBLIC_RECAPTCHA: null
+      NEXT_PUBLIC_URL: http://localhost:3000
+      NEXT_PUBLIC_API_URL: http://localhost:30000
+      JWT_SECRET: ${{secrets.BACKEND_JWT_SECRET}}
+      NEXT_PUBLIC_CONTENT_URL: https://content.portalnesia.com
+      NEXT_PUBLIC_PORTAL_URL: https://portalnesia.com
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      - name: Install Depedencies
+        run: npm ci
+      - name: Run Lint
+        run: npm run lint

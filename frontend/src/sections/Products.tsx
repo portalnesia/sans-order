@@ -68,7 +68,7 @@ export default function Products({ items,maxWidth,enabled }: ProductsProps) {
     //else if(type === 'remove') removeQty({...item,discount:0})
     manualQty({...item},qty,notes);
     setOpen(false);
-  },[items,,manualQty,qty,notes])
+  },[items,discount,manualQty,qty,notes])
 
   const cartQty = useMemo(()=>{
     const find = cart.find(c=>c.item.id === items.id);
@@ -97,7 +97,7 @@ export default function Products({ items,maxWidth,enabled }: ProductsProps) {
       }]
     })
     setOpen(true)
-  },[name, image, finalPrice, id, metadata, discount,category])
+  },[name, finalPrice, id,, discount,category])
 
   return (
     <Card {...(maxWidth ? {sx:{width:{xs:200,md:250,lg:300}}} : {})}>
