@@ -1,7 +1,6 @@
 // component
 import Iconify from '../../components/Iconify';
 import type {TFunction} from 'next-i18next'
-import type {NextRouter} from 'next/router'
 import { INavItems } from '@comp/NavSection';
 // ----------------------------------------------------------------------
 

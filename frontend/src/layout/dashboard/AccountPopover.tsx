@@ -13,22 +13,20 @@ import portalnesia from '@utils/api'
 import SessionStorage from '@utils/session-storage'
 import Backdrop from '@comp/Backdrop'
 import {useTranslation,TFunction} from 'next-i18next'
-import cookie from 'js-cookie'
 import { useRouter } from 'next/router';
-import LocalStorage from '@utils/local-storage';
 
 const MENU_OPTIONS = (t: TFunction,user: PortalnesiaUser)=>([
   {
     label: t("profile"),
     icon: 'eva:person-fill',
     target:'_blank',
-    linkTo: `${process.env.PORTAL_URL}/user/${user.username}`
+    linkTo: `${process.env.NEXT_PUBLIC_PORTAL_URL}/user/${user.username}`
   },
   {
     label: t("setting"),
     icon: 'eva:settings-2-fill',
     target:'_blank',
-    linkTo: `${process.env.PORTAL_URL}/setting`
+    linkTo: `${process.env.NEXT_PUBLIC_PORTAL_URL}/setting`
   }
 ]);
 

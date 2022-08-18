@@ -2,6 +2,7 @@
  *  product controller
  */
 
+import { isTrue } from '@portalnesia/utils';
 import { factories } from '@strapi/strapi'
 import { Outlet } from '../../../../types/Outlet';
 import { Product } from '../../../../types/Product';
@@ -69,16 +70,19 @@ export default factories.createCoreController('api::product.product',({strapi}) 
     if(typeof category === 'string') {
       const page = ctx?.query?.pagination?.page;
       const pageSize = ctx?.query?.pagination?.pageSize||ctx?.query.size
+      const isAll = isTrue(ctx?.query?.all);
 
       const filters = {
         ...ctx.query.filters,
-        category:{
-          ...(category.toLowerCase() == 'uncategory' ? {
-            $null: true
-          } : {
-            $eq: category
-          })
-        },
+        ...(!isAll ? {
+          category:{
+            ...(category.toLowerCase() == 'uncategory' ? {
+              $null: true
+            } : {
+              $eq: category
+            })
+          },
+        } : {}),
         show_in_menu:{
           $eq:true
         },

@@ -1,4 +1,4 @@
-import {useCallback,useState,useEffect,useRef} from 'react'
+import {useEffect,useRef} from 'react'
 
 type MouseTrapKeySequence = string | Array<string>;
 type RefObject=(event?: KeyboardEvent)=>void

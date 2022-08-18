@@ -1,7 +1,6 @@
 import {HYDRATE} from 'next-redux-wrapper';
 import {State,ActionType} from '../types'
 import {Reducer} from 'redux'
-import { ISocket } from '@utils/Socket';
 
 const initialState: State={
   theme:'auto',
