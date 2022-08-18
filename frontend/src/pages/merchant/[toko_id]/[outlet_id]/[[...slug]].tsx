@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { Box, Grid, Container, Typography, Stack, Table, TableBody, TableRow, TableCell } from '@mui/material';
+import { Box, Grid, Container, Typography, Stack, Table, TableBody, TableRow, TableCell,Hidden, List } from '@mui/material';
 // components
 import Header from '@comp/Header';
 import Dashboard from '@layout/home/index'
@@ -42,20 +42,29 @@ function Carousel({data,enabled}: CarouselProps) {
   const {toko_id,outlet_id,slug} = router.query;
   return (
     <>
-      <Stack mb={4} direction='row' justifyContent={'space-between'} alignItems='center' spacing={2} sx={{pb:1,mb:4,borderBottom:(theme)=>`1px solid ${theme.palette.divider}`}}>
+      <Stack mb={4} direction='row' justifyContent={'space-between'} alignItems='center' spacing={2} sx={{pb:1,mb:{sx:2,sm:4},borderBottom:(theme)=>`1px solid ${theme.palette.divider}`}}>
         <Typography variant='h3' component='h3'>{data.category}</Typography>
         {!slug && data.data.length >= 5 && (
           <Button size='small' onClick={()=>router.push(`/merchant/[toko_id]/[outlet_id]/[[...slug]]`,`/merchant/${toko_id}/${outlet_id}/${encodeURIComponent(data.category)}`,{shallow:true})}>{t("view_more")}</Button>
         )}
       </Stack>
       <Box>
-        <Scrollbar>
-          <Box display='flex' flexDirection="row" alignItems="center">
+        <Hidden smDown>
+          <Scrollbar>
+            <Box display='flex' flexDirection="row" alignItems="center">
+              {data.data.map((d,i)=>(
+                <Box key={d.id} px={1}><Products enabled={enabled} maxWidth items={d} /></Box>
+              ))}
+            </Box>
+          </Scrollbar>
+        </Hidden>
+        <Hidden smUp>
+          <List>
             {data.data.map((d,i)=>(
-              <Box key={d.id} px={1}><Products enabled={enabled} maxWidth items={d} /></Box>
+              <Products key={`${d.id}`} enabled={enabled} maxWidth items={d} />
             ))}
-          </Box>
-        </Scrollbar>
+          </List>
+        </Hidden>
       </Box>
     </>
   )
@@ -76,23 +85,35 @@ function GridData({data,page,setPage,count,onBack,enabled}: GridDataProps) {
 
   return (
     <>
-      <Stack mb={4} direction='row' justifyContent={'space-between'} alignItems='center' spacing={2} sx={{pb:1,mb:4,borderBottom:(theme)=>`1px solid ${theme.palette.divider}`}}>
+      <Stack mb={4} direction='row' justifyContent={'space-between'} alignItems='center' spacing={2} sx={{pb:1,mb:{sx:2,sm:4},borderBottom:(theme)=>`1px solid ${theme.palette.divider}`}}>
         <Typography variant='h3' component='h3'>{ucwords(slug?.[0] as string)}</Typography>
         {typeof slug?.[0] === 'string' && (
           <Button size='small' onClick={onBack}>{t("back")}</Button>
         )}
       </Stack>
       <Box>
-        <Grid container spacing={4}>
-          {data.data.map((d,i)=>(
-            <Grid item xs={12} sm={6} md={4} lg={3} key={`product-${d.id}`}>
-              <Products enabled={enabled} items={d} />
+        <Hidden smDown>
+          <Grid container spacing={4}>
+            {data.data.map((d,i)=>(
+              <Grid item xs={12} sm={6} md={4} lg={3} key={`product-${d.id}`}>
+                <Products enabled={enabled} items={d} />
+              </Grid>
+            ))}
+            <Grid item xs={12}>
+              <Pagination page={page} onChange={setPage} count={count} />
             </Grid>
-          ))}
-          <Grid item xs={12}>
-            <Pagination page={page} onChange={setPage} count={count} />
           </Grid>
-        </Grid>
+        </Hidden>
+        <Hidden smUp>
+          <List>
+            {data.data.map((d,i)=>(
+              <Products key={`product-${d.id}`} enabled={enabled} items={d} />
+            ))}
+          </List>
+          <Box mt={2}>
+            <Pagination page={page} onChange={setPage} count={count} />
+          </Box>
+        </Hidden>
       </Box>
     </>
   )
@@ -181,7 +202,7 @@ function MerchantOutlet({meta}: IPages<Outlet>) {
         whatsappWidget={{enabled:false}}>
           <Container maxWidth='lg' sx={{mt:2}}>
             <Box textAlign='center' mb={4}>
-              {meta?.data?.toko?.logo?.url && <Box mb={2} display='flex' justifyContent={'center'}><Image alt={meta?.data?.toko?.name} src={meta?.data?.toko?.logo?.url} style={{maxHeight:300}} fancybox /></Box>}
+              {meta?.data?.toko?.logo?.url && <Box mb={2} display='flex' justifyContent={'center'}><Image alt={meta?.data?.toko?.name} src={meta?.data?.toko?.logo?.url} style={{maxHeight:200}} fancybox /></Box>}
               <Typography gutterBottom variant='h2' component='h2'>{meta?.data.name}</Typography>
               {meta?.data.address && <Typography gutterBottom variant='body2'>{meta?.data.address}</Typography>}
               <Typography gutterBottom variant='h3' component='h3' sx={{color:status.color,mt:4}}>{status.text}</Typography>

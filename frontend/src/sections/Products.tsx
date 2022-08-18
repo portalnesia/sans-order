@@ -1,19 +1,14 @@
-import Link from 'next/link'
-import {Close,Add,Remove} from '@mui/icons-material'
-import { Box, Card, Typography, Stack, CardMedia, CardContent, TextareaAutosize, IconButton,Badge, CardActionArea, Divider,Portal, Grid, Chip, TextField } from '@mui/material';
+import {Add,Remove} from '@mui/icons-material'
+import { Box, Card, Typography, Stack, CardMedia, CardContent, IconButton,Badge, CardActionArea, Portal, Grid, Chip, TextField,Hidden, ListItemButton, ListItemText, ListItemSecondaryAction, ListItemAvatar } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Image from '@comp/Image'
-import Label from '@comp/Label'
 import { numberFormat } from '@portalnesia/utils';
-import { TransactionItemCreate, ProductMenu } from '@type/index';
-import { getDayJs, isBetweenHour, photoUrl } from '@utils/Main';
-import Iconify from '@comp/Iconify';
+import { ProductMenu } from '@type/index';
+import { photoUrl } from '@utils/Main';
 import Button from '@comp/Button';
 import {Markdown} from '@comp/Parser'
 import {Context, Items} from '@redux/cart'
-import { useRouter } from 'next/router';
 import { useCallback, useMemo,useContext,MouseEvent, useState, useEffect } from 'react';
-import useOutlet from '@utils/useOutlet';
 import dynamic from 'next/dynamic'
 import { useTranslation } from 'next-i18next';
 import {getAnalytics,logEvent} from '@utils/firebase'
@@ -100,19 +95,64 @@ export default function Products({ items,maxWidth,enabled }: ProductsProps) {
   },[name, finalPrice, id,, discount,category])
 
   return (
-    <Card {...(maxWidth ? {sx:{width:{xs:200,md:250,lg:300}}} : {})}>
-      <CardActionArea onClick={clickProduct}>
-        <CardMedia sx={{position:'relative'}}>
-          <ProductImgStyle alt={name} src={`${photoUrl(image?.url||null)}`} sx={{width:'100%',height:'auto'}} />
-        </CardMedia>
-        <CardContent sx={{pb:{xs:2,lg:3},px:{xs:2,lg:3,pt:{xs:2,lg:3}}}}>
-          <Stack spacing={2}>
-            <Typography noWrap>
-              {name}
-            </Typography>
+    <>
+      <Hidden smDown key={`${id}-smdown`}>
+        <Card {...(maxWidth ? {sx:{width:{xs:200,md:250,lg:300}}} : {})}>
+          <CardActionArea onClick={clickProduct}>
+            <CardMedia sx={{position:'relative'}}>
+              <ProductImgStyle alt={name} src={`${photoUrl(image?.url||null)}`} sx={{width:'100%',height:'auto'}} />
+            </CardMedia>
+            <CardContent sx={{pb:{xs:2,lg:3},px:{xs:2,lg:3,pt:{xs:2,lg:3}}}}>
+              <Stack spacing={2}>
+                <Typography noWrap>
+                  {name}
+                </Typography>
 
-            <Stack direction="row" alignItems="center" justifyContent="space-between">
-              <Typography variant="subtitle1">
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                  <Typography variant="subtitle1">
+                    {((discount||0) > 0) && (
+                      <>
+                        <Typography
+                          component="span"
+                          variant="body1"
+                          sx={{
+                            color: 'text.disabled',
+                            textDecoration: 'line-through',
+                            fontSize:13
+                          }}
+                        >
+                          {numberFormat(`${price}`)}
+                        </Typography>
+                        &nbsp;
+                      </>
+                    )}
+                    {`Rp${numberFormat(`${finalPrice}`)}`}
+                  </Typography>
+                  {cartQty > 0 && (
+                    <Box sx={{px:{xs:2,lg:3}}}>
+                      <Badge badgeContent={cartQty} color="secondary" max={10} />
+                    </Box>
+                  )}
+                </Stack>
+              </Stack>
+            </CardContent>
+          </CardActionArea>
+        </Card>
+      </Hidden>
+      <Hidden smUp key={`${id}-smup`}>
+        <ListItemButton onClick={clickProduct} sx={{margin:'0 -16px'}}>
+          <ListItemAvatar>
+            <ProductImgStyle alt={name} src={`${photoUrl(image?.url||null)}`} sx={{width:80,height:'auto'}} />
+          </ListItemAvatar>
+          <ListItemText
+            disableTypography
+            primary={
+              <Typography noWrap variant="subtitle1" sx={{fontSize:'1.1rem'}}>
+                {name}
+              </Typography>
+            }
+            secondary={
+              <Typography>
                 {((discount||0) > 0) && (
                   <>
                     <Typography
@@ -131,15 +171,16 @@ export default function Products({ items,maxWidth,enabled }: ProductsProps) {
                 )}
                 {`Rp${numberFormat(`${finalPrice}`)}`}
               </Typography>
-              {cartQty > 0 && (
-                <Box sx={{px:{xs:2,lg:3}}}>
-                  <Badge badgeContent={cartQty} color="secondary" max={10} />
-                </Box>
-              )}
-            </Stack>
-          </Stack>
-        </CardContent>
-      </CardActionArea>
+            }
+          />
+          {cartQty > 0 && (
+            <ListItemSecondaryAction sx={{justifyContent:'center',alignItems:'center',textAlign:'center'}}>
+              <Typography variant="h4" sx={{fontWeight:'normal'}}>{cartQty}</Typography>
+              <Typography sx={{color: 'text.disabled',fontSize:13}}>pcs</Typography>
+            </ListItemSecondaryAction>
+          )}
+        </ListItemButton>
+      </Hidden>
       {/*enabled && (
         <>
           <Divider />
@@ -160,11 +201,15 @@ export default function Products({ items,maxWidth,enabled }: ProductsProps) {
         </>
         
       )*/}
-      <Portal>
+      <Portal key={`${id}`}>
         <Dialog open={open} onClose={()=>setOpen(false)}>
           <DialogTitle>{name}</DialogTitle>
           <DialogContent>
             <Grid container spacing={4}>
+              <Grid item xs={12}>
+                <Box mt={2} display='flex' justifyContent={'center'}><ProductImgStyle alt={name} src={`${photoUrl(image?.url||null)}`} fancybox sx={{maxWidth:200,height:'auto'}} /></Box>
+              </Grid>
+              
               <Grid item xs={12}>
                 {description ? <Markdown source={description} /> : <Typography>{tCom('no_what',{what:tCom('description').toLowerCase()})}</Typography>}
               </Grid>
@@ -205,6 +250,6 @@ export default function Products({ items,maxWidth,enabled }: ProductsProps) {
           </DialogActions>
         </Dialog>
       </Portal>
-    </Card>
+    </>
   )
 }

@@ -50,7 +50,7 @@ export default function MerchantIndex({meta}: IPages<Toko>) {
 					) : toko ? (
 						<>
 							<Box textAlign='center' mb={4}>
-								{toko?.data.logo && <Box mb={2}><Image alt={toko?.data?.name} src={toko?.data.logo.url} style={{width:300,height:'auto'}} withPng fancybox /></Box>}
+								{toko?.data.logo && <Box mb={2} display='flex' justifyContent={'center'}><Image alt={toko?.data?.name} src={toko?.data.logo.url} style={{maxHeight:200}} fancybox /></Box>}
 								<Typography gutterBottom variant='h2' component='h2'>{toko?.data.name}</Typography>
 								{toko?.data.slogan && <Typography variant='body2'>{toko?.data.slogan}</Typography>}
 							</Box>

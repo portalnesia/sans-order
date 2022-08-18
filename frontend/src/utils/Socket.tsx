@@ -1,4 +1,4 @@
-import React, {useEffect,useState} from 'react'
+import React, {useEffect} from 'react'
 import io,{Socket as ISocket} from 'socket.io-client'
 import portalnesia from '@utils/api'
 import { useRouter } from 'next/router';

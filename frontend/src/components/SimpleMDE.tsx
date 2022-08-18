@@ -39,9 +39,15 @@ const Div = styled("div")<{disabled?:boolean}>(({theme,disabled})=>({
       caretColor: theme.palette.text.primary
     },
     '& .editor-preview pre':{
-      background:'unset !important',
+      background: theme.palette.mode === 'dark' ? '#0d1117' : 'rgba(0,0,0,0.04)',
+      padding:'1em',
+      borderRadius:'0.5rem',
       marginTop:16,
-      marginBottom:16
+      marginBottom:16,
+      '& code':{
+        background:'unset !important',
+        borderRadius:'unset !important'
+      }
     }
 }))
 
@@ -58,7 +64,7 @@ const Simple=(props: SimpleMDEProps)=>{
     const router = useRouter();
     const editor = React.useRef<any>()
     const [browser,setBrowser] = React.useState(false)
-    const redux_theme = useSelector<State['redux_theme']>(s=>s.redux_theme)
+    //const redux_theme = useSelector<State['redux_theme']>(s=>s.redux_theme)
 
     const handleChange=React.useCallback((text: string)=>{
         if(disabled) return;

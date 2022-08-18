@@ -1,8 +1,8 @@
 import Portalnesia from '@portalnesia/portalnesia-strapi'
 import {useSelector,State,useDispatch} from '@redux/index'
-import { useCallback, useRef,useEffect, useState, useMemo } from 'react';
-import type {AxiosAdapter,AxiosError, AxiosRequestHeaders} from 'axios'
-import axios,{AxiosRequestConfig} from 'axios';
+import { useCallback, useMemo } from 'react';
+import type {AxiosError, AxiosRequestHeaders} from 'axios'
+import {AxiosRequestConfig} from 'axios';
 
 export type {PortalnesiaOptions} from '@portalnesia/portalnesia-strapi'
 

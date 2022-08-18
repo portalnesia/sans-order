@@ -1,6 +1,6 @@
 {
   "name": "@portalnesia/sans-order",
-  "version": "0.0.2-beta.2",
+  "version": "1.0.0-beta.1",
   "description": "Sans Order System by Portalnesia",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,9 +11,8 @@
     "build": "npm run build:backend && cd ../frontend && npm run build",
     "start:backend": "SET \"ENV_PATH=./backend/.env\" && node backend/server.js",
     "start:frontend": "node frontend/server.js",
-    "t4s":"cd ./backend && npm run t4s",
-    "tsc": "cd ./frontend && npm run tsc",
-    "version": "cd ./frontend && npm run version"
+    "t4s": "cd ./backend && npm run t4s",
+    "tsc": "cd ./frontend && npm run tsc"
   },
   "repository": {
     "type": "git",

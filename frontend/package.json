@@ -1,6 +1,6 @@
 {
   "name": "sans-order-frontend",
-  "version": "0.0.2-beta.3",
+  "version": "1.0.0-beta.1",
   "description": "Sans Order System by Portalnesia",
   "private": true,
   "main": "index.js",

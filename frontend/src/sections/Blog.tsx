@@ -1,9 +1,7 @@
 import { alpha, styled } from '@mui/material/styles';
 import Link from 'next/link'
-import { Box, Card, Grid, Typography, CardContent, CardActionArea } from '@mui/material';
+import { Card, Grid, Typography, CardContent, CardActionArea } from '@mui/material';
 import Avatar from '@comp/Avatar';
-import Iconify from '@comp/Iconify'
-import SvgIcon from '@comp/SvgIcon'
 import { Blog } from '@type/index';
 import Image from '@comp/Image';
 import { getDayJs, photoUrl } from '@utils/Main';
